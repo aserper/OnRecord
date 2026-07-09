@@ -1,5 +1,6 @@
 import { createTheme, useMediaQuery } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import { selectDarkMode } from "./redux/modules/user/selector";
 
 export const useTheme = () => {

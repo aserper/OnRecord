@@ -1,17 +1,19 @@
-import { CircularProgress, Grid } from "@mui/material";
 import { TimelapseOutlined } from "@mui/icons-material";
+import { CircularProgress, Grid } from "@mui/material";
+
 import Header from "../../components/Header";
-import { AlbumStatsResponse } from "../../services/apis/api";
-import InlineArtist from "../../components/InlineArtist";
 import IdealImage from "../../components/IdealImage";
-import FirstAndLast from "../ArtistStats/FirstAndLast";
-import InlineTrack from "../../components/InlineTrack";
-import TitleCard from "../../components/TitleCard";
-import Text from "../../components/Text";
 import ImageTwoLines from "../../components/ImageTwoLines";
+import InlineArtist from "../../components/InlineArtist";
+import InlineTrack from "../../components/InlineTrack";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { AlbumStatsResponse } from "../../services/apis/api";
 import { msToDuration } from "../../services/stats";
-import s from "./index.module.css";
+import FirstAndLast from "../ArtistStats/FirstAndLast";
 import AlbumRank from "./AlbumRank";
+
+import s from "./index.module.css";
 
 interface AlbumStatsProps {
   stats: AlbumStatsResponse;

@@ -1,15 +1,17 @@
-import { useSelector } from "react-redux";
 import { Skeleton } from "@mui/material";
 import clsx from "clsx";
+import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import { msToMinutes } from "../../../services/stats";
 import { getImage } from "../../../services/tools";
+import InlineTrack from "../../InlineTrack";
+import Text from "../../Text";
 import TitleCard from "../../TitleCard";
 import { ImplementedCardProps } from "../types";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
-import Text from "../../Text";
-import InlineTrack from "../../InlineTrack";
+
 import s from "./index.module.css";
 
 interface BestSongProps extends ImplementedCardProps {}

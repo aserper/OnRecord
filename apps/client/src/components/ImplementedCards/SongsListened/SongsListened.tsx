@@ -1,15 +1,17 @@
-import { useSelector } from "react-redux";
-import clsx from "clsx";
 import { Skeleton } from "@mui/material";
+import clsx from "clsx";
+import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
+import { getLastPeriod, getPercentMore } from "../../../services/stats";
 import { Timesplit } from "../../../services/types";
+import Text from "../../Text";
 import TitleCard from "../../TitleCard";
 import { ImplementedCardProps } from "../types";
+
 import s from "../index.module.css";
-import { getLastPeriod, getPercentMore } from "../../../services/stats";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
-import Text from "../../Text";
 
 interface SongsListenedProps extends ImplementedCardProps {}
 

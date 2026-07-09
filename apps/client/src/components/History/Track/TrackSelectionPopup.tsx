@@ -1,9 +1,10 @@
 import { Popover } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { VirtualElement } from "../../RightClickable/RightClickable";
+
 import { setPlaylistContext } from "../../../services/redux/modules/playlist/reducer";
 import { MenuItem } from "../../MenuItem/MenuItem";
 import { MenuTitle } from "../../MenuTitle/MenuTitle";
+import { VirtualElement } from "../../RightClickable/RightClickable";
 
 interface TrackSelectionPopupProps {
   anchor: VirtualElement | undefined;

@@ -1,18 +1,19 @@
+import { Tooltip as MuiTooltip } from "@mui/material";
 import { PureComponent, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { Tooltip as MuiTooltip } from "@mui/material";
 import { Link } from "react-router-dom";
+
 import { api, DEFAULT_ITEMS_TO_LOAD } from "../../../services/apis/api";
 import { useAPI, useResizeDebounce } from "../../../services/hooks/hooks";
-import Bar from "../../charts/Bar";
-import { ImplementedChartProps } from "../types";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
+import { getAtLeastImage } from "../../../services/tools";
 import { Artist } from "../../../services/types";
 import ChartCard from "../../ChartCard";
-import { getAtLeastImage } from "../../../services/tools";
-import LoadingImplementedChart from "../LoadingImplementedChart";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
+import Bar from "../../charts/Bar";
 import Tooltip from "../../Tooltip";
 import { TitleFormatter } from "../../Tooltip/Tooltip";
+import LoadingImplementedChart from "../LoadingImplementedChart";
+import { ImplementedChartProps } from "../types";
 
 interface BestArtistsBarProps extends ImplementedChartProps {}
 

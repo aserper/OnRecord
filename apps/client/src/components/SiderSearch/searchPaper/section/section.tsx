@@ -2,6 +2,7 @@ import { enterClicks } from "../../../../services/html";
 import { SpotifyImage } from "../../../../services/types";
 import IdealImage from "../../../IdealImage";
 import Text from "../../../Text";
+
 import s from "./index.module.css";
 
 interface SectionProps<T extends { id: string }> {

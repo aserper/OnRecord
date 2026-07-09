@@ -9,8 +9,9 @@ import {
   RadioGroup,
   Select,
 } from "@mui/material";
-import React, { useState } from "react";
 import { endOfDay, startOfDay } from "date-fns";
+import React, { useState } from "react";
+
 import { getAppropriateTimesplitFromRange } from "../../services/date";
 import { useMobile } from "../../services/hooks/hooks";
 import {
@@ -20,9 +21,10 @@ import {
 } from "../../services/intervals";
 import Dialog from "../Dialog";
 import Text from "../Text";
-import s from "./index.module.css";
 import RangePicker from "./RangePicker";
 import { Range } from "./RangePicker/RangePicker";
+
+import s from "./index.module.css";
 
 interface IntervalSelectorProps {
   value: IntervalDetail;

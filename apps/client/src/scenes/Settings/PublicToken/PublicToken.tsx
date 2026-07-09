@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useSelector } from "react-redux";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
@@ -11,6 +12,7 @@ import {
 } from "../../../services/redux/modules/user/thunk";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 export default function PublicToken() {

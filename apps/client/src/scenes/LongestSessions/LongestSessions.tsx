@@ -1,13 +1,15 @@
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
+import Loader from "../../components/Loader";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
 import { api } from "../../services/apis/api";
 import { useAPI } from "../../services/hooks/hooks";
 import { selectRawIntervalDetail } from "../../services/redux/modules/user/selector";
-import Text from "../../components/Text";
-import TitleCard from "../../components/TitleCard";
-import Loader from "../../components/Loader";
-import s from "./index.module.css";
 import LongestSession from "./LongestSession/LongestSession";
+
+import s from "./index.module.css";
 
 export default function LongestSessions() {
   const { interval } = useSelector(selectRawIntervalDetail);

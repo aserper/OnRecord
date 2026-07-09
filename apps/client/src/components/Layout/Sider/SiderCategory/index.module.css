@@ -36,7 +36,7 @@
 }
 
 .link:has(.active) {
-    background-color: var(--secondary-dark);
+  background-color: var(--secondary-dark);
 }
 
 .link:hover {

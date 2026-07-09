@@ -1,11 +1,13 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import clsx from "clsx";
-import Text from "../../../Text";
-import { SiderCategory as SiderCategoryType } from "../types";
-import { LayoutContext } from "../../LayoutContext";
+import { useContext } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { Link } from "react-router-dom";
+
 import { User } from "../../../../services/redux/modules/user/types";
+import Text from "../../../Text";
+import { LayoutContext } from "../../LayoutContext";
+import { SiderCategory as SiderCategoryType } from "../types";
+
 import s from "./index.module.css";
 
 interface SiderCategoryProps {

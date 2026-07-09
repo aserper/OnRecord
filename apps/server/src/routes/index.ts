@@ -13,6 +13,7 @@ import {
   storeInUser,
 } from "../database";
 import { GithubAPI } from "../tools/apis/githubApi";
+import { isServerReady } from "../tools/boot";
 import { getWithDefault } from "../tools/env";
 import {
   admin,
@@ -30,6 +31,10 @@ export const router = Router();
 
 router.get("/", (_, res) => {
   res.status(200).send("Hello !");
+});
+
+router.get("/ready", (_, res) => {
+  res.status(200).send({ ready: isServerReady() });
 });
 
 router.post("/logout", async (_, res) => {

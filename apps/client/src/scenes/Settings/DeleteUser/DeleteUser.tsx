@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+
 import Dialog from "../../../components/Dialog";
 import LoadingButton from "../../../components/LoadingButton";
 import TitleCard from "../../../components/TitleCard";
@@ -8,6 +9,7 @@ import { selectAccounts } from "../../../services/redux/modules/admin/selector";
 import { deleteUser } from "../../../services/redux/modules/admin/thunk";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 export default function DeleteUser() {

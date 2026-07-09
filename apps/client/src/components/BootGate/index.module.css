@@ -1,0 +1,22 @@
+.root {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 40%;
+  margin: auto;
+  text-align: center;
+  gap: 24px;
+}
+
+.explain {
+  display: block;
+  margin-top: 8px;
+}
+
+@media screen and (max-width: 960px) {
+  .root {
+    width: 95%;
+  }
+}

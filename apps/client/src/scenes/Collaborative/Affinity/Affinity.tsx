@@ -1,22 +1,24 @@
 import { Button, Checkbox, MenuItem, Select } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { AdminAccount } from "../../../services/redux/modules/admin/reducer";
-import { selectAccounts } from "../../../services/redux/modules/admin/selector";
-import { CollaborativeMode } from "../../../services/types";
-import { selectUser } from "../../../services/redux/modules/user/selector";
+
+import Header from "../../../components/Header";
 import { IntervalSelector } from "../../../components/IntervalSelector";
+import { ITooltip } from "../../../components/iTooltip/iTooltip";
 import Text from "../../../components/Text";
+import { useNavigateAndSearch } from "../../../services/hooks/hooks";
 import {
   detailIntervalToQuery,
   IntervalDetail,
   presetIntervals,
 } from "../../../services/intervals";
-import { useNavigateAndSearch } from "../../../services/hooks/hooks";
-import Header from "../../../components/Header";
+import { AdminAccount } from "../../../services/redux/modules/admin/reducer";
+import { selectAccounts } from "../../../services/redux/modules/admin/selector";
+import { selectUser } from "../../../services/redux/modules/user/selector";
+import { CollaborativeMode } from "../../../services/types";
 import { AFFINITY_PREFIX } from "./types";
+
 import s from "./index.module.css";
-import { ITooltip } from "../../../components/iTooltip/iTooltip";
 
 export default function Affinity() {
   const navigate = useNavigateAndSearch();

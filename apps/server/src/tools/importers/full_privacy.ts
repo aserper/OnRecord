@@ -222,7 +222,8 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       if (content.ms_played < 30 * 1000) {
         // If track was played for less than 30 seconds
         logger.info(
-          `Track ${content.master_metadata_track_name} - ${content.master_metadata_album_artist_name
+          `Track ${content.master_metadata_track_name} - ${
+            content.master_metadata_album_artist_name
           } was passed, only listened for ${Math.floor(
             content.ms_played / 1000,
           )} seconds`,

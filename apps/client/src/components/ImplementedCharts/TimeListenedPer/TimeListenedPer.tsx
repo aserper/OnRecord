@@ -1,6 +1,8 @@
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import {
   buildXYData,
   formatXAxisDateTooltip,
@@ -8,12 +10,11 @@ import {
   useFormatXAxis,
 } from "../../../services/stats";
 import { DateId } from "../../../services/types";
-import Line from "../../charts/Line";
 import ChartCard from "../../ChartCard";
+import Line from "../../charts/Line";
+import Tooltip from "../../Tooltip";
 import LoadingImplementedChart from "../LoadingImplementedChart";
 import { ImplementedChartProps } from "../types";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
-import Tooltip from "../../Tooltip";
 
 interface TimeListenedPerProps extends ImplementedChartProps {}
 

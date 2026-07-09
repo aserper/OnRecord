@@ -1,4 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
+
 import { RootState } from "../..";
 import { getRawIntervalDetail, RawIntervalDetail } from "../../../intervals";
 import { fromReduxIntervalDetail } from "./utils";

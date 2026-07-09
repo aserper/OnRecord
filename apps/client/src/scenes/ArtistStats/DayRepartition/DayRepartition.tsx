@@ -1,7 +1,6 @@
 import ChartCard from "../../../components/ChartCard";
 import Bar from "../../../components/charts/Bar";
 import Tooltip from "../../../components/Tooltip";
-
 import { ArtistStatsResponse } from "../../../services/apis/api";
 import { msToMinutes } from "../../../services/stats";
 

@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import React, { HTMLElementType, ReactNode } from "react";
+
 import { HTMLTag, HTMLProps } from "../../services/types";
+
 import s from "./index.module.css";
 
 const sizes = { small: 12, normal: 16, big: 18, huge: 26, pagetitle: 32 };

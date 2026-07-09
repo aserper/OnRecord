@@ -1,14 +1,16 @@
 import { Fragment } from "react";
-import s from "./index.module.css";
-import { msToDuration } from "../../../../services/stats";
-import { Artist, Album as AlbumType } from "../../../../services/types";
+
+import { ColumnDescription, GridRowWrapper } from "../../../../components/Grid";
+import IdealImage from "../../../../components/IdealImage";
+import InlineAlbum from "../../../../components/InlineAlbum";
 import InlineArtist from "../../../../components/InlineArtist";
 import Text from "../../../../components/Text";
 import { useMobile } from "../../../../services/hooks/hooks";
-import { ColumnDescription, GridRowWrapper } from "../../../../components/Grid";
-import IdealImage from "../../../../components/IdealImage";
+import { msToDuration } from "../../../../services/stats";
+import { Artist, Album as AlbumType } from "../../../../services/types";
 import { useAlbumGrid } from "./AlbumGrid";
-import InlineAlbum from "../../../../components/InlineAlbum";
+
+import s from "./index.module.css";
 
 interface AlbumProps {
   artists: Artist[];

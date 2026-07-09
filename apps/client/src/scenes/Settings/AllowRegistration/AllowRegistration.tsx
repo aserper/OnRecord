@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { changeRegistrations } from "../../../services/redux/modules/settings/thunk";

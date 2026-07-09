@@ -192,7 +192,8 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
       if (content.msPlayed < 30 * 1000) {
         // If track was played for less than 30 seconds
         logger.info(
-          `Track ${content.trackName} - ${content.artistName
+          `Track ${content.trackName} - ${
+            content.artistName
           } was passed, only listened for ${Math.floor(
             content.msPlayed / 1000,
           )} seconds`,

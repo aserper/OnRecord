@@ -4,6 +4,7 @@ import { app } from "../app";
 import { checkBlacklistConsistency, connect } from "../database";
 import { fixRunningImportsAtStart } from "../database/queries/importer";
 import { dbLoop } from "../spotify/looper";
+import { setServerReady } from "../tools/boot";
 import { get, getWithDefault } from "../tools/env";
 import { logger } from "../tools/logger";
 
@@ -47,14 +48,26 @@ export function startServer() {
       server.listen(port);
       server.on("error", onError);
       server.on("listening", onListening);
-      fixRunningImportsAtStart().catch(logger.error);
-      checkBlacklistConsistency().catch(logger.error);
       const domain = get("CLIENT_ENDPOINT");
       if (domain.toLowerCase().includes("spotify")) {
         logger.warn(
           "Spotify was detected in CLIENT_ENDPOINT, Google might mark your entire domain as deceptive. https://github.com/Yooooomi/your_spotify/pull/254",
         );
       }
+      // Sanitize the database before the server is considered ready. While these
+      // tasks are running, the server still answers requests so the frontend can
+      // display that the server is booting up.
+      logger.info("Booting up, sanitizing the database...");
+      try {
+        await fixRunningImportsAtStart();
+        await checkBlacklistConsistency();
+      } catch (e) {
+        logger.error(e);
+      }
+      setServerReady();
+      logger.info("Boot finished, server is ready");
+      // Only start fetching users' new tracks once the server has finished
+      // booting.
       dbLoop().catch(logger.error);
     })
     .catch(console.error);

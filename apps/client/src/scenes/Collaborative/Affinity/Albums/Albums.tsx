@@ -1,6 +1,7 @@
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+
 import Header from "../../../../components/Header";
 import IdealImage from "../../../../components/IdealImage";
 import InlineArtist from "../../../../components/InlineArtist";
@@ -14,6 +15,7 @@ import { selectAccounts } from "../../../../services/redux/modules/admin/selecto
 import { selectUser } from "../../../../services/redux/modules/user/selector";
 import { CollaborativeMode } from "../../../../services/types";
 import { AFFINITY_PREFIX } from "../types";
+
 import s from "./index.module.css";
 
 export default function Albums() {

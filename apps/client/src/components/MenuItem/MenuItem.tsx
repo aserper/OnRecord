@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
 import { MenuItem as MuiMenuItem } from "@mui/material";
+import { ReactNode } from "react";
+
 import s from "./index.module.css";
 
 interface MenuItemProps {

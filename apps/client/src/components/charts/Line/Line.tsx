@@ -7,6 +7,7 @@ import {
   Tooltip,
 } from "recharts";
 import { ContentType } from "recharts/types/component/Tooltip";
+
 import { DateWithPrecision } from "../../../services/stats";
 
 interface LineProps<

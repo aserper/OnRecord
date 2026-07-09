@@ -1,4 +1,5 @@
 import Axios from "axios";
+
 import { AdminAccount } from "../redux/modules/admin/reducer";
 import { ImporterState } from "../redux/modules/import/types";
 import { Playlist, PlaylistContext } from "../redux/modules/playlist/types";
@@ -142,6 +143,7 @@ export const api = {
   publicToken: null as string | null,
 
   version: () => get<{ update: boolean; version: string }>("/version"),
+  ready: () => get<{ ready: boolean }>("/ready"),
   spotify: () => get("/oauth/spotify"),
   logout: () => axios.post("/logout"),
 

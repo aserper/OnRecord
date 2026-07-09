@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+
 import { queryToIntervalDetail } from "../../services/intervals";
 import { getAccounts } from "../../services/redux/modules/admin/thunk";
 import { getSettings } from "../../services/redux/modules/settings/thunk";

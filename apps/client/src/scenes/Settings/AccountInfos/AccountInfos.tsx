@@ -1,11 +1,13 @@
 import { Input, Button } from "@mui/material";
 import { useState } from "react";
+
 import TitleCard from "../../../components/TitleCard";
 import { changeUsername } from "../../../services/redux/modules/user/thunk";
 import { User } from "../../../services/redux/modules/user/types";
 import { useAppDispatch } from "../../../services/redux/tools";
 import { GlobalPreferences } from "../../../services/types";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 interface AccountInfosProps {

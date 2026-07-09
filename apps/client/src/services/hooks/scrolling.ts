@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+
 import { DEFAULT_ITEMS_TO_LOAD } from "../apis/api";
 import { Interval } from "../intervals";
 

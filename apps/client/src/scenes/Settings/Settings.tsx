@@ -1,6 +1,7 @@
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
+
 import ButtonsHeader from "../../components/ButtonsHeader";
 import FullscreenCentered from "../../components/FullscreenCentered";
 import Header from "../../components/Header";
@@ -18,17 +19,18 @@ import AccountInfos from "./AccountInfos";
 import AllowRegistration from "./AllowRegistration";
 import BlacklistArtist from "./BlacklistArtist";
 import DarkMode from "./DarkMode";
+import DateFormat from "./DateFormat";
 import DeleteUser from "./DeleteUser";
+import EnableAffinity from "./EnableAffinity";
 import Importer from "./Importer";
-import s from "./index.module.css";
 import PublicToken from "./PublicToken";
 import RelogToSpotify from "./RelogToSpotify";
 import SetAdmin from "./SetAdmin";
 import SpotifyAccountInfos from "./SpotifyAccountInfos";
-import Timezone from "./Timezone";
-import DateFormat from "./DateFormat";
 import { StatMeasurement } from "./StatMeasurement";
-import EnableAffinity from "./EnableAffinity";
+import Timezone from "./Timezone";
+
+import s from "./index.module.css";
 
 export default function Settings() {
   const settings = useSelector(selectSettings);

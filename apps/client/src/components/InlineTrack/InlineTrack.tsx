@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+
 import { HTMLTag, Track, TrackWithAlbum } from "../../services/types";
 import Text, { TextProps } from "../Text/Text";
+
 import s from "./index.module.css";
 
 type InlineTrackProps<T extends HTMLTag> = Omit<TextProps<T>, "children"> & {

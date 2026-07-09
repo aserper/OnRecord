@@ -1,8 +1,9 @@
+import { GridRowWrapper } from "../../../../components/Grid";
 import Text from "../../../../components/Text";
 import { useMobile } from "../../../../services/hooks/hooks";
-import { GridRowWrapper } from "../../../../components/Grid";
-import s from "./index.module.css";
 import { useArtistGrid } from "./ArtistGrid";
+
+import s from "./index.module.css";
 
 export default function ArtistHeader() {
   const [isMobile, isTablet] = useMobile();

@@ -1,6 +1,7 @@
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { DateFormatter } from "../../../services/date";
+
 import s from "./index.module.css";
 
 interface FirstAndLastProps {

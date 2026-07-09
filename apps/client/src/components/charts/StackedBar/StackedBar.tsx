@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ContentType } from "recharts/types/component/Tooltip";
+
 import { getColor } from "../../../services/colors";
 
 export interface StackedBarProps {

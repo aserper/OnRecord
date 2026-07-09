@@ -1,4 +1,5 @@
 import Text from "../../../components/Text";
+
 import s from "./index.module.css";
 
 interface SettingLineProps {

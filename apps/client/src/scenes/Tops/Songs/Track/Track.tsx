@@ -1,18 +1,20 @@
-import { Fragment } from "react";
 import clsx from "clsx";
-import { msToDuration } from "../../../../services/stats";
-import { Artist, Album, Track as TrackType } from "../../../../services/types";
-import InlineArtist from "../../../../components/InlineArtist";
-import InlineTrack from "../../../../components/InlineTrack";
-import Text from "../../../../components/Text";
-import PlayButton from "../../../../components/PlayButton";
-import TrackOptions from "../../../../components/TrackOptions";
-import { useMobile } from "../../../../services/hooks/hooks";
+import { Fragment } from "react";
+
 import { GridRowWrapper } from "../../../../components/Grid";
 import InlineAlbum from "../../../../components/InlineAlbum";
+import InlineArtist from "../../../../components/InlineArtist";
+import InlineTrack from "../../../../components/InlineTrack";
 import LongClickableTrack from "../../../../components/LongClickableTrack";
-import s from "./index.module.css";
+import PlayButton from "../../../../components/PlayButton";
+import Text from "../../../../components/Text";
+import TrackOptions from "../../../../components/TrackOptions";
+import { useMobile } from "../../../../services/hooks/hooks";
+import { msToDuration } from "../../../../services/stats";
+import { Artist, Album, Track as TrackType } from "../../../../services/types";
 import { useTrackGrid } from "./TrackGrid";
+
+import s from "./index.module.css";
 
 interface TrackProps {
   track: TrackType;

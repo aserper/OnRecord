@@ -1,11 +1,12 @@
-import { useSelector } from "react-redux";
 import { Button } from "@mui/material";
-import SettingLine from "../SettingLine";
-import { setAdmin } from "../../../services/redux/modules/admin/thunk";
-import { selectAccounts } from "../../../services/redux/modules/admin/selector";
-import { useAppDispatch } from "../../../services/redux/tools";
+import { useSelector } from "react-redux";
+
 import TitleCard from "../../../components/TitleCard";
+import { selectAccounts } from "../../../services/redux/modules/admin/selector";
+import { setAdmin } from "../../../services/redux/modules/admin/thunk";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
+import { useAppDispatch } from "../../../services/redux/tools";
+import SettingLine from "../SettingLine";
 
 export default function SetAdmin() {
   const dispatch = useAppDispatch();

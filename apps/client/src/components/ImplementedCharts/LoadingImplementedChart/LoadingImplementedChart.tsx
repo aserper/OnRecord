@@ -1,4 +1,5 @@
 import { Skeleton } from "@mui/material";
+
 import ChartCard from "../../ChartCard";
 
 interface LoadingImplementedChartProps {

@@ -1,5 +1,6 @@
 import { Select, MenuItem } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { changeTimezone } from "../../../services/redux/modules/settings/thunk";
@@ -7,6 +8,7 @@ import { selectTimezone } from "../../../services/redux/modules/user/selector";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
 import { timezones } from "./timezones";
+
 import s from "./index.module.css";
 
 export default function Timezone() {

@@ -1,7 +1,9 @@
-import { Ref } from "react";
 import { Paper } from "@mui/material";
 import clsx from "clsx";
+import { Ref } from "react";
+
 import Text from "../Text";
+
 import s from "./index.module.css";
 
 interface ChartCardProps {

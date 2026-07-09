@@ -18,6 +18,7 @@ import {
   SpeedOutlined,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+
 import { selectAffinityEnabled } from "../../../services/redux/modules/settings/selector";
 import { compact } from "../../../services/tools";
 import { SiderCategory } from "./types";

@@ -10,13 +10,13 @@
 .count {
   display: flex;
   align-items: center;
-  justify-content:left;
+  justify-content: left;
 }
 
 .total {
   display: flex;
   align-items: center;
-  justify-content:center;
+  justify-content: center;
 }
 
 .names > :first-child {

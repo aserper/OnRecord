@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { PlayArrow } from "@mui/icons-material";
 import {
   Button,
   IconButton,
@@ -7,17 +7,18 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { PlayArrow } from "@mui/icons-material";
 import { ReactNode, useState } from "react";
+import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { api } from "../../services/apis/api";
 import {
   selectRawIntervalDetail,
   selectUser,
 } from "../../services/redux/modules/user/selector";
-import { api } from "../../services/apis/api";
 import { Timesplit } from "../../services/types";
-import TitleCard from "../../components/TitleCard";
-import Text from "../../components/Text";
 
 interface Request<T> {
   title: string;

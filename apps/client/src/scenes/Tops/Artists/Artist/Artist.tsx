@@ -1,12 +1,13 @@
-import { msToDuration } from "../../../../services/stats";
-import { Artist as ArtistType } from "../../../../services/types";
+import { ColumnDescription, GridRowWrapper } from "../../../../components/Grid";
+import IdealImage from "../../../../components/IdealImage";
 import InlineArtist from "../../../../components/InlineArtist";
 import Text from "../../../../components/Text";
 import { useMobile } from "../../../../services/hooks/hooks";
-import { ColumnDescription, GridRowWrapper } from "../../../../components/Grid";
-import IdealImage from "../../../../components/IdealImage";
-import s from "./index.module.css";
+import { msToDuration } from "../../../../services/stats";
+import { Artist as ArtistType } from "../../../../services/types";
 import { useArtistGrid } from "./ArtistGrid";
+
+import s from "./index.module.css";
 
 interface ArtistProps {
   artist: ArtistType;

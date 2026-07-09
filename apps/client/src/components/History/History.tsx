@@ -1,24 +1,25 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useSelector } from "react-redux";
+
 import { api } from "../../services/apis/api";
-import Loader from "../Loader";
-import TitleCard from "../TitleCard";
+import { useInfiniteScroll } from "../../services/hooks/scrolling";
+import { useSelectTracks } from "../../services/hooks/useSelectTrack";
 import {
   selectRawAllInterval,
   selectRawIntervalDetail,
 } from "../../services/redux/modules/user/selector";
-import { GridWrapper } from "../Grid";
-import { useInfiniteScroll } from "../../services/hooks/scrolling";
 import CheckboxWithText from "../CheckboxWithText";
+import { GridWrapper } from "../Grid";
+import Loader from "../Loader";
+import { RightClickable } from "../RightClickable/RightClickable";
 import {
   Selectable,
   SelectableContextProvider,
 } from "../Selectable/Selectable.context";
-import { RightClickable } from "../RightClickable/RightClickable";
-import { useSelectTracks } from "../../services/hooks/useSelectTrack";
-import TrackHeader from "./Track/TrackHeader";
+import TitleCard from "../TitleCard";
 import Track from "./Track";
+import TrackHeader from "./Track/TrackHeader";
 import { TrackSelectionPopup } from "./Track/TrackSelectionPopup";
 
 export default function History() {

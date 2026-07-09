@@ -1,10 +1,12 @@
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
+
 import InlineTrack from "../../../components/InlineTrack";
 import Text from "../../../components/Text";
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
 import { useTracks } from "../../../services/track";
+
 import s from "./index.module.css";
 
 interface TrackRankProps {

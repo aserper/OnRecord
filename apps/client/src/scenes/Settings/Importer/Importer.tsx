@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CircularProgress,
   FormControl,
@@ -7,17 +6,20 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { getImports } from "../../../services/redux/modules/import/thunk";
-import { selectImportStates } from "../../../services/redux/modules/import/selector";
-import { ImporterStateType } from "../../../services/redux/modules/import/types";
+
 import Text from "../../../components/Text";
-import { useAppDispatch } from "../../../services/redux/tools";
 import TitleCard from "../../../components/TitleCard";
-import ImportHistory from "./ImportHistory";
-import s from "./index.module.css";
-import Privacy from "./Privacy";
+import { selectImportStates } from "../../../services/redux/modules/import/selector";
+import { getImports } from "../../../services/redux/modules/import/thunk";
+import { ImporterStateType } from "../../../services/redux/modules/import/types";
+import { useAppDispatch } from "../../../services/redux/tools";
 import FullPrivacy from "./FullPrivacy";
+import ImportHistory from "./ImportHistory";
+import Privacy from "./Privacy";
+
+import s from "./index.module.css";
 
 const ImportTypeToComponent: Record<ImporterStateType, any> = {
   privacy: { label: "Account data", component: Privacy },

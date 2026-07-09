@@ -1,6 +1,6 @@
 import { TitleFormatter, ValueFormatter } from "../components/Tooltip/Tooltip";
-import { DateId, Precision } from "./types";
 import { DateFormatter } from "./date";
+import { DateId, Precision } from "./types";
 
 export const fresh = (d: Date, eraseHour = false) => {
   const date = new Date(d.getTime());

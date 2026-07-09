@@ -1,13 +1,15 @@
-import React, { useState } from "react";
 import { Drawer } from "@mui/material";
 import clsx from "clsx";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+
 import { selectPublicToken } from "../../services/redux/modules/user/selector";
 import Text from "../Text";
-import s from "./index.module.css";
-import Sider from "./Sider";
 import { LayoutContext } from "./LayoutContext";
+import Sider from "./Sider";
 import { useSider } from "./useSider";
+
+import s from "./index.module.css";
 
 interface LayoutProps {
   children: React.ReactNode;

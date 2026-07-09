@@ -1,17 +1,19 @@
-import { useSelector } from "react-redux";
 import { CircularProgress } from "@mui/material";
-import SettingLine from "../../SettingLine";
+import { useSelector } from "react-redux";
+
+import Text from "../../../../components/Text";
+import ThreePoints from "../../../../components/ThreePoints";
+import { DateFormatter } from "../../../../services/date";
 import { selectImportStates } from "../../../../services/redux/modules/import/selector";
 import {
   cleanupImport,
   startImportPrivacy,
 } from "../../../../services/redux/modules/import/thunk";
-import ThreePoints from "../../../../components/ThreePoints";
-import { compact } from "../../../../services/tools";
 import { ImporterStateStatus } from "../../../../services/redux/modules/import/types";
-import Text from "../../../../components/Text";
 import { useAppDispatch } from "../../../../services/redux/tools";
-import { DateFormatter } from "../../../../services/date";
+import { compact } from "../../../../services/tools";
+import SettingLine from "../../SettingLine";
+
 import s from "./index.module.css";
 
 const statusToString: Record<ImporterStateStatus, string> = {

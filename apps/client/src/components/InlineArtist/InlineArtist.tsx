@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+
 import { Artist, HTMLTag } from "../../services/types";
 import Text from "../Text";
 import { TextProps } from "../Text/Text";
+
 import s from "./index.module.css";
 
 type InlineArtistProps<T extends HTMLTag> = Omit<TextProps<T>, "children"> & {

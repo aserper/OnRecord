@@ -1,16 +1,18 @@
-import { IconButton } from "@mui/material";
 import { Menu } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
 import React, { useContext, ReactNode } from "react";
 import { useSelector } from "react-redux";
+
 import { IntervalDetail } from "../../services/intervals";
 import { setDataInterval } from "../../services/redux/modules/user/reducer";
 import { selectIntervalDetail } from "../../services/redux/modules/user/selector";
 import { intervalDetailToRedux } from "../../services/redux/modules/user/utils";
 import { useAppDispatch } from "../../services/redux/tools";
 import { IntervalSelector } from "../IntervalSelector";
-import Text from "../Text";
 import { LayoutContext } from "../Layout/LayoutContext";
 import { useSider } from "../Layout/useSider";
+import Text from "../Text";
+
 import s from "./index.module.css";
 
 interface HeaderProps {

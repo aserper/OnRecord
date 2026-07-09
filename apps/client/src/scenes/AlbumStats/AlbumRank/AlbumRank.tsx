@@ -1,10 +1,12 @@
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
+
 import InlineAlbum from "../../../components/InlineAlbum";
 import Text from "../../../components/Text";
 import { api } from "../../../services/apis/api";
 import { useLoadAlbums } from "../../../services/hooks/artist";
 import { useAPI } from "../../../services/hooks/hooks";
+
 import s from "./index.module.css";
 
 interface AlbumRankProps {

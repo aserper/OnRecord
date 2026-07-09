@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { MenuItem } from "@mui/material";
 import {
   LocalizationProvider,
   DateCalendar,
   PickerDayProps,
 } from "@mui/x-date-pickers";
-import { MenuItem } from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import clsx from "clsx";
 import {
   startOfDay,
@@ -22,6 +21,8 @@ import {
   endOfYear,
   subHours,
 } from "date-fns";
+import { useState } from "react";
+
 import s from "./index.module.css";
 
 interface DayProps {

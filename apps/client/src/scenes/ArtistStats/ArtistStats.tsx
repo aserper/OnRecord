@@ -1,22 +1,24 @@
 import { CircularProgress, Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
-import TitleCard from "../../components/TitleCard";
-import { ArtistStatsResponse } from "../../services/apis/api";
-import { buildFromDateId } from "../../services/stats";
-import Text from "../../components/Text";
-import InlineTrack from "../../components/InlineTrack";
-import { selectBlacklistedArtist } from "../../services/redux/modules/user/selector";
 import IdealImage from "../../components/IdealImage";
 import ImageTwoLines from "../../components/ImageTwoLines";
 import InlineAlbum from "../../components/InlineAlbum";
+import InlineTrack from "../../components/InlineTrack";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { ArtistStatsResponse } from "../../services/apis/api";
 import { DateFormatter } from "../../services/date";
+import { selectBlacklistedArtist } from "../../services/redux/modules/user/selector";
+import { buildFromDateId } from "../../services/stats";
 import ArtistContextMenu from "./ArtistContextMenu";
-import FirstAndLast from "./FirstAndLast";
 import ArtistRank from "./ArtistRank/ArtistRank";
 import DayRepartition from "./DayRepartition";
-import s from "./index.module.css";
+import FirstAndLast from "./FirstAndLast";
 import { MostListenedTracksContextMenuButton } from "./mostListenedTracksContextMenuButton/mostListenedTracksContextMenuButton";
+
+import s from "./index.module.css";
 
 interface ArtistStatsProps {
   artistId: string;

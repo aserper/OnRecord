@@ -1,7 +1,9 @@
 import clsx from "clsx";
-import Text from "../Text";
-import s from "./index.module.css";
+
 import { ITooltip } from "../iTooltip/iTooltip";
+import Text from "../Text";
+
+import s from "./index.module.css";
 
 interface TitleCardProps {
   className?: string;

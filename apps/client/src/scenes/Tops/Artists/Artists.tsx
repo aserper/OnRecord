@@ -1,5 +1,6 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSelector } from "react-redux";
+
 import { GridWrapper } from "../../../components/Grid";
 import Header from "../../../components/Header";
 import Loader from "../../../components/Loader";
@@ -9,6 +10,7 @@ import { useInfiniteScroll } from "../../../services/hooks/scrolling";
 import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import Artist from "./Artist";
 import ArtistHeader from "./Artist/ArtistHeader";
+
 import s from "./index.module.css";
 
 export default function Artists() {

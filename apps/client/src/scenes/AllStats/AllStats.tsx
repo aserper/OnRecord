@@ -1,5 +1,6 @@
 import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
 import ArtistListeningRepartition from "../../components/ImplementedCharts/ArtistListeningRepartition";
 import AverageAlbumReleaseDate from "../../components/ImplementedCharts/AverageAlbumReleaseDate";
@@ -11,6 +12,7 @@ import ListeningRepartition from "../../components/ImplementedCharts/ListeningRe
 import SongsListenedPer from "../../components/ImplementedCharts/SongsListenedPer";
 import TimeListenedPer from "../../components/ImplementedCharts/TimeListenedPer";
 import { selectUser } from "../../services/redux/modules/user/selector";
+
 import s from "./index.module.css";
 
 export default function AllStats() {

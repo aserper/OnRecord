@@ -1,5 +1,6 @@
 import { stringifySequence } from "../../services/shortcuts";
 import Text from "../Text";
+
 import s from "./index.module.css";
 
 interface ShortcutProps {

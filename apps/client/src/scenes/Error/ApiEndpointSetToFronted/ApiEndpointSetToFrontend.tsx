@@ -1,6 +1,7 @@
 import Text from "../../../components/Text";
-import s from "../index.module.css";
 import { getApiEndpoint } from "../../../services/tools";
+
+import s from "../index.module.css";
 
 export default function ApiEndpointSetToFrontend() {
   return (

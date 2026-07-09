@@ -1,5 +1,6 @@
 import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
 import History from "../../components/History";
 import ArtistsListened from "../../components/ImplementedCards/ArtistsListened";
@@ -10,6 +11,7 @@ import TimeListened from "../../components/ImplementedCards/TimeListened";
 import ListeningRepartition from "../../components/ImplementedCharts/ListeningRepartition";
 import TimeListenedPer from "../../components/ImplementedCharts/TimeListenedPer";
 import { selectUser } from "../../services/redux/modules/user/selector";
+
 import s from "./index.module.css";
 
 export default function Home() {

@@ -1,8 +1,10 @@
-import { useState } from "react";
 import { Button, CircularProgress } from "@mui/material";
-import { startImportFullPrivacy } from "../../../../services/redux/modules/import/thunk";
+import { useState } from "react";
+
 import Text from "../../../../components/Text";
+import { startImportFullPrivacy } from "../../../../services/redux/modules/import/thunk";
 import { useAppDispatch } from "../../../../services/redux/tools";
+
 import s from "./index.module.css";
 
 export default function FullPrivacy() {

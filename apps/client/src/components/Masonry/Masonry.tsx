@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
+
 import { useMobile } from "../../services/hooks/hooks";
+
 import s from "./index.module.css";
 
 interface MasonryProps {

@@ -26,15 +26,15 @@
   .play-button-holder .play-image {
     opacity: inherit;
   }
-  
+
   .play-button-holder .play-button {
     display: none !important;
   }
-  
+
   .play-button-holder:hover .play-image {
     opacity: 0.4;
   }
-  
+
   .play-button-holder:hover .play-button {
     display: inherit !important;
   }

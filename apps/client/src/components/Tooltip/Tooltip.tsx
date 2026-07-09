@@ -1,11 +1,14 @@
 import { TooltipProps } from "recharts";
 import { Payload } from "recharts/types/component/DefaultTooltipContent";
+
 import s from "./index.module.css";
 
 type TypeFromArray<T> = T extends Array<infer K> ? K : never;
 
-interface MyTooltipProps<D extends Array<unknown>>
-  extends TooltipProps<any, any> {
+interface MyTooltipProps<D extends Array<unknown>> extends TooltipProps<
+  any,
+  any
+> {
   payload?: ReadonlyArray<Payload<any, any>>;
 
   title: TitleFormatter<D>;

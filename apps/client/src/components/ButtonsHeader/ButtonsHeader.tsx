@@ -1,7 +1,9 @@
 import { Tab, Tabs } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import Text from "../Text";
+
 import { useNavigate } from "../../services/hooks/useNavigate";
+import Text from "../Text";
+
 import s from "./index.module.css";
 
 export interface ButtonsHeaderItem {

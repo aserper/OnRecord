@@ -11,8 +11,8 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: unset;
   font-size: 0.9em;
   padding: 2px;
@@ -34,13 +34,13 @@ h6 {
 }
 
 :root {
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  --font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --track-options: 34px;
   --radius: 6px;
   --page-padding: 0 16px 16px 16px;
-  --accent: #FB717B;
+  --accent: #fb717b;
   --header-image-size: 60px;
   --secondary-dark: rgba(255, 255, 255, 0.15);
   --secondary-dark-hover: rgba(255, 255, 255, 0.25);
@@ -70,12 +70,12 @@ h6 {
 
   --input-background-color: var(--secondary-dark);
   --input-background-color-hover: var(--secondary-dark-hover);
- 
+
   --shortcut-background: rgb(96, 96, 96);
 }
 
 .light-vars {
-  --shadow: 5px 5px 8px -2px rgba(0,0,0,0.05);
+  --shadow: 5px 5px 8px -2px rgba(0, 0, 0, 0.05);
   --hardshadow: 5px 6px 40px -5px rgba(0, 0, 0, 0.2);
 
   --primary-tuple: 0, 0, 0;
