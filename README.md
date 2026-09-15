@@ -1,10 +1,10 @@
-# Your Spotify
+# OnRecord
 
-![Your Spotify listening-history logo](apps/client/public/brand/social.png)
+![OnRecord](apps/client/public/brand/social.png)
 
 Self-hosted Spotify listening history, with four interface themes, detailed listening statistics, and scheduled history imports.
 
-This is [aserper/your_spotify](https://github.com/aserper/your_spotify), a fork of **[Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify)**. Credit for the original application and its statistics platform belongs to Yooooomi and the upstream contributors. This fork builds on that work with a redesigned interface and changes to import scheduling, login handling, and deployment.
+OnRecord is [aserper/OnRecord](https://github.com/aserper/OnRecord), a fork of **[Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify)** renamed and extended. Credit for the original application and its statistics platform belongs to Yooooomi and the upstream contributors. This fork builds on that work with a redesigned interface and changes to import scheduling, login handling, and deployment.
 
 ## What this fork includes
 
@@ -34,7 +34,7 @@ The scheme, hostname, port, and path must match your deployment. Use HTTPS for a
 
 ### 2. Run the combined image and MongoDB
 
-The fork publishes **`ghcr.io/aserper/your_spotify:latest`**. Its [Dockerfile](Dockerfile) builds this repository's client and server, then installs them into a pinned [LinuxServer Your Spotify image](https://github.com/linuxserver/docker-your_spotify). The container serves the frontend at `/` and the API at `/api`; MongoDB runs separately.
+The fork publishes **`ghcr.io/aserper/onrecord:latest`**. If the pull fails with `denied`, the package is still private: flip it to public once under the package's Package settings. Its [Dockerfile](Dockerfile) builds this repository's client and server, then installs them into a pinned [LinuxServer Your Spotify image](https://github.com/linuxserver/docker-your_spotify). The container serves the frontend at `/` and the API at `/api`; MongoDB runs separately.
 
 The upstream `yooooomi/your_spotify_server` and `yooooomi/your_spotify_client` images do **not** contain this fork's changes. The existing split-container Compose files in this repository are legacy examples, not the installation below.
 
@@ -56,8 +56,8 @@ Save this as `compose.yaml`:
 
 ```yaml
 services:
-  your_spotify:
-    image: ghcr.io/aserper/your_spotify:latest
+  onrecord:
+    image: ghcr.io/aserper/onrecord:latest
     restart: unless-stopped
     depends_on:
       - mongo
@@ -68,7 +68,7 @@ services:
       APP_URL: https://music.example.com
       SPOTIFY_PUBLIC: ${SPOTIFY_PUBLIC:?Set SPOTIFY_PUBLIC in .env}
       SPOTIFY_SECRET: ${SPOTIFY_SECRET:?Set SPOTIFY_SECRET in .env}
-      MONGO_ENDPOINT: mongodb://mongo:27017/your_spotify
+      MONGO_ENDPOINT: mongodb://mongo:27017/onrecord
       TIMEZONE: Etc/UTC
       SPOTIFY_REQUEST_INTERVAL_MS: "200"
       COOKIE_VALIDITY_MS: "2592000000"
@@ -91,10 +91,10 @@ volumes:
 
 ```sh
 docker compose up -d
-docker compose logs -f your_spotify
+docker compose logs -f onrecord
 ```
 
-Point a TLS-terminating reverse proxy on the Docker host at `http://127.0.0.1:8080`, serving `https://music.example.com`. Forward the original host and scheme. If your proxy is another container, connect it to the same Docker network and use `your_spotify:80` instead. Do not expose MongoDB publicly. Adjust proxy upload-size and timeout limits for large history exports.
+Point a TLS-terminating reverse proxy on the Docker host at `http://127.0.0.1:8080`, serving `https://music.example.com`. Forward the original host and scheme. If your proxy is another container, connect it to the same Docker network and use `onrecord:80` instead. Do not expose MongoDB publicly. Adjust proxy upload-size and timeout limits for large history exports.
 
 The first registered account becomes an administrator. Once your users have joined, you can disable new registrations in **Settings**.
 
@@ -113,13 +113,13 @@ If you set `SPOTIFY_COOLDOWN_FILE` elsewhere, persist its **parent directory** a
 Back up MongoDB and the app storage before updating. Avoid updates during a running import. To update only the app image:
 
 ```sh
-docker compose pull your_spotify
-docker compose up -d your_spotify
+docker compose pull onrecord
+docker compose up -d onrecord
 ```
 
 For reproducible deployments, pin a published image digest instead of `latest`. Do not change MongoDB major versions without following MongoDB's upgrade procedure.
 
-The [Kubernetes manifest](deploy/your-spotify.yaml) shows the combined image, persistent uploads, cooldown storage, and MongoDB in use. It is deployment-specific: replace its storage, ingress, certificate, and secret references before using it. The [container workflow](.github/workflows/container.yml) verifies the code, publishes GHCR images, and records the image digest in that manifest.
+The [Kubernetes manifest](deploy/onrecord.yaml) shows the combined image, persistent uploads, cooldown storage, and MongoDB in use. It is deployment-specific: replace its storage, ingress, certificate, and secret references before using it. The [container workflow](.github/workflows/container.yml) verifies the code, publishes GHCR images, and records the image digest in that manifest.
 
 ## Configuration
 
@@ -185,18 +185,18 @@ API errors or exhausted retries can also fail an import. Duplicate detection red
 Use Node.js 24 and pnpm 10.17.1, matching the [Dockerfile](Dockerfile) and CI:
 
 ```sh
-git clone https://github.com/aserper/your_spotify.git
-cd your_spotify
+git clone https://github.com/aserper/OnRecord.git
+cd OnRecord
 npm install --global pnpm@10.17.1
 pnpm install --frozen-lockfile
-pnpm --filter @your_spotify/server test
-pnpm --filter @your_spotify/server typecheck
-pnpm --filter @your_spotify/client typecheck
-pnpm --filter @your_spotify/server build
-pnpm --filter @your_spotify/client build
+pnpm --filter @onrecord/server test
+pnpm --filter @onrecord/server typecheck
+pnpm --filter @onrecord/client typecheck
+pnpm --filter @onrecord/server build
+pnpm --filter @onrecord/client build
 ```
 
-To run from source, provide MongoDB and export the server environment variables, including `CLIENT_ENDPOINT`, `API_ENDPOINT`, and the Spotify credentials. Run `pnpm --filter @your_spotify/server migrate`, then `pnpm --filter @your_spotify/server start`.
+To run from source, provide MongoDB and export the server environment variables, including `CLIENT_ENDPOINT`, `API_ENDPOINT`, and the Spotify credentials. Run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`.
 
 Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`. Copy `variables-template.js` to `variables.js` in that directory and replace `__API_ENDPOINT__` with the public backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` is for a proxy that mounts the backend under `/api`.
 
@@ -204,7 +204,7 @@ Serve `apps/client/build` as a static site with unknown routes falling back to `
 
 ## Support and credits
 
-Report fork bugs and feature requests in [aserper/your_spotify issues](https://github.com/aserper/your_spotify/issues). Include the image digest or commit, relevant configuration with secrets removed, and redacted logs.
+Report fork bugs and feature requests in [aserper/OnRecord issues](https://github.com/aserper/OnRecord/issues). Include the image digest or commit, relevant configuration with secrets removed, and redacted logs.
 
 - **Upstream project and support:** [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify) and [upstream issues](https://github.com/Yooooomi/your_spotify/issues). Please report fork-specific problems here first.
 - **Container foundation:** [LinuxServer Your Spotify](https://github.com/linuxserver/docker-your_spotify).
