@@ -76,7 +76,7 @@ spec:
             memory: "512Mi"
             cpu: "500m"
       - name: your-spotify
-        image: ghcr.io/aserper/your_spotify@sha256:bacc573460c46b3af22a712c8641228d015188cf78ed058657c0883e5ca97b99
+        image: ghcr.io/aserper/your_spotify@sha256:93a5fdf5dcc635b0a92b214836d0cf59a11152bef03d736b3cc228787ff7899f
         ports:
         - containerPort: 80
         - containerPort: 443
