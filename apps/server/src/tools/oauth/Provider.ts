@@ -51,6 +51,7 @@ export class Spotify implements Provider {
           state,
         },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        failFastOnRateLimit: true,
       },
     );
 
@@ -61,6 +62,8 @@ export class Spotify implements Provider {
     };
   }
 
+  // Token refreshes serve background ingestion as well as interactive requests,
+  // so they wait for the shared cooldown instead of failing an import mid-run.
   async refresh(refresh: string) {
     const { data } = await this.client.post(
       "https://accounts.spotify.com/api/token",

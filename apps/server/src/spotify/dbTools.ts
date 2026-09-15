@@ -17,9 +17,22 @@ import { Metrics } from "../tools/metrics";
 import { minOfArray, uniqBy } from "../tools/misc";
 import { compact } from "../tools/utils";
 
-export const getTracks = async (userId: string, ids: string[]) => {
+export const getTracks = async (
+  userId: string,
+  ids: string[],
+  suppliedTracks?: SpotifyTrack[],
+) => {
   const client = new SpotifyAPI(userId);
-  const spotifyTracks = compact(await client.getTracks(ids));
+  const uniqueIds = [...new Set(ids)];
+  const tracksById = new Map(
+    (suppliedTracks ?? []).map((track) => [track.id, track]),
+  );
+  const missingIds = uniqueIds.filter((id) => !tracksById.has(id));
+  if (missingIds.length > 0) {
+    const fetchedTracks = compact(await client.getTracks(missingIds));
+    fetchedTracks.forEach((track) => tracksById.set(track.id, track));
+  }
+  const spotifyTracks = compact(uniqueIds.map((id) => tracksById.get(id)));
 
   const tracks = spotifyTracks.map<Track>((track) => {
     logger.info(
@@ -68,8 +81,9 @@ export const getArtists = async (userId: string, ids: string[]) => {
 const getTracksAndRelatedAlbumArtists = async (
   userId: string,
   ids: string[],
+  suppliedTracks?: SpotifyTrack[],
 ) => {
-  const tracks = await getTracks(userId, ids);
+  const tracks = await getTracks(userId, ids, suppliedTracks);
 
   return {
     tracks,
@@ -82,7 +96,7 @@ export const getTracksAlbumsArtists = async (
   userId: string,
   spotifyTracks: SpotifyTrack[],
 ) => {
-  const ids = spotifyTracks.map((track) => track.id);
+  const ids = [...new Set(spotifyTracks.map((track) => track.id))];
   const storedTracks: Track[] = await TrackModel.find({ id: { $in: ids } });
   const missingTrackIds = ids.filter(
     (id) =>
@@ -98,7 +112,14 @@ export const getTracksAlbumsArtists = async (
     tracks,
     artists: relatedArtists,
     albums: relatedAlbums,
-  } = await getTracksAndRelatedAlbumArtists(userId, missingTrackIds);
+  } = await getTracksAndRelatedAlbumArtists(
+    userId,
+    missingTrackIds,
+    missingTrackIds.flatMap((id) => {
+      const track = spotifyTracks.find((item) => item.id === id);
+      return track ? [track] : [];
+    }),
+  );
 
   const storedAlbums: Album[] = await AlbumModel.find({
     id: { $in: relatedAlbums },

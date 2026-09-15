@@ -67,7 +67,10 @@ export class SpotifyAPI {
 
   public async me() {
     const client = await this.checkToken();
-    const res = await client.get("/me", { priority: "high" });
+    const res = await client.get("/me", {
+      priority: "high",
+      failFastOnRateLimit: true,
+    });
     return res.data as SpotifyMe;
   }
 

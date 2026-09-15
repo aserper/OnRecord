@@ -1,3 +1,5 @@
+import { RateLimitState, SpotifyRateLimitError } from "./rateLimitState";
+
 export type RequestPriority = "normal" | "high";
 
 interface HttpClientRequestConfig {
@@ -8,6 +10,8 @@ interface HttpClientRequestConfig {
   headers?: Record<string, string>;
   priority?: RequestPriority;
   retry429MaxAttempts?: number;
+  /** Reject immediately on a recorded or new 429 cooldown; retry limits do not apply. */
+  failFastOnRateLimit?: boolean;
 }
 
 interface HttpClientResponse<T> {
@@ -45,7 +49,8 @@ export class HttpError extends Error {
 }
 
 const DEFAULT_RETRY_429_MAX_ATTEMPTS = 5;
-const DEFAULT_RETRY_AFTER_MS = 1000;
+const DEFAULT_RETRY_AFTER_MS = 60_000;
+const MAX_COOLDOWN_WAIT_CHUNK_MS = 60_000;
 
 function createQueueState(): QueueState {
   return {
@@ -62,6 +67,7 @@ export class QueuedHttpClientFactory {
     private readonly options: {
       baseURL: string;
       headers: Record<string, string>;
+      rateLimitState?: RateLimitState;
     },
   ) {}
 
@@ -71,6 +77,7 @@ export class QueuedHttpClientFactory {
       this.options.baseURL,
       mergedHeaders,
       this.queueState,
+      this.options.rateLimitState,
     );
   }
 }
@@ -80,6 +87,7 @@ export class QueuedHttpClient {
     private readonly baseURL: string,
     private readonly headers: Record<string, string>,
     private readonly queueState: QueueState = createQueueState(),
+    private readonly rateLimitState?: RateLimitState,
   ) {}
 
   request<T = any>(
@@ -156,6 +164,8 @@ export class QueuedHttpClient {
   }
 
   private async execute<T = any>(queueItem: QueueItem<T>) {
+    await this.waitForRateLimit(queueItem.config);
+
     const url = new URL(queueItem.config.url);
 
     if (queueItem.config.params) {
@@ -186,9 +196,14 @@ export class QueuedHttpClient {
         });
       }
 
+      const retryAfterMs = this.parseRetryAfterHeader(response);
+      const retryAt = this.rateLimitState?.registerDelay(retryAfterMs);
+
+      if (queueItem.config.failFastOnRateLimit && retryAt) {
+        throw new SpotifyRateLimitError(retryAt);
+      }
       const maxAttempts =
         queueItem.config.retry429MaxAttempts ?? DEFAULT_RETRY_429_MAX_ATTEMPTS;
-
       if (queueItem.retry429AttemptCount >= maxAttempts) {
         throw new HttpError({
           status: response.status,
@@ -199,9 +214,12 @@ export class QueuedHttpClient {
 
       queueItem.retry429AttemptCount += 1;
       this.requeue(queueItem);
-
-      const retryAfterMs = this.parseRetryAfterHeader(response);
-      await this.sleep(retryAfterMs);
+      if (this.rateLimitState) {
+        await this.waitForRateLimit(queueItem.config);
+      } else {
+        await this.sleep(retryAfterMs);
+      }
+      return;
     }
 
     const data = await response.json();
@@ -210,6 +228,23 @@ export class QueuedHttpClient {
       status: response.status,
       statusText: response.statusText,
     });
+  }
+
+  private async waitForRateLimit(config: HttpClientRequestConfig) {
+    if (!this.rateLimitState) {
+      return;
+    }
+
+    while (true) {
+      const remaining = this.rateLimitState.getRemainingMs();
+      if (remaining <= 0) {
+        return;
+      }
+      if (config.failFastOnRateLimit) {
+        throw new SpotifyRateLimitError(this.rateLimitState.getDeadline());
+      }
+      await this.sleep(Math.min(remaining, MAX_COOLDOWN_WAIT_CHUNK_MS));
+    }
   }
 
   private requeue(queueItem: QueueItem<any>) {
@@ -242,16 +277,12 @@ export class QueuedHttpClient {
       return DEFAULT_RETRY_AFTER_MS;
     }
 
-    const retryAfterValue = Array.isArray(retryAfter)
-      ? retryAfter[0]
-      : retryAfter;
-
-    const retryAfterAsNumber = Number(retryAfterValue);
+    const retryAfterAsNumber = Number(retryAfter);
     if (!Number.isNaN(retryAfterAsNumber)) {
       return Math.max(0, retryAfterAsNumber * 1000);
     }
 
-    const retryAtTimestamp = Date.parse(retryAfterValue);
+    const retryAtTimestamp = Date.parse(retryAfter);
     if (Number.isNaN(retryAtTimestamp)) {
       return DEFAULT_RETRY_AFTER_MS;
     }
