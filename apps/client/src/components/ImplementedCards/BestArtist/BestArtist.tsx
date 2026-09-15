@@ -1,15 +1,17 @@
+import { Skeleton } from "@mui/material";
 import clsx from "clsx";
 import { useSelector } from "react-redux";
-import { Skeleton } from "@mui/material";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import { msToMinutes } from "../../../services/stats";
 import { getImage } from "../../../services/tools";
+import InlineArtist from "../../InlineArtist";
+import Text from "../../Text";
 import TitleCard from "../../TitleCard";
 import { ImplementedCardProps } from "../types";
-import InlineArtist from "../../InlineArtist";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
-import Text from "../../Text";
+
 import s from "./index.module.css";
 
 interface BestArtistProps extends ImplementedCardProps {}
@@ -20,7 +22,7 @@ export default function BestArtist({ className }: BestArtistProps) {
 
   if (!result) {
     return (
-      <TitleCard title="Best artist" className={clsx(s.root, className)}>
+      <TitleCard title="Top artist" className={clsx(s.root, className)}>
         <div className={s.container}>
           <div className={s.imgcontainer}>
             <Skeleton
@@ -48,13 +50,13 @@ export default function BestArtist({ className }: BestArtistProps) {
   const res = result[0];
 
   return (
-    <TitleCard title="Best artist" className={clsx(s.root, className)} fade>
+    <TitleCard title="Top artist" className={clsx(s.root, className)} fade>
       <div className={s.container}>
         <div className={s.imgcontainer}>
           <img
             className={s.image}
             src={getImage(res?.artist)}
-            alt="Your best artist"
+            alt={res?.artist.name ?? ""}
           />
         </div>
         <div className={s.stats}>
@@ -63,7 +65,7 @@ export default function BestArtist({ className }: BestArtistProps) {
           )}
           {!res && (
             <Text element="strong" size="normal">
-              No data
+              No listening activity in this date range.
             </Text>
           )}
           <div className={s.statnumbers}>
@@ -71,19 +73,19 @@ export default function BestArtist({ className }: BestArtistProps) {
               <Text element="strong" size="big">
                 {res?.count ?? 0}
               </Text>{" "}
-              songs listened
+              plays
             </Text>
             <Text size="big">
               <Text element="strong" size="big">
                 {msToMinutes(res?.duration_ms ?? 0)}
               </Text>{" "}
-              minutes listened
+              min
             </Text>
             <Text size="big">
               <Text element="strong" size="big">
                 {res?.differents ?? 0}
               </Text>{" "}
-              different songs
+              unique tracks
             </Text>
           </div>
         </div>

@@ -19,11 +19,11 @@ export default function ArtistContextMenu({
 
   const items: Array<ThreePointItem> = compact([
     conditionalEntry(
-      { label: "Blacklist", onClick: setOpen, style: "destructive" },
+      { label: "Exclude artist", onClick: setOpen, style: "destructive" },
       !blacklisted,
     ),
     conditionalEntry(
-      { label: "Unblacklist", onClick: setOpen, style: "destructive" },
+      { label: "Include artist", onClick: setOpen, style: "destructive" },
       blacklisted,
     ),
   ]);

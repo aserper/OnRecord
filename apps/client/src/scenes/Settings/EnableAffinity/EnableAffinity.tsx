@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { enableAffinity } from "../../../services/redux/modules/settings/thunk";
@@ -23,12 +24,12 @@ export default function EnableAffinity({ settings }: EnableAffinityProps) {
   };
 
   return (
-    <TitleCard title="Affinity">
+    <TitleCard title="Affinity comparisons">
       <SettingLine
-        left={<Text size="normal">Enable affinity feature</Text>}
+        left={<Text size="normal">Listening comparisons</Text>}
         right={
           <Button onClick={handleEnable}>
-            {settings.allowAffinity ? "YES" : "NO"}
+            {settings.allowAffinity ? "Disable" : "Enable"}
           </Button>
         }
       />

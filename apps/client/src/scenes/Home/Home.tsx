@@ -23,15 +23,15 @@ export default function Home() {
   return (
     <div className={s.root}>
       <Header
-        title={`Your listening, ${user.username}`}
-        tinyTitle="Your listening"
-        subtitle="Follow the music behind every pattern in the selected period"
+        title="Overview"
+        tinyTitle="Overview"
+        subtitle="Your listening activity for the selected date range."
       />
       <main className={s.dashboard}>
-        <section className={s.songs} aria-label="Songs listened">
+        <section className={s.songs} aria-label="Plays">
           <SongsListened />
         </section>
-        <section className={s.time} aria-label="Time listened">
+        <section className={s.time} aria-label="Listening time">
           <TimeListened />
         </section>
         <section className={s.artists} aria-label="Artists listened">
@@ -40,13 +40,13 @@ export default function Home() {
         <section className={s.timeline} aria-label="Listening over time">
           <TimeListenedPer className={s.chart} />
         </section>
-        <section className={s.bestartist} aria-label="Most listened artist">
+        <section className={s.bestartist} aria-label="Top artist">
           <BestArtist />
         </section>
         <section className={s.repartition} aria-label="Listening distribution">
           <ListeningRepartition className={s.chart} />
         </section>
-        <section className={s.bestsong} aria-label="Most listened song">
+        <section className={s.bestsong} aria-label="Top track">
           <BestSong />
         </section>
         <section className={s.history} aria-label="Listening history">

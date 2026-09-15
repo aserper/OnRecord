@@ -7,6 +7,7 @@ import {
   Tooltip as ReTooltip,
   Area,
 } from "recharts";
+
 import { api } from "../../../services/apis/api";
 import { getColor } from "../../../services/colors";
 import { useAPI } from "../../../services/hooks/hooks";
@@ -97,14 +98,14 @@ export default function ArtistListeningRepartition({
   if (!results) {
     return (
       <LoadingImplementedChart
-        title="Artist listening distribution"
+        title="Listening share by artist"
         className={className}
       />
     );
   }
 
   return (
-    <ChartCard title="Artist listening distribution" className={className}>
+    <ChartCard title="Listening share by artist" className={className}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data}>
           <XAxis

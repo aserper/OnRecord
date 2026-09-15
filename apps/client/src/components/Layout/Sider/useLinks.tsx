@@ -18,6 +18,7 @@ import {
   SpeedOutlined,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+
 import { selectAffinityEnabled } from "../../../services/redux/modules/settings/selector";
 import { compact } from "../../../services/tools";
 import { SiderCategory } from "./types";
@@ -29,7 +30,12 @@ export function useLinks() {
     {
       label: "General",
       items: [
-        { label: "Home", link: "/", icon: <HomeOutlined />, iconOn: <Home /> },
+        {
+          label: "Overview",
+          link: "/",
+          icon: <HomeOutlined />,
+          iconOn: <Home />,
+        },
         {
           label: "Longest sessions",
           link: "/sessions",
@@ -37,7 +43,7 @@ export function useLinks() {
           iconOn: <Speed />,
         },
         {
-          label: "All stats",
+          label: "Statistics",
           link: "/all",
           icon: <BarChartOutlined />,
           iconOn: <BarChart />,
@@ -45,10 +51,10 @@ export function useLinks() {
       ],
     },
     {
-      label: "Tops",
+      label: "Rankings",
       items: [
         {
-          label: "Top songs",
+          label: "Top tracks",
           link: "/top/songs",
           icon: <MusicNoteOutlined />,
           iconOn: <MusicNote />,
@@ -69,7 +75,7 @@ export function useLinks() {
     },
     affinityEnabled
       ? {
-          label: "With people",
+          label: "Compare",
           items: [
             {
               label: "Affinity",
@@ -97,7 +103,7 @@ export function useLinks() {
           iconOn: <Settings />,
         },
         {
-          label: "Logout",
+          label: "Sign out",
           link: "/logout",
           icon: <ExitToApp />,
           iconOn: <ExitToApp />,

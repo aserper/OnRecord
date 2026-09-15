@@ -49,6 +49,14 @@ The interface is an archive for exploring listening patterns, not a Spotify imit
 - Interactive controls must preserve visible focus, keyboard operation, and a minimum 44px target on narrow screens.
 - Mobile reflow may simplify topology, but it must preserve each world's type, color, border, and image treatment.
 
+## Copy and identity
+
+Use concise, factual language throughout the interface. Prefer “tracks”, “plays”, “listening time”, and “date range” over interchangeable terms or design metaphors. Navigation labels remain the same in every theme. Theme names describe appearance, not different product functions.
+
+The listening-history mark is an original Codex-generated asset for this fork. The shared Brand component pairs it with the product name; a CSS mask keeps its ink legible in every theme. Source assets and provenance are in `apps/client/public/brand/`.
+
+The theme selector stays at the bottom-right on every page and in every theme, with the same footprint and accessible theme names. Infinite listening history occupies its own Programme grid row so loading more tracks cannot stretch the featured artist artwork.
+
 ## Extending the system
 
 Add shared behavior once, then express world-specific presentation through the existing data attribute. Do not branch API calls, Redux state, routes, or business logic by world. New visualization colors should use `--chart-*`; surfaces should use `--surface-*`, `--line`, `--ink`, and `--muted` rather than literal colors.

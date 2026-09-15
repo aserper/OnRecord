@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, Button } from "@mui/material";
+
 import {
   blacklistArtist,
   unblacklistArtist,
@@ -40,30 +41,30 @@ export default function BlacklistArtistDialog({
   return (
     <>
       <Dialog
-        title={`Do you really want to blacklist ${artistName}`}
+        title="Exclude artist"
         open={Boolean(artistId) && !blacklisted}
         onClose={onClose}>
         <DialogContent>
           <SimpleDialogContent
-            message="Doing this will hide this artist from every computed statistics and song history."
+            message={`Hide recorded plays by ${artistName} from statistics and listening history. No plays are deleted. You can include this artist again at any time.`}
             actions={
               <Button variant="contained" color="error" onClick={doBlacklist}>
-                I understand, blacklist {artistName}
+                Exclude artist
               </Button>
             }
           />
         </DialogContent>
       </Dialog>
       <Dialog
-        title={`Do you really want to unblacklist ${artistName}`}
+        title="Include artist"
         open={Boolean(artistId) && blacklisted}
         onClose={onClose}>
         <DialogContent>
           <SimpleDialogContent
-            message="Unblacklisting will result in having the artist back in the computed statistics and song history."
+            message={`Show recorded plays by ${artistName} in statistics and listening history again.`}
             actions={
               <Button variant="contained" color="error" onClick={doUnblacklist}>
-                I understand, unblacklist {artistName}
+                Include artist
               </Button>
             }
           />

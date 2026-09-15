@@ -1,27 +1,28 @@
-import { useContext } from "react";
-import clsx from "clsx";
-import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { SystemUpdateAlt as UpdateIcon } from "@mui/icons-material";
-
 import { Tooltip } from "@mui/material";
+import clsx from "clsx";
+import { useContext } from "react";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
 import { useShareLink } from "../../../services/hooks/hooks";
+import { useNavigate } from "../../../services/hooks/useNavigate";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
-import { selectUser } from "../../../services/redux/modules/user/selector";
-import { useAppDispatch } from "../../../services/redux/tools";
-import { LayoutContext } from "../LayoutContext";
-import SiderSearch from "../../SiderSearch";
-import { Album, Artist, Track } from "../../../services/types";
 import {
   selectUpdateAvailable,
   selectVersion,
 } from "../../../services/redux/modules/settings/selector";
+import { selectUser } from "../../../services/redux/modules/user/selector";
+import { useAppDispatch } from "../../../services/redux/tools";
+import { Album, Artist, Track } from "../../../services/types";
+import SiderSearch from "../../SiderSearch";
 import Text from "../../Text";
-import { useNavigate } from "../../../services/hooks/useNavigate";
+import { LayoutContext } from "../LayoutContext";
 import SiderCategory from "./SiderCategory/SiderCategory";
 import SiderTitle from "./SiderTitle";
-import s from "./index.module.css";
 import { useLinks } from "./useLinks";
+
+import s from "./index.module.css";
 
 interface SiderProps {
   className?: string;
@@ -55,17 +56,13 @@ export default function Sider({ className, isDrawer }: SiderProps) {
       dispatch(
         alertMessage({
           level: "error",
-          message:
-            "No public token generated, go to the settings page to generate one",
+          message: "Create a public link in Settings → Account before sharing.",
         }),
       );
       return;
     }
     dispatch(
-      alertMessage({
-        level: "info",
-        message: "Copied current page to clipboard with public token",
-      }),
+      alertMessage({ level: "info", message: "Public page link copied." }),
     );
   }
 

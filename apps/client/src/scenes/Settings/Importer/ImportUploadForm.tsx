@@ -94,7 +94,8 @@ export default function ImportUploadForm({
         <label className={s.filepicker} htmlFor={inputId}>
           <span className={s.filepickerlabel}>Select JSON files</span>
           <span className={s.filepickerhint}>
-            Up to 50 files, 20 MB each. Expected prefix: {expectedPrefix}
+            Up to 50 files, 20 MB each. File names must start with{" "}
+            {expectedPrefix}.
           </span>
         </label>
         {selectedFiles.length > 0 && (
@@ -112,8 +113,7 @@ export default function ImportUploadForm({
         )}
         {wrongFiles && (
           <Text className={s.alert} size="normal">
-            One or more files do not start with {expectedPrefix}. Remove them
-            before continuing.
+            Select only JSON files with names starting with {expectedPrefix}.
           </Text>
         )}
       </div>
@@ -128,9 +128,9 @@ export default function ImportUploadForm({
             onChange={() => setTiming("scheduled")}
           />
           <span>
-            <strong>Schedule for off-hours</strong>
+            <strong>Schedule for later</strong>
             <small>
-              Recommended for large exports so normal Spotify use gets priority.
+              For large exports, choose a time when you use Spotify less.
             </small>
           </span>
         </label>
@@ -143,10 +143,7 @@ export default function ImportUploadForm({
               min={toLocalInputValue(new Date(Date.now() + 60_000))}
               onChange={(event) => setScheduledFor(event.target.value)}
             />
-            <small>
-              Uses this browser’s local timezone. The server stores the
-              equivalent UTC time.
-            </small>
+            <small>Times use your browser’s time zone.</small>
           </label>
         )}
         <label className={s.timingoption}>
@@ -158,10 +155,7 @@ export default function ImportUploadForm({
           />
           <span>
             <strong>Start now</strong>
-            <small>
-              Best for small exports. Import requests are paced to protect login
-              traffic.
-            </small>
+            <small>Recommended for smaller exports.</small>
           </span>
         </label>
       </fieldset>
@@ -187,7 +181,7 @@ export default function ImportUploadForm({
         {loading && <CircularProgress size={20} />}
         {timing === "scheduled" && scheduledDate && !invalidSchedule && (
           <Text size="normal">
-            Scheduled for {scheduledDate.toLocaleString()}
+            Selected start: {scheduledDate.toLocaleString()}
           </Text>
         )}
       </div>

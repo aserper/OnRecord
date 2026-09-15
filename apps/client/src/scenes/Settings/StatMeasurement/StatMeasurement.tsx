@@ -1,16 +1,18 @@
 import { MenuItem, Select } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { changeStatUnit } from "../../../services/redux/modules/settings/thunk";
 import { selectStatMeasurement } from "../../../services/redux/modules/user/selector";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 const units = [
-  { name: "Count", value: "number" },
-  { name: "Duration", value: "duration" },
+  { name: "Plays", value: "number" },
+  { name: "Listening time", value: "duration" },
 ];
 
 export function StatMeasurement() {
@@ -27,12 +29,12 @@ export function StatMeasurement() {
   };
 
   return (
-    <TitleCard title="Stat measurement used">
+    <TitleCard title="Ranking preference">
       <Text element="span" className={s.marginbottom} size="normal">
-        Measurement used to compute most listened elements.
+        Rank tracks, artists, and albums by plays or listening time.
       </Text>
       <SettingLine
-        left="Stat measurement"
+        left="Rank by"
         right={
           <Select
             variant="standard"

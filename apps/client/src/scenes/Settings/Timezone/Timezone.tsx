@@ -1,5 +1,6 @@
 import { MenuItem, Select } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { changeTimezone } from "../../../services/redux/modules/settings/thunk";
@@ -7,6 +8,7 @@ import { selectTimezone } from "../../../services/redux/modules/user/selector";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
 import { timezones } from "./timezones";
+
 import s from "./index.module.css";
 
 export default function Timezone() {
@@ -21,19 +23,18 @@ export default function Timezone() {
   };
 
   return (
-    <TitleCard title="Timezone">
+    <TitleCard title="Time zone">
       <Text element="span" className={s.marginbottom} size="normal">
-        Statistics computed by the server need to know your timezone. Change
-        this if your history does not match computed stats.
+        Choose the time zone used to group your listening activity.
       </Text>
       <SettingLine
-        left="Timezone"
+        left="Time zone"
         right={
           <Select
             variant="standard"
             value={currentTimezone}
             onChange={(ev) => handleChangeTimezone(ev.target.value)}>
-            <MenuItem value="follow">Default timezone</MenuItem>
+            <MenuItem value="follow">Server time zone</MenuItem>
             {timezones.map((timezone) => (
               <MenuItem key={timezone} value={timezone}>
                 {timezone}

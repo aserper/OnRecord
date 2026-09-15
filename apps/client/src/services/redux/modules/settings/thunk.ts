@@ -27,10 +27,7 @@ export const getSettings = myAsyncThunk<GlobalPreferences | null, void>(
     } catch (e) {
       console.error(e);
       tapi.dispatch(
-        alertMessage({
-          level: "error",
-          message: "The web application can't communicate with the server",
-        }),
+        alertMessage({ level: "error", message: "Could not load settings." }),
       );
     }
     return null;
@@ -48,7 +45,7 @@ export const changeRegistrations = myAsyncThunk<
     tapi.dispatch(
       alertMessage({
         level: "success",
-        message: `Updated registration status to ${newStatus}`,
+        message: `Registration ${newStatus ? "enabled" : "disabled"}`,
       }),
     );
     return result.data;
@@ -57,7 +54,7 @@ export const changeRegistrations = myAsyncThunk<
     tapi.dispatch(
       alertMessage({
         level: "error",
-        message: `Could not update registration status to ${newStatus}`,
+        message: "Could not update registration settings.",
       }),
     );
     throw e;
@@ -74,7 +71,7 @@ export const enableAffinity = myAsyncThunk<GlobalPreferences | null, boolean>(
       tapi.dispatch(
         alertMessage({
           level: "success",
-          message: `${newStatus ? "Enabled" : "Disabled"} affinity feature`,
+          message: `Affinity ${newStatus ? "enabled" : "disabled"}`,
         }),
       );
       return result.data;
@@ -83,7 +80,7 @@ export const enableAffinity = myAsyncThunk<GlobalPreferences | null, boolean>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: `Could not ${newStatus ? "enabled" : "disable"} affinity`,
+          message: `Could not ${newStatus ? "enable" : "disable"} affinity.`,
         }),
       );
       throw e;
@@ -98,19 +95,14 @@ export const changeTimezone = myAsyncThunk<void, User["settings"]["timezone"]>(
       await api.setSetting("timezone", newTimezone);
       await tapi.dispatch(checkLogged());
       tapi.dispatch(
-        alertMessage({
-          level: "success",
-          message: `Updated timezone status to ${
-            newTimezone ?? "follow backend timezone"
-          }`,
-        }),
+        alertMessage({ level: "success", message: "Time zone updated" }),
       );
     } catch (e) {
       console.error(e);
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: `Could not update timezone to ${newTimezone}`,
+          message: "Could not update the time zone.",
         }),
       );
       throw e;
@@ -126,17 +118,14 @@ export const changeDateFormat = myAsyncThunk<
     await api.setSetting("dateFormat", newDateFormat);
     await tapi.dispatch(checkLogged());
     tapi.dispatch(
-      alertMessage({
-        level: "success",
-        message: `Updated date format to ${newDateFormat}`,
-      }),
+      alertMessage({ level: "success", message: "Date format updated" }),
     );
   } catch (e) {
     console.error(e);
     tapi.dispatch(
       alertMessage({
         level: "error",
-        message: `Could not update date format to ${newDateFormat}`,
+        message: "Could not update the date format.",
       }),
     );
     throw e;
@@ -151,17 +140,14 @@ export const changeStatUnit = myAsyncThunk<
     await api.setSetting("metricUsed", newStatMeasurement);
     await tapi.dispatch(checkLogged());
     tapi.dispatch(
-      alertMessage({
-        level: "success",
-        message: `Updated stat measurement to ${newStatMeasurement}`,
-      }),
+      alertMessage({ level: "success", message: "Ranking preference updated" }),
     );
   } catch (e) {
     console.error(e);
     tapi.dispatch(
       alertMessage({
         level: "error",
-        message: `Could not update stat measurement to ${newStatMeasurement}`,
+        message: "Could not update the ranking preference.",
       }),
     );
     throw e;

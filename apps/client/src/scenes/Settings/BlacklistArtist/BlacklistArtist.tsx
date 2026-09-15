@@ -1,17 +1,19 @@
+import UnblacklistIcon from "@mui/icons-material/CloseRounded";
 import { CircularProgress, IconButton } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import UnblacklistIcon from "@mui/icons-material/CloseRounded";
+
+import BlacklistArtistDialog from "../../../components/BlacklistArtistDialog";
+import IdealImage from "../../../components/IdealImage";
+import InlineArtist from "../../../components/InlineArtist";
 import ResourceSearch from "../../../components/SiderSearch";
 import Text from "../../../components/Text";
+import TitleCard from "../../../components/TitleCard";
 import { useLoadArtists } from "../../../services/hooks/artist";
 import { selectBlacklistedArtists } from "../../../services/redux/modules/user/selector";
 import { compact } from "../../../services/tools";
 import { Artist } from "../../../services/types";
-import BlacklistArtistDialog from "../../../components/BlacklistArtistDialog";
-import InlineArtist from "../../../components/InlineArtist";
-import TitleCard from "../../../components/TitleCard";
-import IdealImage from "../../../components/IdealImage";
+
 import s from "./index.module.css";
 
 export default function BlacklistArtist() {
@@ -37,11 +39,10 @@ export default function BlacklistArtist() {
   const askedArtist = askedBlacklist ?? askedUnblacklist;
 
   return (
-    <TitleCard title="Blacklisted artists">
+    <TitleCard title="Excluded artists">
       <Text element="span" className={s.marginbottom} size="normal">
-        Blacklist artists so they never appear in the statistics. Blacklisting
-        an artist will remove already existing records and never record them
-        again.
+        Exclude artists from your statistics and listening history. Existing
+        plays are removed, and future plays are not recorded.
       </Text>
       <div className={s.root}>
         <ResourceSearch
@@ -51,7 +52,7 @@ export default function BlacklistArtist() {
         />
         {blacklisted.length === 0 && (
           <Text className={s.none} size="normal">
-            You have not blacklisted any artist
+            No excluded artists
           </Text>
         )}
         {compact(blacklisted.map((b) => artists[b])).map((artist) => (
@@ -67,6 +68,7 @@ export default function BlacklistArtist() {
             <InlineArtist artist={artist} size="normal" />
             <IconButton
               className={s.unblacklist}
+              aria-label="Include artist"
               onClick={() => askUnblacklist(artist)}>
               <UnblacklistIcon />
             </IconButton>

@@ -1,18 +1,19 @@
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
+import { DateFormatter } from "../../../services/date";
 import { useAPI } from "../../../services/hooks/hooks";
-import Bar from "../../charts/Bar";
-import { ImplementedChartProps } from "../types";
-import ChartCard from "../../ChartCard";
-import LoadingImplementedChart from "../LoadingImplementedChart";
 import {
   selectRawIntervalDetail,
   selectStatMeasurement,
 } from "../../../services/redux/modules/user/selector";
+import { msToMinutes } from "../../../services/stats";
+import ChartCard from "../../ChartCard";
+import Bar from "../../charts/Bar";
 import Tooltip from "../../Tooltip";
 import { TitleFormatter } from "../../Tooltip/Tooltip";
-import { DateFormatter } from "../../../services/date";
-import { msToMinutes } from "../../../services/stats";
+import LoadingImplementedChart from "../LoadingImplementedChart";
+import { ImplementedChartProps } from "../types";
 
 interface ListeningRepartitionProps extends ImplementedChartProps {}
 
@@ -47,7 +48,7 @@ export default function ListeningRepartition({
         <div>
           {`${value}% of your daily listening`}
           <br />
-          {`${payload.count} out of ${total} songs`}
+          {`${payload.count} out of ${total} plays`}
         </div>
       );
     }
@@ -64,13 +65,13 @@ export default function ListeningRepartition({
     return (
       <LoadingImplementedChart
         className={className}
-        title="Listening distribution over day"
+        title="Listening by hour"
       />
     );
   }
 
   return (
-    <ChartCard className={className} title="Listening distribution over day">
+    <ChartCard className={className} title="Listening by hour">
       <Bar
         data={data}
         xFormat={DateFormatter.fromNumberToHour}

@@ -37,7 +37,7 @@ export const startImportPrivacy = myAsyncThunk<
         level: "success",
         message: scheduledFor
           ? `Import scheduled for ${new Date(scheduledFor).toLocaleString()}`
-          : "Successfully started importing",
+          : "Import started",
       }),
     );
   } catch (e: any) {
@@ -45,7 +45,7 @@ export const startImportPrivacy = myAsyncThunk<
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "An import is already running on this account",
+          message: "An import is already running on this account.",
         }),
       );
     } else if (e?.response?.data?.code === "IMPORT_INIT_FAILED") {
@@ -53,7 +53,7 @@ export const startImportPrivacy = myAsyncThunk<
         alertMessage({
           level: "error",
           message:
-            "The initialization failed, maybe your files are wrongly formatted",
+            "Could not start the import. Check the selected files and try again.",
         }),
       );
     }
@@ -83,7 +83,7 @@ export const startImportFullPrivacy = myAsyncThunk<
         level: "success",
         message: scheduledFor
           ? `Import scheduled for ${new Date(scheduledFor).toLocaleString()}`
-          : "Successfully started importing",
+          : "Import started",
       }),
     );
   } catch (e: any) {
@@ -91,7 +91,7 @@ export const startImportFullPrivacy = myAsyncThunk<
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "An import is already running on this account",
+          message: "An import is already running on this account.",
         }),
       );
     } else if (e?.response?.data?.code === "IMPORT_INIT_FAILED") {
@@ -99,7 +99,7 @@ export const startImportFullPrivacy = myAsyncThunk<
         alertMessage({
           level: "error",
           message:
-            "The initialization failed, maybe your files are wrongly formatted",
+            "Could not start the import. Check the selected files and try again.",
         }),
       );
     }
@@ -113,17 +113,14 @@ export const cleanupImport = myAsyncThunk<void, string>(
     try {
       await api.cleanupImport(id);
       tapi.dispatch(
-        alertMessage({
-          level: "success",
-          message: "Successfully cleaned up import",
-        }),
+        alertMessage({ level: "success", message: "Import cleaned up" }),
       );
       tapi.dispatch(getImports(true)).catch(console.error);
     } catch {
       tapi.dispatch(
         alertMessage({
-          level: "success",
-          message: "Could not clean up your import",
+          level: "error",
+          message: "Could not clean up the import.",
         }),
       );
     }
@@ -146,7 +143,8 @@ export const cancelScheduledImport = myAsyncThunk<void, string>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "The import has already started and cannot be cancelled",
+          message:
+            "Could not cancel the scheduled import. Refresh to check its status.",
         }),
       );
     }

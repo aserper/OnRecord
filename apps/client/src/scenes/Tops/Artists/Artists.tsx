@@ -1,5 +1,6 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useSelector } from "react-redux";
+
 import { GridWrapper } from "../../../components/Grid";
 import Header from "../../../components/Header";
 import Loader from "../../../components/Loader";
@@ -9,6 +10,7 @@ import { useInfiniteScroll } from "../../../services/hooks/scrolling";
 import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import Artist from "./Artist";
 import ArtistHeader from "./Artist/ArtistHeader";
+
 import s from "./index.module.css";
 
 export default function Artists() {
@@ -20,10 +22,7 @@ export default function Artists() {
 
   return (
     <div>
-      <Header
-        title="Top artists"
-        subtitle="Here are the artists you listened to the most"
-      />
+      <Header title="Artists" subtitle={null} />
       <div className={s.content}>
         <TitleCard title="Top artists" noBorder>
           <InfiniteScroll

@@ -1,22 +1,24 @@
 import { CircularProgress, Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
-import TitleCard from "../../components/TitleCard";
-import { ArtistStatsResponse } from "../../services/apis/api";
-import { buildFromDateId } from "../../services/stats";
-import Text from "../../components/Text";
-import InlineTrack from "../../components/InlineTrack";
-import { selectBlacklistedArtist } from "../../services/redux/modules/user/selector";
 import IdealImage from "../../components/IdealImage";
 import ImageTwoLines from "../../components/ImageTwoLines";
 import InlineAlbum from "../../components/InlineAlbum";
+import InlineTrack from "../../components/InlineTrack";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { ArtistStatsResponse } from "../../services/apis/api";
 import { DateFormatter } from "../../services/date";
+import { selectBlacklistedArtist } from "../../services/redux/modules/user/selector";
+import { buildFromDateId } from "../../services/stats";
 import ArtistContextMenu from "./ArtistContextMenu";
-import FirstAndLast from "./FirstAndLast";
 import ArtistRank from "./ArtistRank/ArtistRank";
 import DayRepartition from "./DayRepartition";
-import s from "./index.module.css";
+import FirstAndLast from "./FirstAndLast";
 import { MostListenedTracksContextMenuButton } from "./mostListenedTracksContextMenuButton/mostListenedTracksContextMenuButton";
+
+import s from "./index.module.css";
 
 interface ArtistStatsProps {
   artistId: string;
@@ -69,7 +71,7 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
             spacing={2}
             sx={{ justifyContent: "flex-start", alignItems: "flex-start" }}>
             <Grid size={{ xs: 12 }}>
-              <TitleCard title="Songs listened">
+              <TitleCard title="Plays">
                 <Text element="strong" size="big">
                   {stats.total.count}
                 </Text>
@@ -96,8 +98,7 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TitleCard
-                title={`Top two months you listened to ${stats.artist.name}`}>
+              <TitleCard title="Top listening months">
                 {bestPeriod && (
                   <div className={s.bestperiod}>
                     <Text element="strong" size="normal">
@@ -106,9 +107,9 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
                       )}
                     </Text>
                     <Text size="normal">
-                      {bestPeriod.count} times (
+                      {bestPeriod.count} plays (
                       {Math.floor((bestPeriod.count / bestPeriod.total) * 100)}%
-                      of total time)
+                      of all plays)
                     </Text>
                   </div>
                 )}
@@ -120,11 +121,11 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
                       )}
                     </Text>
                     <Text size="normal">
-                      {secondBestPeriod.count} times (
+                      {secondBestPeriod.count} plays (
                       {Math.floor(
                         (secondBestPeriod.count / secondBestPeriod.total) * 100,
                       )}
-                      % of total time)
+                      % of all plays)
                     </Text>
                   </div>
                 )}
@@ -140,7 +141,7 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
           <Grid container size={{ xs: 12, lg: 6 }} spacing={2}>
             <Grid size={{ xs: 12 }}>
               <TitleCard
-                title="Most listened tracks"
+                title="Top tracks"
                 right={
                   <MostListenedTracksContextMenuButton artistId={artistId} />
                 }>
@@ -159,14 +160,14 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
                         />
                       }
                       first={<InlineTrack track={ml.track} size="normal" />}
-                      second={`${ml.count} times`}
+                      second={`${ml.count} plays`}
                     />
                   </div>
                 ))}
               </TitleCard>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TitleCard title="Most listened albums">
+              <TitleCard title="Top albums">
                 {stats.albumMostListened.map((ml, k) => (
                   <div key={ml.album.id} className={s.ml}>
                     <Text element="strong" className={s.mlrank} size="big">
@@ -182,7 +183,7 @@ export default function ArtistStats({ artistId, stats }: ArtistStatsProps) {
                         />
                       }
                       first={<InlineAlbum album={ml.album} size="normal" />}
-                      second={`${ml.count} times`}
+                      second={`${ml.count} plays`}
                     />
                   </div>
                 ))}

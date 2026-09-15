@@ -1,7 +1,9 @@
 import { MenuItem, Select } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
+import { DateFormatter } from "../../../services/date";
 import { useAPI } from "../../../services/hooks/hooks";
 import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import { UnboxPromise } from "../../../services/types";
@@ -11,9 +13,8 @@ import { StackedBarProps } from "../../charts/StackedBar/StackedBar";
 import Tooltip from "../../Tooltip";
 import LoadingImplementedChart from "../LoadingImplementedChart";
 import { ImplementedChartProps } from "../types";
-import { DateFormatter } from "../../../services/date";
 
-interface BestOfHourProps extends ImplementedChartProps { }
+interface BestOfHourProps extends ImplementedChartProps {}
 
 enum Element {
   ARTIST = "artists",
@@ -76,7 +77,7 @@ export default function BestOfHour({ className }: BestOfHourProps) {
   })();
 
   const tooltipTitle = ({ x }: any) =>
-    `20 most listened ${element} at ${DateFormatter.fromNumberToHour(x)}`;
+    `Top 20 ${element} at ${DateFormatter.fromNumberToHour(x)}`;
 
   const tooltipValue = (payload: any, value: any, root: any) => {
     const foundIndex = result?.findIndex((r) => r.hour === payload.x);
@@ -89,7 +90,7 @@ export default function BestOfHour({ className }: BestOfHourProps) {
     }
     return (
       <span style={{ color: root.color }}>
-        {value}% of {getElementName(found, root.dataKey.toString())}
+        {getElementName(found, root.dataKey.toString())}: {value}%
       </span>
     );
   };
@@ -97,7 +98,7 @@ export default function BestOfHour({ className }: BestOfHourProps) {
   if (!result) {
     return (
       <LoadingImplementedChart
-        title={`Best ${element} for hour of day`}
+        title={`Top ${element} by hour`}
         className={className}
       />
     );
@@ -105,7 +106,7 @@ export default function BestOfHour({ className }: BestOfHourProps) {
 
   return (
     <ChartCard
-      title={`Best ${element} for hour of day`}
+      title={`Top ${element} by hour`}
       right={
         <div style={{ position: "absolute", right: 16 }}>
           <Select

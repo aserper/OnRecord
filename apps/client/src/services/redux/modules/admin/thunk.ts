@@ -12,10 +12,7 @@ export const getAccounts = myAsyncThunk<AdminAccount[], void>(
     } catch (e) {
       console.error(e);
       tapi.dispatch(
-        alertMessage({
-          level: "error",
-          message: "Could not retrieve all the registered accounts",
-        }),
+        alertMessage({ level: "error", message: "Could not load accounts." }),
       );
       throw e;
     }
@@ -32,7 +29,7 @@ export const setAdmin = myAsyncThunk<void, { id: string; status: boolean }>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not set this user admin status",
+          message: "Could not update admin access.",
         }),
       );
       throw e;
@@ -48,7 +45,10 @@ export const deleteUser = myAsyncThunk<void, { id: string }>(
     } catch (e) {
       console.error(e);
       tapi.dispatch(
-        alertMessage({ level: "error", message: "Could not delete this user" }),
+        alertMessage({
+          level: "error",
+          message: "Could not delete this account.",
+        }),
       );
       throw e;
     }

@@ -1,22 +1,24 @@
 import { Button, Checkbox, MenuItem, Select } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { AdminAccount } from "../../../services/redux/modules/admin/reducer";
-import { selectAccounts } from "../../../services/redux/modules/admin/selector";
-import { CollaborativeMode } from "../../../services/types";
-import { selectUser } from "../../../services/redux/modules/user/selector";
+
+import Header from "../../../components/Header";
 import { IntervalSelector } from "../../../components/IntervalSelector";
+import { ITooltip } from "../../../components/iTooltip/iTooltip";
 import Text from "../../../components/Text";
+import { useNavigateAndSearch } from "../../../services/hooks/hooks";
 import {
   detailIntervalToQuery,
   IntervalDetail,
   presetIntervals,
 } from "../../../services/intervals";
-import { useNavigateAndSearch } from "../../../services/hooks/hooks";
-import Header from "../../../components/Header";
+import { AdminAccount } from "../../../services/redux/modules/admin/reducer";
+import { selectAccounts } from "../../../services/redux/modules/admin/selector";
+import { selectUser } from "../../../services/redux/modules/user/selector";
+import { CollaborativeMode } from "../../../services/types";
 import { AFFINITY_PREFIX } from "./types";
+
 import s from "./index.module.css";
-import { ITooltip } from "../../../components/iTooltip/iTooltip";
 
 export default function Affinity() {
   const navigate = useNavigateAndSearch();
@@ -49,28 +51,19 @@ export default function Affinity() {
   const content = (
     <div>
       <p>
-        The affinity represents the probability the user like the same songs.
-        The affinity feature comes with two <strong>modes</strong>:
+        Listening share is the proportion of each user’s plays for a track,
+        artist, or album in the selected date range.
       </p>
       <ul>
         <li>
-          <strong>Average</strong>: bases the ranking on the average of the
-          proportion each people listening to a specific element. If A listens
-          to a song 50% of his time, B 25% and C 0%, the average will be 25%,
-          thus ranking higher than A 12%, B 12% and C 12%.
+          <strong>Average share</strong> ranks by the average listening share
+          across selected users.
         </li>
         <li>
-          <strong>Minima</strong>: bases the ranking on the minimal proportion
-          of each people listening to a specific element. If A listens to a song
-          50% of his time, B 25% and C 0%, the minima will be 0%, thus ranking
-          lower than A 100% B 5% and C 1%.
+          <strong>Minimum share</strong> ranks by the lowest listening share
+          among selected users.
         </li>
       </ul>
-      <p>
-        Average can mean that the top songs will satisfy a lot some people while
-        minima means that the top songs will be known by everyone but not
-        enjoyed as much for everyone.
-      </p>
     </div>
   );
 
@@ -83,7 +76,7 @@ export default function Affinity() {
             Affinity <ITooltip content={content} />
           </div>
         }
-        subtitle="Compute the affinity you have with somebody using YourSpotify"
+        subtitle="Compare listening habits with other users."
       />
       <div className={s.content}>
         <div>
@@ -110,32 +103,36 @@ export default function Affinity() {
           </div>
           <div className={s.modeselection}>
             <Text element="h2" className={s.section} size="big">
-              Mode
+              Ranking method
             </Text>
             <Select
               variant="standard"
               value={mode}
               onChange={(ev) => setMode(ev.target.value as CollaborativeMode)}>
-              <MenuItem value={CollaborativeMode.MINIMA}>Minima</MenuItem>
-              <MenuItem value={CollaborativeMode.AVERAGE}>Average</MenuItem>
+              <MenuItem value={CollaborativeMode.MINIMA}>
+                Minimum share
+              </MenuItem>
+              <MenuItem value={CollaborativeMode.AVERAGE}>
+                Average share
+              </MenuItem>
             </Select>
           </div>
           <div className={s.typeselection}>
             <Text element="h2" className={s.section} size="big">
-              Type
+              Compare by
             </Text>
             <Select
               variant="standard"
               value={statType}
               onChange={(ev) => setStatType(ev.target.value)}>
-              <MenuItem value="songs">Songs</MenuItem>
+              <MenuItem value="songs">Tracks</MenuItem>
               <MenuItem value="albums">Albums</MenuItem>
               <MenuItem value="artists">Artists</MenuItem>
             </Select>
           </div>
           <div className={s.timeselection}>
             <Text element="h2" className={s.section} size="big">
-              Interval
+              Date range
             </Text>
             <IntervalSelector
               forceTiny
@@ -148,7 +145,7 @@ export default function Affinity() {
             onClick={compute}
             variant="contained"
             disabled={ids.size === 0}>
-            Calculate affinity
+            Compare listening
           </Button>
         </div>
       </div>

@@ -1,8 +1,9 @@
+import { GridRowWrapper } from "../../../../components/Grid";
 import Text from "../../../../components/Text";
 import { useMobile } from "../../../../services/hooks/hooks";
-import { GridRowWrapper } from "../../../../components/Grid";
-import s from "./index.module.css";
 import { useTrackGrid } from "./TrackGrid";
+
+import s from "./index.module.css";
 
 export default function TrackHeader() {
   const [isMobile, isTablet] = useMobile();
@@ -15,7 +16,7 @@ export default function TrackHeader() {
       ...trackGrid.title,
       node: (
         <Text element="div" size="normal">
-          Title
+          Track
         </Text>
       ),
     },
@@ -23,7 +24,7 @@ export default function TrackHeader() {
       ...trackGrid.album,
       node: !isTablet && (
         <Text element="div" size="normal">
-          Album name
+          Album
         </Text>
       ),
     },
@@ -40,7 +41,7 @@ export default function TrackHeader() {
       node: (
         <div className={s.count}>
           <Text element="div" size="normal">
-            Count
+            Plays
           </Text>
         </div>
       ),
@@ -50,7 +51,7 @@ export default function TrackHeader() {
       node: !isMobile && (
         <div className={s.total}>
           <Text element="div" size="normal">
-            Total
+            Listening time
           </Text>
         </div>
       ),

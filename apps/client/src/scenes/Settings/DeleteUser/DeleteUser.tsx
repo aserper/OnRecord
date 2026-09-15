@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+
 import Dialog from "../../../components/Dialog";
 import LoadingButton from "../../../components/LoadingButton";
 import TitleCard from "../../../components/TitleCard";
@@ -8,6 +9,7 @@ import { selectAccounts } from "../../../services/redux/modules/admin/selector";
 import { deleteUser } from "../../../services/redux/modules/admin/thunk";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 export default function DeleteUser() {
@@ -33,20 +35,20 @@ export default function DeleteUser() {
   };
 
   return (
-    <TitleCard title="Delete users">
+    <TitleCard title="Delete accounts">
       <Dialog
-        title="Are you sure you want to delete this user?"
+        title="Delete this account?"
         onClose={() => setOpen(false)}
         open={open}>
-        This will delete every data of this user, including its history. There
-        is no way to retrieve its data afterward.
+        This permanently deletes the account and its listening history. This
+        cannot be undone.
         <div className={s.button}>
           <LoadingButton
             loading={loading}
             onClick={doDelete}
             color="error"
             variant="contained">
-            Delete permanently
+            Delete account
           </LoadingButton>
         </div>
       </Dialog>
@@ -54,7 +56,9 @@ export default function DeleteUser() {
         <SettingLine
           key={user.id}
           left={user.username}
-          right={<Button onClick={() => askDelete(user.id)}>Delete</Button>}
+          right={
+            <Button onClick={() => askDelete(user.id)}>Delete account</Button>
+          }
         />
       ))}
     </TitleCard>

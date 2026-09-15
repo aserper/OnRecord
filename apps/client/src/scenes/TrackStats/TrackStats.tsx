@@ -1,16 +1,18 @@
 import { CircularProgress, Grid } from "@mui/material";
+
 import Header from "../../components/Header";
+import IdealImage from "../../components/IdealImage";
+import ImageTwoLines from "../../components/ImageTwoLines";
+import InlineAlbum from "../../components/InlineAlbum";
+import InlineArtist from "../../components/InlineArtist";
+import Text from "../../components/Text";
 import TitleCard from "../../components/TitleCard";
 import { TrackStatsResponse } from "../../services/apis/api";
-import { buildFromDateId } from "../../services/stats";
-import Text from "../../components/Text";
-import InlineArtist from "../../components/InlineArtist";
-import ImageTwoLines from "../../components/ImageTwoLines";
-import IdealImage from "../../components/IdealImage";
-import InlineAlbum from "../../components/InlineAlbum";
 import { DateFormatter } from "../../services/date";
+import { buildFromDateId } from "../../services/stats";
 import FirstAndLast from "./FirstAndLast";
 import TrackRank from "./TrackRank/TrackRank";
+
 import s from "./index.module.css";
 
 interface TrackStatsProps {
@@ -55,7 +57,7 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
             sx={{ justifyContent: "flex-start", alignItems: "flex-start" }}
             spacing={2}>
             <Grid size={{ xs: 12 }}>
-              <TitleCard title="Context" contentClassName={s.context}>
+              <TitleCard title="Track details" contentClassName={s.context}>
                 <ImageTwoLines
                   image={<IdealImage images={stats.artist.images} size={48} />}
                   first={<InlineArtist artist={stats.artist} size="normal" />}
@@ -69,7 +71,7 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
               </TitleCard>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TitleCard title="Times listened">
+              <TitleCard title="Plays">
                 <Text element="strong" size="big">
                   {stats.total.count}
                 </Text>
@@ -82,8 +84,7 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TitleCard
-                title={`Top two months you listened to ${stats.track.name}`}>
+              <TitleCard title="Top listening months">
                 {bestPeriod && (
                   <div className={s.bestperiod}>
                     <Text element="strong" size="normal">
@@ -92,9 +93,9 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
                       )}
                     </Text>
                     <Text size="normal">
-                      {bestPeriod.count} times (
+                      {bestPeriod.count} plays (
                       {Math.floor((bestPeriod.count / bestPeriod.total) * 100)}%
-                      of total time)
+                      of all plays)
                     </Text>
                   </div>
                 )}
@@ -106,11 +107,11 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
                       )}
                     </Text>
                     <Text size="normal">
-                      {secondBestPeriod.count} times (
+                      {secondBestPeriod.count} plays (
                       {Math.floor(
                         (secondBestPeriod.count / secondBestPeriod.total) * 100,
                       )}
-                      % of total time)
+                      % of all plays)
                     </Text>
                   </div>
                 )}
@@ -118,7 +119,7 @@ export default function TrackStats({ trackId, stats }: TrackStatsProps) {
             </Grid>
           </Grid>
           <Grid size={{ lg: 6, xs: 12 }}>
-            <TitleCard title="Recently played on">
+            <TitleCard title="Recent plays">
               {stats.recentHistory.map((info) => (
                 <ImageTwoLines
                   className={s.recentitem}

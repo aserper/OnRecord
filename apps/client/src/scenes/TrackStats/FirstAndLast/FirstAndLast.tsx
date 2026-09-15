@@ -1,6 +1,7 @@
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { DateFormatter } from "../../../services/date";
+
 import s from "./index.module.css";
 
 interface FirstAndLastProps {
@@ -13,13 +14,13 @@ export default function FirstAndLast({
   lastDate,
 }: FirstAndLastProps) {
   return (
-    <TitleCard title="First and last time listened">
+    <TitleCard title="First and latest plays">
       {firstDate.getTime() !== lastDate.getTime() && (
         <div className={s.item}>
           <div className={s.stat}>
             <Text size="normal">
               <Text element="strong" size="normal">
-                Last listened
+                Last played
               </Text>{" "}
               on {DateFormatter.listenedAt(lastDate)}
             </Text>
@@ -30,7 +31,7 @@ export default function FirstAndLast({
         <div className={s.stat}>
           <Text size="normal">
             <Text element="strong" size="normal">
-              First listened
+              First played
             </Text>{" "}
             on {DateFormatter.listenedAt(firstDate)}
           </Text>

@@ -48,8 +48,8 @@ export default function AllStats() {
   return (
     <div className={s.root}>
       <Header
-        title="The shape of your listening"
-        subtitle="Every view uses the selected period—open an artist, album, or track to keep exploring"
+        title="Listening statistics"
+        subtitle="Listening patterns for the selected date range."
       />
       <main className={s.content}>
         {charts.map(([key, chart], index) => (

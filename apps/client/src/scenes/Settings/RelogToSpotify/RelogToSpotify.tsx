@@ -1,16 +1,17 @@
 import { Button } from "@mui/material";
+
 import TitleCard from "../../../components/TitleCard";
 import { getSpotifyLogUrl } from "../../../services/tools";
 import SettingLine from "../SettingLine";
 
 export default function RelogToSpotify() {
   return (
-    <TitleCard title="Miscellaneous">
+    <TitleCard title="Spotify connection">
       <SettingLine
-        left="Relog to Spotify"
+        left="Reconnect your Spotify account"
         right={
           <Button>
-            <a href={getSpotifyLogUrl()}>Relog</a>
+            <a href={getSpotifyLogUrl()}>Reconnect</a>
           </Button>
         }
       />

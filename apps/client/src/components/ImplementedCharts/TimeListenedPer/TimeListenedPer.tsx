@@ -1,6 +1,8 @@
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import {
   buildXYData,
   formatXAxisDateTooltip,
@@ -8,12 +10,11 @@ import {
   useFormatXAxis,
 } from "../../../services/stats";
 import { DateId } from "../../../services/types";
-import Line from "../../charts/Line";
 import ChartCard from "../../ChartCard";
+import Line from "../../charts/Line";
+import Tooltip from "../../Tooltip";
 import LoadingImplementedChart from "../LoadingImplementedChart";
 import { ImplementedChartProps } from "../types";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
-import Tooltip from "../../Tooltip";
 
 interface TimeListenedPerProps extends ImplementedChartProps {}
 
@@ -34,12 +35,14 @@ export default function TimeListenedPer({ className }: TimeListenedPerProps) {
 
   const formatX = useFormatXAxis(data);
   const formatY = (value: number) => `${msToMinutes(value)}m`;
-  const tooltipValue = (_: any, value: any) =>
-    `${msToMinutes(value)} minutes listened`;
+  const tooltipValue = (_: any, value: any) => `${msToMinutes(value)} minutes`;
 
   if (!result) {
     return (
-      <LoadingImplementedChart title="Time listened" className={className} />
+      <LoadingImplementedChart
+        title="Listening time over time"
+        className={className}
+      />
     );
   }
 
@@ -48,7 +51,7 @@ export default function TimeListenedPer({ className }: TimeListenedPerProps) {
   }
 
   return (
-    <ChartCard title="Time listened" className={className}>
+    <ChartCard title="Listening time over time" className={className}>
       <Line
         data={data}
         xFormat={formatX}

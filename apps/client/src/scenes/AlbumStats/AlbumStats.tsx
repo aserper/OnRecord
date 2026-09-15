@@ -1,17 +1,19 @@
-import { CircularProgress, Grid } from "@mui/material";
 import { TimelapseOutlined } from "@mui/icons-material";
+import { CircularProgress, Grid } from "@mui/material";
+
 import Header from "../../components/Header";
-import { AlbumStatsResponse } from "../../services/apis/api";
-import InlineArtist from "../../components/InlineArtist";
 import IdealImage from "../../components/IdealImage";
-import FirstAndLast from "../ArtistStats/FirstAndLast";
-import InlineTrack from "../../components/InlineTrack";
-import TitleCard from "../../components/TitleCard";
-import Text from "../../components/Text";
 import ImageTwoLines from "../../components/ImageTwoLines";
+import InlineArtist from "../../components/InlineArtist";
+import InlineTrack from "../../components/InlineTrack";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { AlbumStatsResponse } from "../../services/apis/api";
 import { msToDuration } from "../../services/stats";
-import s from "./index.module.css";
+import FirstAndLast from "../ArtistStats/FirstAndLast";
 import AlbumRank from "./AlbumRank";
+
+import s from "./index.module.css";
 
 interface AlbumStatsProps {
   stats: AlbumStatsResponse;
@@ -57,7 +59,7 @@ export default function AlbumStats({ stats }: AlbumStatsProps) {
             sx={{ justifyContent: "flex-start", alignItems: "flex-start" }}
             spacing={2}>
             <Grid size={{ xs: 12 }}>
-              <TitleCard title="Context" contentClassName={s.context}>
+              <TitleCard title="Album details" contentClassName={s.context}>
                 <div className={s.artists}>
                   {stats.artists.map((artist) => (
                     <ImageTwoLines
@@ -102,7 +104,7 @@ export default function AlbumStats({ stats }: AlbumStatsProps) {
             </Grid>
           </Grid>
           <Grid size={{ xs: 12, lg: 6 }}>
-            <TitleCard title="Most listened tracks">
+            <TitleCard title="Top tracks">
               {stats.tracks.map(({ track, count }, k) => (
                 <div key={track.id} className={s.ml}>
                   <Text element="strong" size="big" className={s.mlrank}>
@@ -118,7 +120,7 @@ export default function AlbumStats({ stats }: AlbumStatsProps) {
                       />
                     }
                     first={<InlineTrack size="normal" track={track} />}
-                    second={`${count} times`}
+                    second={`${count} plays`}
                   />
                 </div>
               ))}

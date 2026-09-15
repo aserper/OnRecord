@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
 import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
@@ -42,7 +43,7 @@ export default function AverageNumberArtistPer({
   if (!result) {
     return (
       <LoadingImplementedChart
-        title="Average feats per song"
+        title="Average artists per track"
         className={className}
       />
     );
@@ -53,7 +54,7 @@ export default function AverageNumberArtistPer({
   }
 
   return (
-    <ChartCard title="Average feats per song" className={className}>
+    <ChartCard title="Average artists per track" className={className}>
       <Line
         data={data}
         xFormat={formatX}

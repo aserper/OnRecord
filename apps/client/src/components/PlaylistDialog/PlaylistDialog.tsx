@@ -10,6 +10,7 @@ import {
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+
 import {
   clearPlaylistContext,
   setPlaylistContext,
@@ -29,6 +30,7 @@ import LoadingButton from "../LoadingButton";
 import TabPanel from "../TabPanel";
 import Text from "../Text";
 import CountChooser from "./CountChooser";
+
 import s from "./index.module.css";
 
 export const DEFAULT_PLAYLIST_NB = 50;
@@ -92,20 +94,20 @@ export default function PlaylistDialog() {
   };
 
   return (
-    <Dialog onClose={reset} open={open} title="Add to a playlist">
+    <Dialog onClose={reset} open={open} title="Add tracks to a playlist">
       <Text className={s.text} element="div" size="normal">
-        Either select a playlist to add the songs to, or create a new one.
+        Create a playlist or add tracks to an existing one.
       </Text>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }} className={s.tabs}>
         <Tabs value={tab} onChange={(_, value) => setTab(value)}>
-          <Tab label="Create" />
+          <Tab label="Create playlist" />
           <Tab label="Add to existing" />
         </Tabs>
       </Box>
       <TabPanel index={0} value={tab}>
         <Input
           fullWidth
-          placeholder="Name of the playlist..."
+          placeholder="Playlist name"
           value={playlistName}
           onChange={(ev) => setPlaylistName(ev.target.value)}
         />
@@ -122,7 +124,7 @@ export default function PlaylistDialog() {
             {playlists?.map((playlist) => (
               <MenuItem key={playlist.id} value={playlist.id}>
                 <IdealImage
-                  alt="playlist cover"
+                  alt=""
                   className={s.playlistCover}
                   images={playlist.images}
                   size={50}
@@ -136,15 +138,15 @@ export default function PlaylistDialog() {
       {(context?.type === "top" ||
         context?.type === "affinity" ||
         context?.type === "top-artist") && (
-          <CountChooser value={context.nb} setValue={changeNumber} />
-        )}
+        <CountChooser value={context.nb} setValue={changeNumber} />
+      )}
       <div className={s.button}>
         <LoadingButton
           loading={loading}
           variant="contained"
           onClick={add}
           disabled={!canAdd}>
-          {selectedPlaylist ? "Add" : "Create"}
+          {selectedPlaylist ? "Add tracks" : "Create playlist"}
         </LoadingButton>
       </div>
     </Dialog>

@@ -35,7 +35,7 @@ export const changeUsername = myAsyncThunk<void, string>(
       tapi.dispatch(
         alertMessage({
           level: "success",
-          message: `Successfully renamed to ${newName}`,
+          message: `Account renamed to ${newName}`,
         }),
       );
     } catch (e) {
@@ -43,7 +43,7 @@ export const changeUsername = myAsyncThunk<void, string>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: `Could not rename to ${newName}`,
+          message: `Could not rename the account to ${newName}.`,
         }),
       );
       throw e;
@@ -62,7 +62,7 @@ export const generateNewPublicToken = myAsyncThunk<string, void>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not generate a new public token",
+          message: "Could not create a public link.",
         }),
       );
       throw e;
@@ -81,7 +81,7 @@ export const deletePublicToken = myAsyncThunk<string, void>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not delete the public token",
+          message: "Could not revoke the public link.",
         }),
       );
       throw e;
@@ -103,7 +103,7 @@ export const setDarkMode = myAsyncThunk<void, DarkModeType>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not sync the dark mode to your profile",
+          message: "Could not save your color preference.",
         }),
       );
       throw e;
@@ -122,21 +122,24 @@ export const playTrack = myAsyncThunk<void, string>(
         tapi.dispatch(
           alertMessage({
             level: "info",
-            message: "Could not play the song, no active player detected",
+            message:
+              "No active Spotify player. Open Spotify on a device and try again.",
           }),
         );
       } else if (reason === "PREMIUM_REQUIRED") {
         tapi.dispatch(
           alertMessage({
             level: "error",
-            message:
-              "You cannot play song from the platform without a premium account",
+            message: "Spotify Premium is required to play tracks here.",
           }),
         );
       } else {
         console.error(e);
         tapi.dispatch(
-          alertMessage({ level: "error", message: "Could not play song" }),
+          alertMessage({
+            level: "error",
+            message: "Could not play this track.",
+          }),
         );
       }
     }
@@ -154,7 +157,7 @@ export const blacklistArtist = myAsyncThunk<void, string>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not blacklist this artist",
+          message: "Could not exclude this artist.",
         }),
       );
     }
@@ -172,7 +175,7 @@ export const unblacklistArtist = myAsyncThunk<void, string>(
       tapi.dispatch(
         alertMessage({
           level: "error",
-          message: "Could not unblacklist this artist",
+          message: "Could not include this artist.",
         }),
       );
     }

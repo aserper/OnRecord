@@ -1,10 +1,11 @@
 import { CircularProgress } from "@mui/material";
 import { useParams } from "react-router-dom";
-import AlbumStats from "./AlbumStats";
-import { api } from "../../services/apis/api";
-import { useAPI } from "../../services/hooks/hooks";
+
 import FullscreenCentered from "../../components/FullscreenCentered";
 import Text from "../../components/Text";
+import { api } from "../../services/apis/api";
+import { useAPI } from "../../services/hooks/hooks";
+import AlbumStats from "./AlbumStats";
 
 export default function AlbumStatsWrapper() {
   const params = useParams();
@@ -16,7 +17,7 @@ export default function AlbumStatsWrapper() {
         <CircularProgress />
         <div>
           <Text element="h3" size="big">
-            Loading your stats
+            Loading statistics
           </Text>
         </div>
       </FullscreenCentered>
@@ -27,7 +28,7 @@ export default function AlbumStatsWrapper() {
     return (
       <FullscreenCentered>
         <Text element="h3" size="big">
-          You never listened to this album, might be someone else registered
+          No plays recorded for this album.
         </Text>
       </FullscreenCentered>
     );

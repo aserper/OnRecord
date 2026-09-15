@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { PlayArrow } from "@mui/icons-material";
 import {
   Button,
   IconButton,
@@ -7,17 +7,18 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { PlayArrow } from "@mui/icons-material";
 import { ReactNode, useState } from "react";
+import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
+import Text from "../../components/Text";
+import TitleCard from "../../components/TitleCard";
+import { api } from "../../services/apis/api";
 import {
   selectRawIntervalDetail,
   selectUser,
 } from "../../services/redux/modules/user/selector";
-import { api } from "../../services/apis/api";
 import { Timesplit } from "../../services/types";
-import TitleCard from "../../components/TitleCard";
-import Text from "../../components/Text";
 
 interface Request<T> {
   title: string;
@@ -44,77 +45,77 @@ export default function Benchmarks() {
 
   const requests = [
     {
-      title: "Get tracks",
+      title: "Listening history",
       request: () => api.getTracks(interval.start, interval.end, 20, OFFSET),
     },
     {
-      title: "Get most listened",
+      title: "Top track over time",
       request: () =>
         api.mostListened(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get most listened artists",
+      title: "Top artist over time",
       request: () =>
         api.mostListenedArtist(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get songs per",
+      title: "Plays over time",
       request: () => api.songsPer(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get time per",
+      title: "Listening time over time",
       request: () => api.timePer(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get feat ratio",
+      title: "Artists per track",
       request: () => api.featRatio(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get album date ratio",
+      title: "Album release dates",
       request: () =>
         api.albumDateRatio(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get different artists per",
+      title: "Distinct artists over time",
       request: () =>
         api.differentArtistsPer(interval.start, interval.end, Timesplit.all),
     },
     {
-      title: "Get time per hour of day",
+      title: "Listening by hour",
       request: () => api.timePerHourOfDay(interval.start, interval.end),
     },
     {
-      title: "Get best songs",
+      title: "Top tracks",
       request: () => api.getBestSongs(interval.start, interval.end, NB, OFFSET),
     },
     {
-      title: "Get best artists",
+      title: "Top artists",
       request: () =>
         api.getBestArtists(interval.start, interval.end, NB, OFFSET),
     },
     {
-      title: "Get best albums",
+      title: "Top albums",
       request: () =>
         api.getBestAlbums(interval.start, interval.end, NB, OFFSET),
     },
     {
-      title: "Get best songs of hour",
+      title: "Top tracks by hour",
       request: () => api.getBestSongsOfHour(interval.start, interval.end),
     },
     {
-      title: "Get best albums of hour",
+      title: "Top albums by hour",
       request: () => api.getBestAlbumsOfHour(interval.start, interval.end),
     },
     {
-      title: "Get best artists of hour",
+      title: "Top artists by hour",
       request: () => api.getBestArtistsOfHour(interval.start, interval.end),
     },
     {
-      title: "Get longest sessions",
+      title: "Longest sessions",
       request: () => api.getLongestSessions(interval.start, interval.end),
     },
     {
-      title: "Get artist page",
+      title: "Artist statistics",
       prepare: async () => {
         const { data: bestArtists } = await api.getBestArtists(
           interval.start,
@@ -128,7 +129,7 @@ export default function Benchmarks() {
       request: async (bestArtistId: string) => api.getArtistStats(bestArtistId),
     },
     {
-      title: "Get album page",
+      title: "Album statistics",
       prepare: async () => {
         const { data: bestAlbums } = await api.getBestAlbums(
           interval.start,
@@ -142,7 +143,7 @@ export default function Benchmarks() {
       request: async (bestAlbumId: string) => api.getAlbumStats(bestAlbumId),
     },
     {
-      title: "Get track page",
+      title: "Track statistics",
       prepare: async () => {
         const { data: bestTracks } = await api.getBestSongs(
           interval.start,
@@ -184,12 +185,12 @@ export default function Benchmarks() {
 
   return (
     <div>
-      <Header title="Benchmarks" subtitle="Analyze server queries time" />
+      <Header title="Benchmarks" subtitle="Measure server response times." />
       <TitleCard
         title="Benchmarks"
         right={
           <Button variant="contained" onClick={runAll}>
-            Run All
+            Run all
           </Button>
         }>
         <Table>
@@ -207,7 +208,7 @@ export default function Benchmarks() {
             let elapsed: ReactNode;
             const requestTimeElapsed = elapsedTime[req.title];
             if (requestTimeElapsed === NOT_FINISHED_REQUEST) {
-              elapsed = <i>Loading...</i>;
+              elapsed = <i>Running</i>;
             } else if (requestTimeElapsed === FAILED_REQUEST) {
               elapsed = <i>Failed</i>;
             } else if (requestTimeElapsed) {

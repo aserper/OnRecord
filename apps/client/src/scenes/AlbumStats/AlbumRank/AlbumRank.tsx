@@ -1,10 +1,12 @@
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
+
 import InlineAlbum from "../../../components/InlineAlbum";
 import Text from "../../../components/Text";
 import { api } from "../../../services/apis/api";
 import { useLoadAlbums } from "../../../services/hooks/artist";
 import { useAPI } from "../../../services/hooks/hooks";
+
 import s from "./index.module.css";
 
 interface AlbumRankProps {
@@ -22,7 +24,7 @@ export default function AlbumRank({ albumId }: AlbumRankProps) {
     return (
       <div className={s.loading}>
         <CircularProgress size={24} />
-        <Text size="normal">Album rank is loading</Text>
+        <Text size="normal">Loading ranking</Text>
       </div>
     );
   }

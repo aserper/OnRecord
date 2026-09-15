@@ -6,6 +6,7 @@ import {
   Input,
 } from "@mui/material";
 import { useState } from "react";
+
 import s from "./index.module.css";
 
 interface CountChooserProps {
@@ -36,10 +37,10 @@ export default function CountChooser({ value, setValue }: CountChooserProps) {
   return (
     <>
       <FormControl fullWidth className={s.numberSelect}>
-        <InputLabel id="number">Number of items</InputLabel>
+        <InputLabel id="number">Number of tracks</InputLabel>
         <Select
           labelId="number"
-          label="Number of items"
+          label="Number of tracks"
           displayEmpty
           value={inputType === "default" ? value.toString() : "custom"}
           onChange={(ev) => internSetValue(ev.target.value, true)}>
@@ -55,7 +56,7 @@ export default function CountChooser({ value, setValue }: CountChooserProps) {
         <Input
           className={s.input}
           datatype="number"
-          placeholder="Custom amount"
+          placeholder="Number of tracks"
           fullWidth
           value={value.toString()}
           onChange={(ev) => internSetValue(ev.target.value)}

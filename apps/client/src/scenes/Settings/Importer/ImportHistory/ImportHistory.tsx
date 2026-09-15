@@ -20,10 +20,10 @@ import s from "./index.module.css";
 const statusToString: Record<ImporterStateStatus, string> = {
   scheduled: "Scheduled",
   starting: "Preparing",
-  "failure-removed": "Failed and cleaned",
+  "failure-removed": "Failed; cleanup requested",
   failure: "Failed",
   progress: "In progress",
-  success: "Success",
+  success: "Completed",
   cancelled: "Cancelled",
 };
 
@@ -57,9 +57,11 @@ export default function ImportHistory() {
           key={st._id}
           left={
             <Text size="normal">
-              Import of {DateFormatter.listenedAt(new Date(st.createdAt))}
+              Uploaded {DateFormatter.listenedAt(new Date(st.createdAt))}
               <Text className={s.importertype} size="normal">
-                from {st.type}
+                {st.type === "privacy"
+                  ? "Account data"
+                  : "Extended streaming history"}
               </Text>
               {st.status === "scheduled" && st.scheduledFor && (
                 <Text className={s.scheduledtime} size="normal">
@@ -80,14 +82,14 @@ export default function ImportHistory() {
                     : undefined,
                   st.status === "failure"
                     ? {
-                        label: "Clean up",
+                        label: "Delete uploaded files",
                         onClick: () => cleanImport(st._id),
                         style: "destructive",
                       }
                     : undefined,
                   st.status === "scheduled"
                     ? {
-                        label: "Cancel schedule",
+                        label: "Cancel scheduled import",
                         onClick: () => cancelImport(st._id),
                         style: "destructive",
                       }

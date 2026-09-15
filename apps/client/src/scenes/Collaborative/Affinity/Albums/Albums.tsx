@@ -1,6 +1,7 @@
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+
 import Header from "../../../../components/Header";
 import IdealImage from "../../../../components/IdealImage";
 import InlineArtist from "../../../../components/InlineArtist";
@@ -14,6 +15,7 @@ import { selectAccounts } from "../../../../services/redux/modules/admin/selecto
 import { selectUser } from "../../../../services/redux/modules/user/selector";
 import { CollaborativeMode } from "../../../../services/types";
 import { AFFINITY_PREFIX } from "../types";
+
 import s from "./index.module.css";
 
 export default function Albums() {
@@ -42,7 +44,7 @@ export default function Albums() {
       <div className={s.loading}>
         <CircularProgress size={18} />
         <Text element="div" size="normal">
-          Loading your data
+          Loading comparison
         </Text>
       </div>
     );
@@ -61,9 +63,11 @@ export default function Albums() {
     <div>
       <Header
         title="Affinity by album"
-        subtitle={`Affinity computed between ${realIds
+        subtitle={`Comparing ${realIds
           .map((id) => accountsDict[id]?.username)
-          .join(", ")} in ${mode} mode, from ${intervalToDisplay(start, end)}`}
+          .join(
+            ", ",
+          )} · ${mode === CollaborativeMode.AVERAGE ? "Average share" : "Minimum share"} · ${intervalToDisplay(start, end)}`}
         hideInterval
       />
       <div className={s.content}>
@@ -101,7 +105,7 @@ export default function Albums() {
               </div>
               <div className={s.enjoyed}>
                 <Text size="normal">
-                  Most enjoyed by{" "}
+                  Most plays:{" "}
                   <Text element="strong" size="normal">
                     {accountsDict[realIds[maxIndex] ?? -1]?.username}
                   </Text>

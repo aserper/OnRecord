@@ -11,9 +11,9 @@ export default function SpotifyAccountInfos({
 }: SpotifyAccountInfosProps) {
   return (
     <TitleCard title="Linked Spotify account">
-      <SettingLine left="Id" right={spotifyAccount.id} />
-      <SettingLine left="Mail" right={spotifyAccount.email} />
-      <SettingLine left="Product type" right={spotifyAccount.product} />
+      <SettingLine left="Spotify ID" right={spotifyAccount.id} />
+      <SettingLine left="Email" right={spotifyAccount.email} />
+      <SettingLine left="Plan" right={spotifyAccount.product} />
     </TitleCard>
   );
 }

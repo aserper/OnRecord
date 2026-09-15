@@ -1,7 +1,6 @@
 import ChartCard from "../../../components/ChartCard";
 import Bar from "../../../components/charts/Bar";
 import Tooltip from "../../../components/Tooltip";
-
 import { ArtistStatsResponse } from "../../../services/apis/api";
 import { msToMinutes } from "../../../services/stats";
 
@@ -30,9 +29,9 @@ export default function DayRepartition({
   const tooltipTitle = ({ x }: any) => `${x}h`;
   const tooltipValue = (payload: any, value: any) => (
     <div>
-      {`${value}% of your listening`}
+      {`${value}% of all plays`}
       <br />
-      {`${payload.count} out of ${total} songs`}
+      {`${payload.count} out of ${total} plays`}
       <br />
       {`${msToMinutes(payload.duration ?? 0)} out of ${msToMinutes(
         totalDuration,
@@ -42,7 +41,7 @@ export default function DayRepartition({
   );
 
   return (
-    <ChartCard title="Day repartition of your listening" className={className}>
+    <ChartCard title="Listening by hour" className={className}>
       <Bar
         data={data}
         customTooltip={

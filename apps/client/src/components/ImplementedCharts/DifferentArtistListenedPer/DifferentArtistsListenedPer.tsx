@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
 import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
@@ -34,12 +35,12 @@ export default function DifferentArtistsListenedPer({
   );
 
   const formatX = useFormatXAxis(data);
-  const tooltipValue = (_: any, value: any) => `${value} different artists`;
+  const tooltipValue = (_: any, value: any) => `${value} unique artists`;
 
   if (!result) {
     return (
       <LoadingImplementedChart
-        title="Different artists listened"
+        title="Unique artists over time"
         className={className}
       />
     );
@@ -50,7 +51,7 @@ export default function DifferentArtistsListenedPer({
   }
 
   return (
-    <ChartCard title="Different artists listened" className={className}>
+    <ChartCard title="Unique artists over time" className={className}>
       <Line
         data={data}
         xFormat={formatX}

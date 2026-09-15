@@ -2,6 +2,7 @@ import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+
 import AddToPlaylist from "../../../../components/AddToPlaylist";
 import Header from "../../../../components/Header";
 import InlineArtist from "../../../../components/InlineArtist";
@@ -16,12 +17,13 @@ import { useAPI } from "../../../../services/hooks/hooks";
 import { useOldestListenedAtFromUsers } from "../../../../services/intervals";
 import { AdminAccount } from "../../../../services/redux/modules/admin/reducer";
 import { selectAccounts } from "../../../../services/redux/modules/admin/selector";
+import { PlaylistContext } from "../../../../services/redux/modules/playlist/types";
 import { selectUser } from "../../../../services/redux/modules/user/selector";
 import { compact } from "../../../../services/tools";
 import { CollaborativeMode } from "../../../../services/types";
 import { AFFINITY_PREFIX } from "../types";
+
 import s from "./index.module.css";
-import { PlaylistContext } from "../../../../services/redux/modules/playlist/types";
 
 export default function Songs() {
   const user = useSelector(selectUser);
@@ -59,7 +61,7 @@ export default function Songs() {
       <div className={s.loading}>
         <CircularProgress size={18} />
         <Text element="div" size="normal">
-          Loading your data
+          Loading comparison
         </Text>
       </div>
     );
@@ -76,10 +78,12 @@ export default function Songs() {
   return (
     <div>
       <Header
-        title="Affinity by song"
-        subtitle={`Affinity computed between ${realIds
+        title="Affinity by track"
+        subtitle={`Comparing ${realIds
           .map((id) => accountsDict[id]?.username)
-          .join(", ")} in ${mode} mode, from ${intervalToDisplay(start, end)}`}
+          .join(
+            ", ",
+          )} · ${mode === CollaborativeMode.AVERAGE ? "Average share" : "Minimum share"} · ${intervalToDisplay(start, end)}`}
         hideInterval
       />
       <div className={s.content}>
@@ -121,7 +125,7 @@ export default function Songs() {
               </div>
               <div className={s.enjoyed}>
                 <Text size="normal">
-                  Most enjoyed by{" "}
+                  Most plays:{" "}
                   <Text element="strong" size="normal">
                     {accountsDict[realIds[maxIndex] ?? -1]?.username}
                   </Text>

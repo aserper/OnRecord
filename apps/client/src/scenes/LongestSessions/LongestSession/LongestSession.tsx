@@ -2,6 +2,7 @@ import { ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import clsx from "clsx";
 import { useState } from "react";
+
 import ImageTwoLines from "../../../components/ImageTwoLines";
 import InlineArtist from "../../../components/InlineArtist";
 import InlineTrack from "../../../components/InlineTrack";
@@ -13,6 +14,7 @@ import {
 } from "../../../services/date";
 import { useLoadArtists } from "../../../services/hooks/artist";
 import { Track, TrackInfo } from "../../../services/types";
+
 import s from "./index.module.css";
 
 interface LongestSessionProps {
@@ -60,7 +62,7 @@ export default function LongestSession({
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Text size="normal">
           {DateFormatter.listenedAt(new Date(firstTrack.played_at))} for{" "}
-          {totalDuration} ({tracks.length} songs)
+          {totalDuration} ({tracks.length} plays)
         </Text>
       </AccordionSummary>
       <AccordionDetails>

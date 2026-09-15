@@ -1,11 +1,12 @@
-import { useSelector } from "react-redux";
 import { Button } from "@mui/material";
-import SettingLine from "../SettingLine";
-import { setAdmin } from "../../../services/redux/modules/admin/thunk";
-import { selectAccounts } from "../../../services/redux/modules/admin/selector";
-import { useAppDispatch } from "../../../services/redux/tools";
+import { useSelector } from "react-redux";
+
 import TitleCard from "../../../components/TitleCard";
+import { selectAccounts } from "../../../services/redux/modules/admin/selector";
+import { setAdmin } from "../../../services/redux/modules/admin/thunk";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
+import { useAppDispatch } from "../../../services/redux/tools";
+import SettingLine from "../SettingLine";
 
 export default function SetAdmin() {
   const dispatch = useAppDispatch();
@@ -19,7 +20,7 @@ export default function SetAdmin() {
         dispatch(
           alertMessage({
             level: "error",
-            message: "Cannot have less than one administrator of the platform",
+            message: "At least one administrator is required.",
           }),
         );
       }
@@ -28,14 +29,14 @@ export default function SetAdmin() {
   };
 
   return (
-    <TitleCard title="Set admin status">
+    <TitleCard title="Administrators">
       {accounts.map((user) => (
         <SettingLine
           key={user.id}
           left={user.username}
           right={
             <Button onClick={() => doAdmin(user.id, !user.admin)}>
-              {user.admin ? "Unset admin" : "Set admin"}
+              {user.admin ? "Remove admin access" : "Make admin"}
             </Button>
           }
         />

@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useSelector } from "react-redux";
+
 import Text from "../../../components/Text";
 import TitleCard from "../../../components/TitleCard";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
@@ -11,6 +12,7 @@ import {
 } from "../../../services/redux/modules/user/thunk";
 import { useAppDispatch } from "../../../services/redux/tools";
 import SettingLine from "../SettingLine";
+
 import s from "./index.module.css";
 
 export default function PublicToken() {
@@ -27,12 +29,7 @@ export default function PublicToken() {
   };
 
   const onCopy = () => {
-    dispatch(
-      alertMessage({
-        level: "info",
-        message: "Public url copied to clipboard",
-      }),
-    );
+    dispatch(alertMessage({ level: "info", message: "Public link copied" }));
   };
 
   if (!user) {
@@ -42,16 +39,14 @@ export default function PublicToken() {
   const link = `${location}/?token=${user.publicToken}`;
 
   return (
-    <TitleCard title="Public token">
+    <TitleCard title="Public link">
       <Text element="div" className={s.disclaimer} size="normal">
-        The generated url will allow anyone with it to view your stats
-        indefinitely. The user won&apos;t be able to execute any action that
-        modifies your account. Regenerating it will cause the older link to be
-        deprecated instantly. You can also share the page you&apos;re currently
-        viewing using the <code>Share this page</code> button on the side.
+        Anyone with this link can view your listening history and statistics,
+        but cannot change your account. Replacing or revoking the link
+        invalidates existing shared links.
       </Text>
       <SettingLine
-        left="Your public token"
+        left="Public link"
         right={
           user.publicToken ? (
             <CopyToClipboard text={link} onCopy={onCopy}>
@@ -62,16 +57,18 @@ export default function PublicToken() {
               </div>
             </CopyToClipboard>
           ) : (
-            "No token generated"
+            "No public link"
           )
         }
       />
       <SettingLine
-        left="Regenerate"
+        left="Manage link"
         right={
           <div className={s.row}>
-            <Button onClick={generate}>Generate</Button>
-            <Button onClick={deleteToken}>Delete Token</Button>
+            <Button onClick={generate}>
+              {user.publicToken ? "Replace link" : "Create link"}
+            </Button>
+            <Button onClick={deleteToken}>Revoke link</Button>
           </div>
         }
       />

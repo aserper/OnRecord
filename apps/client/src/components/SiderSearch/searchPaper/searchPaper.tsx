@@ -1,3 +1,9 @@
+import { Search } from "@mui/icons-material";
+import { CircularProgress } from "@mui/material";
+import { useRef } from "react";
+
+import { useMobile } from "../../../services/hooks/hooks";
+import { useKeyNavigation } from "../../../services/hooks/useKeyNavigation";
 import {
   Album,
   AlbumWithFullArtist,
@@ -5,15 +11,11 @@ import {
   Track,
   TrackWithFullArtistAlbum,
 } from "../../../services/types";
-import Text from "../../Text";
-import { Search } from "@mui/icons-material";
-import s from "./index.module.css";
-import { Section } from "./section/section";
 import { AutoHeight } from "../../autoHeight/autoHeight";
-import { CircularProgress } from "@mui/material";
-import { useKeyNavigation } from "../../../services/hooks/useKeyNavigation";
-import { useRef } from "react";
-import { useMobile } from "../../../services/hooks/hooks";
+import Text from "../../Text";
+import { Section } from "./section/section";
+
+import s from "./index.module.css";
 
 interface SearchPaperProps {
   loading: boolean;
@@ -63,7 +65,11 @@ export function SearchPaper({
           className={s.search}
           value={text}
           onChange={(ev) => onChangeText(ev.target.value)}
-          placeholder={`Search for an ${displays.join(", ")}...`}
+          placeholder={
+            displays.length === 1 && displays[0] === "artist"
+              ? "Search artists"
+              : "Search artists, tracks, and albums"
+          }
         />
         {loading ? (
           <CircularProgress size={20} style={{ color: "var(--text-grey)" }} />

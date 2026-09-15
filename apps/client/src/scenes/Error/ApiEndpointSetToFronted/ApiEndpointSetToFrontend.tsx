@@ -1,22 +1,21 @@
 import Text from "../../../components/Text";
-import s from "../index.module.css";
 import { getApiEndpoint } from "../../../services/tools";
+
+import s from "../index.module.css";
 
 export default function ApiEndpointSetToFrontend() {
   return (
     <div className={s.root}>
       <Text element="h1" size="pagetitle">
-        API Endpoint is not set up correctly
+        API configuration error
       </Text>
       <Text className={s.explain} size="normal">
-        This request should have reached the backend, but was handled by the
-        frontend instead.
+        The request reached the frontend instead of the API server.
         <p />
-        This is usually because your &nbsp;<code>API_ENDPOINT</code>&nbsp;
-        variable points to the frontend instead of the backend. Please
-        double-check your configuration.
+        Ask an administrator to check that <code>API_ENDPOINT</code> points to
+        the API server.
         <p />
-        The current configuration is: <br />
+        Current configuration: <br />
         <code>API_ENDPOINT={getApiEndpoint()}</code>
       </Text>
     </div>

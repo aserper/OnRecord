@@ -89,9 +89,7 @@ export default function Importer() {
   return (
     <TitleCard title="Import data">
       <Text className={s.intro} size="normal">
-        Upload a Spotify export, verify the files, then run it now or reserve an
-        off-hours start. Scheduled files remain on persistent storage across
-        restarts.
+        Upload your Spotify export and import it now or schedule it for later.
       </Text>
       <div>
         {running && (

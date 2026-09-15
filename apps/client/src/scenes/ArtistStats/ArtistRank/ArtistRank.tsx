@@ -1,10 +1,12 @@
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
+
 import InlineArtist from "../../../components/InlineArtist";
 import Text from "../../../components/Text";
 import { api } from "../../../services/apis/api";
 import { useLoadArtists } from "../../../services/hooks/artist";
 import { useAPI } from "../../../services/hooks/hooks";
+
 import s from "./index.module.css";
 
 interface ArtistRankProps {
@@ -23,7 +25,7 @@ export default function ArtistRank({ artistId }: ArtistRankProps) {
     return (
       <div className={s.loading}>
         <CircularProgress size={24} />
-        <Text size="normal">Artist rank is loading</Text>
+        <Text size="normal">Loading ranking</Text>
       </div>
     );
   }

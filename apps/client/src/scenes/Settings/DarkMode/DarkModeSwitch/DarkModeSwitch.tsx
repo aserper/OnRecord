@@ -1,5 +1,6 @@
 import { MenuItem, Select } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import { selectDarkMode } from "../../../../services/redux/modules/user/selector";
 import { setDarkMode } from "../../../../services/redux/modules/user/thunk";
 import { DarkModeType } from "../../../../services/redux/modules/user/types";
@@ -18,9 +19,9 @@ export default function DarkModeSwitch() {
       variant="standard"
       value={dark}
       onChange={(ev) => changeDarkMode(ev.target.value as DarkModeType)}>
-      <MenuItem value="follow">Follow system theme</MenuItem>
-      <MenuItem value="dark">Use dark theme</MenuItem>
-      <MenuItem value="light">Use light theme</MenuItem>
+      <MenuItem value="follow">System</MenuItem>
+      <MenuItem value="dark">Dark</MenuItem>
+      <MenuItem value="light">Light</MenuItem>
     </Select>
   );
 }

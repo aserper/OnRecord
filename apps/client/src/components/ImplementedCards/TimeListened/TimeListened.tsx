@@ -1,24 +1,26 @@
-import { useSelector } from "react-redux";
-import clsx from "clsx";
 import { Skeleton } from "@mui/material";
+import clsx from "clsx";
+import { useSelector } from "react-redux";
+
 import { api } from "../../../services/apis/api";
 import { useAPI } from "../../../services/hooks/hooks";
-import { Timesplit } from "../../../services/types";
-import TitleCard from "../../TitleCard";
-import { ImplementedCardProps } from "../types";
-import s from "../index.module.css";
+import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
 import {
   getLastPeriod,
   getPercentMore,
   msToMinutes,
 } from "../../../services/stats";
-import { selectRawIntervalDetail } from "../../../services/redux/modules/user/selector";
+import { Timesplit } from "../../../services/types";
 import Text from "../../Text";
+import TitleCard from "../../TitleCard";
+import { ImplementedCardProps } from "../types";
+
+import s from "../index.module.css";
 
 interface TimeListenedProps extends ImplementedCardProps {}
 
 export default function TimeListened({ className }: TimeListenedProps) {
-  const { interval, unit } = useSelector(selectRawIntervalDetail);
+  const { interval } = useSelector(selectRawIntervalDetail);
   const result = useAPI(
     api.timePer,
     interval.start,
@@ -35,7 +37,7 @@ export default function TimeListened({ className }: TimeListenedProps) {
 
   if (!result || !resultOld) {
     return (
-      <TitleCard title="Time listened" className={className}>
+      <TitleCard title="Listening time" className={className}>
         <div className={s.root}>
           <Text size="normal">
             <Skeleton width={50} />
@@ -54,10 +56,10 @@ export default function TimeListened({ className }: TimeListenedProps) {
   const percentMore = getPercentMore(oldCount, count);
 
   return (
-    <TitleCard title="Time listened" className={className} fade>
+    <TitleCard title="Listening time" className={className} fade>
       <div className={s.root}>
         <Text element="span" size="huge">
-          {msToMinutes(count)} minutes
+          {msToMinutes(count)} min
         </Text>
         <Text size="normal">
           <Text
@@ -67,11 +69,11 @@ export default function TimeListened({ className }: TimeListenedProps) {
               [s.more]: percentMore >= 0,
               [s.less]: percentMore < 0,
             })}>
-            {Math.abs(percentMore)}%
+            {percentMore > 0 ? "+" : ""}
+            {percentMore}%
           </Text>
           <Text element="span" size="normal">
-            &nbsp;
-            {percentMore < 0 ? "less" : "more"} than last {unit}
+            &nbsp; vs. previous period
           </Text>
         </Text>
       </div>
