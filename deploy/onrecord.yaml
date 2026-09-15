@@ -80,7 +80,7 @@ spec:
             memory: "512Mi"
             cpu: "500m"
       - name: onrecord
-        image: ghcr.io/aserper/onrecord@sha256:27aeb9d57de2a8316d866b3098934ad99951c61c58b57cf7a5abf857b78f15be
+        image: ghcr.io/aserper/onrecord@sha256:8b33e80d9f1de3697c45eb999c32e1d90a55e2dda7b05004308fc690eab30b3c
         ports:
         - containerPort: 80
         - containerPort: 443
