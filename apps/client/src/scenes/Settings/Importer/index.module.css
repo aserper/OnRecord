@@ -16,6 +16,7 @@
 }
 
 .intro {
+  display: block;
   max-width: 64ch;
   color: var(--text-grey);
   margin: 0 0 20px;
