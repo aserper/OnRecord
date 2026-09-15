@@ -1,198 +1,211 @@
-![Build CI](https://github.com/Yooooomi/your_spotify/workflows/Nightly%20build%20CI/badge.svg)
-![Release CI](https://github.com/Yooooomi/your_spotify/workflows/Release%20CI/badge.svg)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=BLAPT49PK9A8G)
-
-<p align='center'>
-  <img width="100%" src="https://user-images.githubusercontent.com/17204739/154752226-c2215a51-e20e-4ade-ac63-42c5abb25240.png">
-</p>
-
 # Your Spotify
 
-**YourSpotify** is a self-hosted application that tracks what you listen and offers you a dashboard to explore statistics about it!
-It's composed of a web server which polls the Spotify API every now and then and a web application on which you can explore your statistics.
+![Your Spotify listening-history logo](apps/client/public/brand/social.png)
 
-# Table of contents
+Self-hosted Spotify listening history, with four interface themes, detailed listening statistics, and scheduled history imports.
 
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-  - [Using docker](#using-docker-compose)
-  - [Installing locally](#installing-locally-not-recommended)
-  - [Environment](#environment)
-  - [Advanced CORS settings](#advanced-cors-settings)
-- [Creating the Spotify application](#creating-the-spotify-application)
-- [Importing past history](#importing-past-history)
-  - [Supported import methods](#supported-import-methods)
-    - [Privacy data](#privacy-data)
-    - [Full privacy data](#full-privacy-data-recommended)
-  - [Troubleshoot](#troubleshoot)
-- [FAQ](#faq)
-- [External guides](#external-guides)
-- [Contributing](#contributing)
-- [Sponsoring](#sponsoring)
+This is [aserper/your_spotify](https://github.com/aserper/your_spotify), a fork of **[Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify)**. Credit for the original application and its statistics platform belongs to Yooooomi and the upstream contributors. This fork builds on that work with a redesigned interface and changes to import scheduling, login handling, and deployment.
 
-# Prerequisites
+## What this fork includes
 
-1. You have to own a Spotify application ID that you can create through their [dashboard](https://developer.spotify.com/dashboard/applications).
-2. You need to provide the **Server** environment the **public** AND **secret** key of the application (cf. [Installation](#installation)).
-3. You need to provide an **authorized** redirect URI to the `docker-compose` file.
+- **Four themes:** Atlas, Programme, Darkroom, and Standard, with light and dark appearance settings.
+- **Deep listening exploration:** track, album, and artist histories; listening sessions; rankings over time; and comparisons between users.
+- **Scheduled imports:** upload Spotify export files now and choose an off-hours start time. Pending jobs survive restarts when MongoDB and the upload directory are persistent. Cancel a pending schedule from import history.
+- **An isolated login queue:** login and profile requests do not wait behind bulk import requests. They can try during a recorded bulk cooldown, but an actual Spotify `429` response still produces a retry-later response.
+- **Configurable request pacing and sessions:** set the interval between bulk Spotify requests and the authentication cookie lifetime. Optionally persist Spotify's cooldown deadline across restarts.
 
-> A tutorial is available at the end of this readme.
+Spotify's API limits still apply. Scheduling and pacing do not increase your quota or guarantee an uninterrupted import.
 
-# Installation
+[Installation](#installation) · [Configuration](#configuration) · [History imports](#history-imports) · [Troubleshooting](#troubleshooting) · [Development](#development) · [Support](#support-and-credits)
 
-## Using `docker-compose`
+## Installation
 
-Follow the [docker-compose-example.yml](https://github.com/Yooooomi/your_spotify/blob/master/docker-compose-example.yml) to host your application through docker.
+### 1. Create a Spotify application
 
-```yml
+Create an app in the [Spotify developer dashboard](https://developer.spotify.com/dashboard), select **Web API**, and copy its client ID and client secret. Follow Spotify's current account and development-mode requirements; add other permitted users through the app's user management settings.
+
+For the combined container documented here, register this exact redirect URI, replacing the example domain with yours:
+
+```text
+https://music.example.com/api/oauth/spotify/callback
+```
+
+The scheme, hostname, port, and path must match your deployment. Use HTTPS for a remote deployment. For local testing, follow Spotify's current loopback redirect rules rather than assuming `localhost` is accepted.
+
+### 2. Run the combined image and MongoDB
+
+The fork publishes **`ghcr.io/aserper/your_spotify:latest`**. Its [Dockerfile](Dockerfile) builds this repository's client and server, then installs them into a pinned [LinuxServer Your Spotify image](https://github.com/linuxserver/docker-your_spotify). The container serves the frontend at `/` and the API at `/api`; MongoDB runs separately.
+
+The upstream `yooooomi/your_spotify_server` and `yooooomi/your_spotify_client` images do **not** contain this fork's changes. The existing split-container Compose files in this repository are legacy examples, not the installation below.
+
+Create a private `.env` file beside your `compose.yaml`:
+
+```dotenv
+SPOTIFY_PUBLIC=replace_with_spotify_client_id
+SPOTIFY_SECRET=replace_with_spotify_client_secret
+```
+
+Keep this file out of version control and restrict its permissions (`chmod 600 .env`). Create writable storage directories, using the UID and GID you will set as `PUID` and `PGID`:
+
+```sh
+mkdir -p data/config data/imports
+sudo chown -R 1000:1000 data/config data/imports
+```
+
+Save this as `compose.yaml`:
+
+```yaml
 services:
-  server:
-    image: yooooomi/your_spotify_server
-    restart: always
-    ports:
-      - "8080:8080"
-    links:
-      - mongo
+  your_spotify:
+    image: ghcr.io/aserper/your_spotify:latest
+    restart: unless-stopped
     depends_on:
       - mongo
     environment:
-      API_ENDPOINT: http://localhost:8080 # This MUST be included as a valid URL in the spotify dashboard (see below)
-      CLIENT_ENDPOINT: http://localhost:3000
-      SPOTIFY_PUBLIC: __your_spotify_client_id__
-      SPOTIFY_SECRET: __your_spotify_secret__
-
-  web:
-    image: yooooomi/your_spotify_client
-    restart: always
+      PUID: "1000"
+      PGID: "1000"
+      TZ: Etc/UTC
+      APP_URL: https://music.example.com
+      SPOTIFY_PUBLIC: ${SPOTIFY_PUBLIC:?Set SPOTIFY_PUBLIC in .env}
+      SPOTIFY_SECRET: ${SPOTIFY_SECRET:?Set SPOTIFY_SECRET in .env}
+      MONGO_ENDPOINT: mongodb://mongo:27017/your_spotify
+      TIMEZONE: Etc/UTC
+      SPOTIFY_REQUEST_INTERVAL_MS: "200"
+      COOKIE_VALIDITY_MS: "2592000000"
+      SPOTIFY_COOLDOWN_FILE: /config/spotify-cooldown.json
     ports:
-      - "3000:3000"
-    environment:
-      API_ENDPOINT: http://localhost:8080
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./data/config:/config
+      - ./data/imports:/tmp/imports
 
   mongo:
-    container_name: mongo
     image: mongo:8
+    restart: unless-stopped
     volumes:
-      - ./your_spotify_db:/data/db
+      - mongo_data:/data/db
 
+volumes:
+  mongo_data:
 ```
 
-## Installing locally (not recommended)
+```sh
+docker compose up -d
+docker compose logs -f your_spotify
+```
 
-You can follow the instructions [here](https://github.com/Yooooomi/your_spotify/blob/master/LOCAL_INSTALL.md). Note that you will still have to do the steps below.
+Point a TLS-terminating reverse proxy on the Docker host at `http://127.0.0.1:8080`, serving `https://music.example.com`. Forward the original host and scheme. If your proxy is another container, connect it to the same Docker network and use `your_spotify:80` instead. Do not expose MongoDB publicly. Adjust proxy upload-size and timeout limits for large history exports.
 
-## Environment
+The first registered account becomes an administrator. Once your users have joined, you can disable new registrations in **Settings**.
 
-| Key | Default value (if any) | Description |
+### Storage and updates
+
+Keep all three storage locations:
+
+| Container path | What it preserves |
+| :--- | :--- |
+| `/config` | LinuxServer runtime configuration and, in this example, the cooldown file |
+| `/tmp/imports` | Uploaded files needed by pending jobs and failed-import retries |
+| `/data/db` in MongoDB | Users, listening history, preferences, and import job records |
+
+If you set `SPOTIFY_COOLDOWN_FILE` elsewhere, persist its **parent directory** and make it writable by `PUID`/`PGID`. The server writes a temporary file and renames it, so use a directory mount rather than a single-file mount. A `/config` volume alone does not preserve `/tmp/imports`.
+
+Back up MongoDB and the app storage before updating. Avoid updates during a running import. To update only the app image:
+
+```sh
+docker compose pull your_spotify
+docker compose up -d your_spotify
+```
+
+For reproducible deployments, pin a published image digest instead of `latest`. Do not change MongoDB major versions without following MongoDB's upgrade procedure.
+
+The [Kubernetes manifest](deploy/your-spotify.yaml) shows the combined image, persistent uploads, cooldown storage, and MongoDB in use. It is deployment-specific: replace its storage, ingress, certificate, and secret references before using it. The [container workflow](.github/workflows/container.yml) verifies the code, publishes GHCR images, and records the image digest in that manifest.
+
+## Configuration
+
+The combined image derives `CLIENT_ENDPOINT` from `APP_URL` and `API_ENDPOINT` from `${APP_URL}/api`. Set `APP_URL` to the URL your browser uses, without a trailing slash. Do not override the internal server port in this image.
+
+Server settings are defined in [env.ts](apps/server/src/tools/env.ts); defaults below refer to this fork's server, not every LinuxServer image version.
+
+| Variable | Default | Purpose |
 | :--- | :--- | :--- |
-| CLIENT_ENDPOINT       | REQUIRED | The endpoint of your web application |
-| API_ENDPOINT          | REQUIRED | The endpoint of your server |
-| SPOTIFY_PUBLIC        | REQUIRED | The public key of your Spotify application (cf [Creating the Spotify Application](#creating-the-spotify-application)) |
-| SPOTIFY_SECRET        | REQUIRED | The secret key of your Spotify application (cf [Creating the Spotify Application](#creating-the-spotify-application)) |
-| TIMEZONE              | Europe/Paris | The timezone of your stats, only affects read requests since data is saved with UTC time |
-| MONGO_ENDPOINT        | mongodb://mongo:27017/your_spotify | The endpoint of the Mongo database, where **mongo** is the name of your service in the compose file |
-| PROMETHEUS_USERNAME             | _not defined_ | Prometheus basic auth username (see [here](https://github.com/Yooooomi/your_spotify/tree/master/apps/server#prometheus)) |
-| PROMETHEUS_PASSWORD             | _not defined_ | Prometheus basic auth password |
-| LOG_LEVEL             | info | The log level, debug is useful if you encouter any bugs |
-| CORS                  | _not defined_ | List of comma-separated origin allowed (not required; defaults to CLIENT_ENDPOINT) |
-| COOKIE_VALIDITY_MS    | 1h | Validity time of the authentication cookie, following [this pattern](https://github.com/vercel/ms) |
-| MAX_IMPORT_CACHE_SIZE | Infinite | The maximum element in the cache when importing data from an outside source, more cache means less requests to Spotify, resulting in faster imports |
-| MONGO_NO_ADMIN_RIGHTS | false | Do not ask for admin right on the Mongo database |
-| PORT                  | 8080 | The port of the server, **do not** modify if you're using docker |
-| FRAME_ANCESTORS       | _not defined_ | Sites allowed to frame the website, comma separated list of URLs (`i-want-a-security-vulnerability-and-want-to-allow-all-frame-ancestors` to allow every website) |
+| `APP_URL` | Set explicitly | Public URL for the combined image |
+| `SPOTIFY_PUBLIC`, `SPOTIFY_SECRET` | Required | Spotify app client ID and secret |
+| `PUID`, `PGID`, `TZ` | Set explicitly | Container file ownership and operating-system timezone |
+| `MONGO_ENDPOINT` | `mongodb://mongo:27017/your_spotify` | MongoDB connection string |
+| `TIMEZONE` | `Europe/Paris` | Default statistics timezone; each user can override it in Settings |
+| `SPOTIFY_REQUEST_INTERVAL_MS` | `200` | Minimum interval in milliseconds between bulk-queue request starts; nonnegative |
+| `SPOTIFY_COOLDOWN_FILE` | Unset | File for persisting the rate-limit deadline; otherwise held in memory |
+| `COOKIE_VALIDITY_MS` | `1h` | Authentication token lifetime; use a positive integer in milliseconds for a persistent browser cookie too |
+| `MAX_IMPORT_CACHE_SIZE` | `100000` | Import cache entry limit; a larger cache uses more memory to reduce API lookups |
+| `CORS` | Origin of `CLIENT_ENDPOINT` | Comma-separated allowed browser origins |
+| `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, or `error` |
+| `MONGO_NO_ADMIN_RIGHTS` | `false` | Skip MongoDB admin operations when using restricted database credentials |
+| `PROMETHEUS_USERNAME`, `PROMETHEUS_PASSWORD` | Unset | Basic-auth credentials for [metrics](apps/server/README.md#prometheus) |
+| `CLIENT_ENDPOINT`, `API_ENDPOINT` | Required outside combined image | Browser-facing frontend and backend URLs for a source installation |
+| `PORT` | `8080` | Backend listener for a source installation |
 
-## Advanced CORS settings
+The Compose example sets `COOKIE_VALIDITY_MS=2592000000` for 30 days. Duration strings such as `1h` set token expiry, but only a numeric millisecond value sets the browser cookie's persistent lifetime.
 
-**Manually specifying CORS configuration is not required for typical deployments.**  
-99.9% of users do not need to worry about this, it is handled automatically.
+Use `SPOTIFY_REQUEST_INTERVAL_MS` for this fork, not `SPOTIFY_API_DELAY_MS` from other image documentation. CORS usually needs no override. If you set it, list exact origins, for example `https://music.example.com,https://dashboard.example.com`, without paths or trailing slashes. An explicit default port such as `:443` may not match the browser's normalized origin.
 
-If your use case requires the backend to be used from multiple frontend origins, you can manually adjust the `CORS` variable.
-For example, a value of `origin1,origin2` will allow `origin1` and `origin2`.
+## History imports
 
-# Creating the Spotify Application
+The app polls Spotify for recent listening activity after registration. This does not retrieve your entire past history. Request an export from [Spotify account privacy](https://www.spotify.com/account/privacy/), then open **Settings → Account → Import data**:
 
-For **YourSpotify** to work you need to provide a Spotify application **public** AND **secret** to the server environment.
-To do so, you need to create a **Spotify application** [here](https://developer.spotify.com/dashboard/applications).
+- **Account data:** select `StreamingHistory*.json` files, generally covering the past year.
+- **Extended streaming history:** select `Streaming_History_Audio_*.json` files for the longer history provided by Spotify. This is the recommended format.
 
-1. Click on **Create app**.
-2. Fill out all the information.
-3. Set the redirect URI, corresponding to your **server** location on the internet (or your local network) adding the suffix **/oauth/spotify/callback** (**/api/oauth/spotify/callback** if using the [linuxserver](https://github.com/linuxserver/docker-your_spotify) image).
-- i.e: `http://localhost:8080/oauth/spotify/callback` or `http://home.mydomain.com/your_spotify_backend/oauth/spotify/callback`
-4. Check **Web API**
-5. Check **I understand and agree**
-6. Hit **Settings** at the top right corner
-7. Copy the **public** and the **secret** key into your `docker-compose` file under the name of `SPOTIFY_PUBLIC` and `SPOTIFY_SECRET`
-   respectively.
-8. Once you have created your application, Spotify wants you to register the users that will be able to access the application. (You don't need to do that for the account that created the application)
-   1. Click the **User Management** button
-   2. Enter the required information, a name and the email the user's Spotify account has been created with.
-   3. (Optional) You can **Request extension** if you do not want to register the users by hand.
+Spotify controls export availability and delivery time. Upload the extracted JSON files, not the ZIP archive.
 
-# Importing past history
+Choose **Start now** or **Schedule for later**. The schedule uses your browser's local time and initially suggests the next 02:00. Files are uploaded immediately; the server stores the job in MongoDB and checks for due jobs at startup and every 30 seconds. A due job can wait if that user already has an import running.
 
-By default, **YourSpotify** will only retrieve data for the past 24 hours once registered. This is a technical limitation. However, you can import previous data by two ways.
+**Restart behavior matters:**
 
-The import process uses cache to limit requests to the Spotify API. By default, the cache size is unlimited, but you can limit is with the `MAX_IMPORT_CACHE_SIZE` env variable in the **server**.
+- A still-pending scheduled job survives a restart if both MongoDB and `/tmp/imports` are preserved. An overdue pending job can start after the server returns.
+- A job that was starting or running is marked failed after a server restart. It does not resume automatically. Use **Retry** in import history; its files must still exist.
+- **Cancel scheduled import** applies only to pending jobs and removes their uploaded files. Cleaning up a failed import removes its uploaded files, so retry it before cleaning up if you still need it.
 
-## Supported import methods
+API errors or exhausted retries can also fail an import. Duplicate detection reduces overlap, but duplicates can still occur. See the [scheduler](apps/server/src/tools/importers/scheduler.ts) and [import lifecycle](apps/server/src/tools/importers/importer.ts) for implementation details.
 
-### Privacy data
+## Troubleshooting
 
-> Takes a maximum of 5 days.
-> Only gets you the last year of history.
+**Spotify asks the app to pause.** Bulk requests wait for the recorded cooldown. Login uses its own queue, but if Spotify returns a real `429` there too, the app reports a retry time. Wait, then begin a fresh sign-in rather than refreshing an old callback. Restarting the container or deleting the cooldown file does not reset Spotify's quota.
 
-- Request your **privacy data** at Spotify to have access to your history for the past year [here](https://www.spotify.com/us/account/privacy/).
-- Head to the **Settings** page and choose the **Account data** method.
-- Input your files starting with `StreamingHistoryX.json`.
-- Start your import.
+**Login fails or the browser cannot retrieve global preferences.** Check `APP_URL`, the registered redirect URI, and reverse-proxy routing to `/api`. In a source installation, `API_ENDPOINT` must reach the backend from the user's browser, not point to the frontend. Check explicit CORS origins if configured.
 
-### Full privacy data (recommended)
+**Listening history stops updating.** If Spotify access was revoked, use **Reconnect** under **Spotify connection** in Settings. Check server logs for API errors and cooldowns.
 
-> Takes a maximum of 30 days.
-> Gets you the whole history since the creation of your account.
+**An import is missing files or cannot start.** Check that `/tmp/imports` is mounted persistently and writable by the container's UID/GID. Also check free disk space and proxy upload limits. Running jobs interrupted by a restart need a manual retry.
 
-- Request your **Full privacy data** to have access to your history data since the creation of the account [here](https://www.spotify.com/us/account/privacy/).
-- Head to the **Settings** page and choose the **Extended streaming history** method.
-- Input your files starting with `Streaming_History_Audio_YYYY-YYYY_X.json`.
-- Start your import.
+**Statistics use the wrong timezone.** Change your timezone in Settings. `TIMEZONE` is the server-side default; history timestamps and other local displays use the device timezone. Stored timestamps remain UTC.
 
-## Troubleshoot
+## Development
 
-An import can fail:
-- If the server reboots.
-- If a request fails 10 times in a row.
+Use Node.js 24 and pnpm 10.17.1, matching the [Dockerfile](Dockerfile) and CI:
 
-A failed import can be retried in the **Settings** page. Be sure to clean your failed imports if you do not want to retry it as it will remove the files used for it.
+```sh
+git clone https://github.com/aserper/your_spotify.git
+cd your_spotify
+npm install --global pnpm@10.17.1
+pnpm install --frozen-lockfile
+pnpm --filter @your_spotify/server test
+pnpm --filter @your_spotify/server typecheck
+pnpm --filter @your_spotify/client typecheck
+pnpm --filter @your_spotify/server build
+pnpm --filter @your_spotify/client build
+```
 
-It is safer to import data at account creation. Though **YourSpotify** detects duplicates, some may still be inserted.
+To run from source, provide MongoDB and export the server environment variables, including `CLIENT_ENDPOINT`, `API_ENDPOINT`, and the Spotify credentials. Run `pnpm --filter @your_spotify/server migrate`, then `pnpm --filter @your_spotify/server start`.
 
-# FAQ
+Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`. Copy `variables-template.js` to `variables.js` in that directory and replace `__API_ENDPOINT__` with the public backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` is for a proxy that mounts the backend under `/api`.
 
-> How can I block new registrations?
+[LOCAL_INSTALL.md](LOCAL_INSTALL.md) contains inherited hosting and systemd notes. Its Yarn, Node 16, and `lib/bin/www` commands are legacy; use the commands and `build/index.js` entry point above for this fork.
 
-From an admin account, go to the **Settings** page and hit the **Disable new registrations** button.
+## Support and credits
 
-> Songs don't seem to synchronize anymore.
+Report fork bugs and feature requests in [aserper/your_spotify issues](https://github.com/aserper/your_spotify/issues). Include the image digest or commit, relevant configuration with secrets removed, and redacted logs.
 
-This can happen if you revoked access on your Spotify account. To re-sync the songs, go to settings and hit the **Relog to Spotify** button.
-
-> The web application is telling me it cannot retrieve global preferences.
-
-This means that your web application can't connect to the backend. Check that your **API_ENDPOINT** env variable is reachable from the device you're using the platform from.
-
-> A specific user does not use the application in the same timezone as the server, how can I set a specific timezone for him?
-
-Any user can set his proper timezone in the settings, it will be used for any computed statistics. The timezone of the device will be used for everything else, such as song history.
-
-# External guides
-
-- [BreadNet](https://breadnet.co.uk/your-spotify-2022) installation tutorial
-
-# Contributing
-
-If you have any issue or any idea that could make the project better, feel free to open an [issue](https://github.com/Yooooomi/your_spotify/issues/new/choose). I'd love to hear about new ideas or bugs you are encountering.
-
-# Sponsoring
-
-I work on this project on my spare time and try to fix issues as soon as I can. If you feel generous and think this project and my investment are worth a few cents, you can consider sponsoring it with the button on the right, many thanks.
-
+- **Upstream project and support:** [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify) and [upstream issues](https://github.com/Yooooomi/your_spotify/issues). Please report fork-specific problems here first.
+- **Container foundation:** [LinuxServer Your Spotify](https://github.com/linuxserver/docker-your_spotify).
+- **License:** [GNU GPL v3](LICENSE), retained from upstream.
