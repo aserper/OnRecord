@@ -447,7 +447,7 @@ router.post("/playlist/create", logged, withHttpClient, async (req, res) => {
     }
   } else if (body.type === "affinity") {
     if (!playlistName) {
-      playlistName = `Your Spotify Playlist • ${DateFormatter.toDayMonthYear(user.settings.dateFormat, new Date())}`;
+      playlistName = `OnRecord Playlist • ${DateFormatter.toDayMonthYear(user.settings.dateFormat, new Date())}`;
     }
     const affinity = await getCollaborativeBestSongs(
       body.userIds,
@@ -474,7 +474,7 @@ router.post("/playlist/create", logged, withHttpClient, async (req, res) => {
     }
   } else {
     if (!playlistName) {
-      playlistName = `Your Spotify Playlist • ${DateFormatter.toDayMonthYear(user.settings.dateFormat, new Date())}`;
+      playlistName = `OnRecord Playlist • ${DateFormatter.toDayMonthYear(user.settings.dateFormat, new Date())}`;
     }
     spotifyIds = uniq(body.songIds);
   }

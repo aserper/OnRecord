@@ -5,7 +5,7 @@ export default function Brand() {
   return (
     <span className={s.root}>
       <span className={s.symbol} aria-hidden="true" />
-      <span>Your Spotify</span>
+      <span>OnRecord</span>
     </span>
   );
 }

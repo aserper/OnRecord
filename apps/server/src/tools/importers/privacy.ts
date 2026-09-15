@@ -122,7 +122,7 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
       return content;
     }
     logger.error(
-      "If you submitted the right files and this error comes up, please open an issue with the following logs at https://github.com/Yooooomi/your_spotify",
+      "If you submitted the right files and this error comes up, please open an issue with the following logs at https://github.com/aserper/OnRecord",
       JSON.stringify(value.error.issues, null, " "),
     );
     return null;
@@ -192,7 +192,8 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
       if (content.msPlayed < 30 * 1000) {
         // If track was played for less than 30 seconds
         logger.info(
-          `Track ${content.trackName} - ${content.artistName
+          `Track ${content.trackName} - ${
+            content.artistName
           } was passed, only listened for ${Math.floor(
             content.msPlayed / 1000,
           )} seconds`,

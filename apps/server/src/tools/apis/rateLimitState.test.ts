@@ -7,7 +7,7 @@ import test from "node:test";
 import { RateLimitState, SpotifyRateLimitError } from "./rateLimitState";
 
 test("a missing cooldown file starts at zero", () => {
-  const directory = mkdtempSync(join(tmpdir(), "your-spotify-rate-limit-"));
+  const directory = mkdtempSync(join(tmpdir(), "onrecord-rate-limit-"));
   try {
     const state = new RateLimitState(join(directory, "cooldown.json"));
     assert.equal(state.getDeadline(), 0);
@@ -17,7 +17,7 @@ test("a missing cooldown file starts at zero", () => {
 });
 
 test("cooldown writes are persisted and monotonic", () => {
-  const directory = mkdtempSync(join(tmpdir(), "your-spotify-rate-limit-"));
+  const directory = mkdtempSync(join(tmpdir(), "onrecord-rate-limit-"));
   const file = join(directory, "cooldown.json");
   try {
     const state = new RateLimitState(file);
@@ -34,7 +34,7 @@ test("cooldown writes are persisted and monotonic", () => {
 });
 
 test("a later persisted deadline extends a running process", () => {
-  const directory = mkdtempSync(join(tmpdir(), "your-spotify-rate-limit-"));
+  const directory = mkdtempSync(join(tmpdir(), "onrecord-rate-limit-"));
   const file = join(directory, "cooldown.json");
   try {
     const state = new RateLimitState(file);

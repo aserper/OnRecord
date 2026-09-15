@@ -8,19 +8,19 @@ web
 
 ## Users
 
-The primary user is the owner of a private, self-hosted Your Spotify instance. They are a frequent user who wants to investigate their own listening history in depth. Existing multi-account and collaborative behavior must remain available for other invited users.
+The primary user is the owner of a private, self-hosted OnRecord instance. They are a frequent user who wants to investigate their own listening history in depth. Existing multi-account and collaborative behavior must remain available for other invited users.
 
 ## Product Purpose
 
-Your Spotify continuously records Spotify listening activity and turns it into an explorable personal archive. It should make it easy to move from high-level patterns into the artists, albums, tracks, sessions, and moments that produced them. Success means deep exploration feels fluid while operational states remain trustworthy and understandable.
+OnRecord continuously records Spotify listening activity and turns it into an explorable personal archive. It should make it easy to move from high-level patterns into the artists, albums, tracks, sessions, and moments that produced them. Success means deep exploration feels fluid while operational states remain trustworthy and understandable.
 
 ## Positioning
 
-Unlike a periodic summary, Your Spotify is a self-hosted, continuously growing listening-history database whose date ranges, rankings, detail views, and imports let its owner investigate their complete archive on demand.
+Unlike a periodic summary, OnRecord is a self-hosted, continuously growing listening-history database whose date ranges, rankings, detail views, and imports let its owner investigate their complete archive on demand.
 
 ## Operating Context
 
-The application runs in a private Kubernetes cluster and is reached through `https://your-spotify.amit.wtf`. The owner primarily uses it to explore listening patterns and historical data. Full privacy-history imports can be very large and may run for an extended period while interacting with Spotify API rate limits.
+The application runs in a private Kubernetes cluster and is reached through `https://onrecord.amit.wtf`. The owner primarily uses it to explore listening patterns and historical data. Full privacy-history imports can be very large and may run for an extended period while interacting with Spotify API rate limits.
 
 ## Capabilities and Constraints
 
@@ -33,7 +33,7 @@ The application runs in a private Kubernetes cluster and is reached through `htt
 
 ## Brand Commitments
 
-Retain the Your Spotify product name and its factual relationship to Spotify. Do not imply that the fork is an official Spotify product. Existing recognizable data and album/artist imagery remain product content, not invented promotional material.
+The product is named OnRecord. Keep the factual relationship to Spotify and to the upstream Your Spotify project; do not imply that the fork is an official Spotify product. Existing recognizable data and album/artist imagery remain product content, not invented promotional material.
 
 ## Evidence on Hand
 

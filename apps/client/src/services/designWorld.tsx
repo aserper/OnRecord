@@ -26,7 +26,18 @@ interface DesignWorldContextValue {
 }
 
 const DesignWorldContext = createContext<DesignWorldContextValue | null>(null);
-const STORAGE_PREFIX = "your-spotify:design-world";
+const STORAGE_PREFIX = "onrecord:design-world";
+// The product was renamed from Your Spotify; keep reading stored preferences.
+const LEGACY_STORAGE_PREFIX = "your-spotify:design-world";
+
+function readStoredWorld(storageKey: string): string | null {
+  return (
+    localStorage.getItem(storageKey) ??
+    localStorage.getItem(
+      storageKey.replace(STORAGE_PREFIX, LEGACY_STORAGE_PREFIX),
+    )
+  );
+}
 
 function isDesignWorld(value: string | null): value is DesignWorld {
   return DESIGN_WORLDS.some((world) => world.id === value);
@@ -36,12 +47,12 @@ export function DesignWorldProvider({ children }: { children: ReactNode }) {
   const user = useSelector(selectUser);
   const storageKey = `${STORAGE_PREFIX}:${user?._id ?? "guest"}`;
   const [world, setWorldState] = useState<DesignWorld>(() => {
-    const stored = localStorage.getItem(storageKey);
+    const stored = readStoredWorld(storageKey);
     return isDesignWorld(stored) ? stored : "atlas";
   });
 
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
+    const stored = readStoredWorld(storageKey);
     if (isDesignWorld(stored)) {
       setWorldState(stored);
     } else {

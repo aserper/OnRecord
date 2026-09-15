@@ -1,6 +1,6 @@
 # Design system
 
-Your Spotify ships four complete interface worlds over one routing, data, and accessibility foundation. A user can change worlds without losing the current route, selected period, or application state. The preference is stored per signed-in user in local storage.
+OnRecord ships four complete interface worlds over one routing, data, and accessibility foundation. A user can change worlds without losing the current route, selected period, or application state. The preference is stored per signed-in user in local storage.
 
 ## Product direction
 
