@@ -32,10 +32,14 @@ function storeTokenInCookie(
   response: Response,
   token: string,
 ) {
+  const configuredValidity = Number(get("COOKIE_VALIDITY_MS"));
   response.cookie("token", token, {
     sameSite: "strict",
     httpOnly: true,
     secure: request.secure,
+    ...(Number.isFinite(configuredValidity) && configuredValidity > 0
+      ? { maxAge: configuredValidity }
+      : {}),
   });
 }
 
@@ -99,9 +103,6 @@ router.get("/spotify", async (req, res) => {
     res.status(204).end();
     return;
   }
-  if (respondIfSpotifyIsCoolingDown(res)) {
-    return;
-  }
   const { url, state } = await spotifyProvider.getRedirect();
   const oauthCookie: OAuthCookie = { state };
 
@@ -117,9 +118,6 @@ router.get("/spotify", async (req, res) => {
 const spotifyCallback = z.object({ code: z.string(), state: z.string() });
 
 router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
-  if (respondIfSpotifyIsCoolingDown(res)) {
-    return;
-  }
   const { query, globalPreferences } = req as GlobalPreferencesRequest;
   const { code, state } = validate(query, spotifyCallback);
 
@@ -134,10 +132,11 @@ router.get("/spotify/callback", withGlobalPreferences, async (req, res) => {
 
     const infos = await spotifyProvider.exchangeCode(code, cookie.state);
 
-    const client = spotifyProvider.getHttpClient(infos.accessToken);
+    const client = spotifyProvider.getLoginHttpClient(infos.accessToken);
     const { data: spotifyMe } = await client.get<SpotifyMe>("/me", {
       priority: "high",
       failFastOnRateLimit: true,
+      probeDuringRateLimit: true,
     });
     let user = await getUserFromField("spotifyId", spotifyMe.id, false);
     if (!user) {

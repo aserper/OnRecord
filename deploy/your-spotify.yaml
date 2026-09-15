@@ -105,6 +105,10 @@ spec:
           value: "mongodb://localhost:27017/your_spotify"
         - name: SPOTIFY_COOLDOWN_FILE
           value: "/hotfix/cooldown.json"
+        - name: SPOTIFY_REQUEST_INTERVAL_MS
+          value: "200"
+        - name: COOKIE_VALIDITY_MS
+          value: "2592000000"
         livenessProbe:
           httpGet:
             path: /

@@ -1,4 +1,7 @@
-import { spotifyHttpClientFactory } from "../apis/queuedHttpClient.providers";
+import {
+  spotifyHttpClientFactory,
+  spotifyLoginHttpClientFactory,
+} from "../apis/queuedHttpClient.providers";
 import { QueuedHttpClient } from "../apis/queueHttpClient";
 import { generateRandomString } from "../crypto";
 import { credentials } from "./credentials";
@@ -13,10 +16,12 @@ export interface Provider {
     refreshToken: string,
   ): Promise<{ accessToken: string; expiresIn: number }>;
   getHttpClient(accessToken: string): QueuedHttpClient;
+  getLoginHttpClient(accessToken: string): QueuedHttpClient;
 }
 
 export class Spotify implements Provider {
   private readonly client = spotifyHttpClientFactory.createClient({});
+  private readonly loginClient = spotifyLoginHttpClientFactory.createClient({});
 
   constructor(
     private readonly clientId: string,
@@ -39,7 +44,7 @@ export class Spotify implements Provider {
   }
 
   async exchangeCode(code: string, state: string) {
-    const { data } = await this.client.post(
+    const { data } = await this.loginClient.post(
       "https://accounts.spotify.com/api/token",
       {
         params: {
@@ -52,6 +57,7 @@ export class Spotify implements Provider {
         },
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         failFastOnRateLimit: true,
+        probeDuringRateLimit: true,
       },
     );
 
@@ -82,6 +88,12 @@ export class Spotify implements Provider {
       accessToken: data.access_token as string,
       expiresIn: Date.now() + data.expires_in * 1000,
     };
+  }
+
+  getLoginHttpClient(accessToken: string) {
+    return spotifyLoginHttpClientFactory.createClient({
+      Authorization: `Bearer ${accessToken}`,
+    });
   }
 
   getHttpClient(accessToken: string) {

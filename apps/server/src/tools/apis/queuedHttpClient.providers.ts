@@ -1,7 +1,15 @@
+import { getWithDefault } from "../env";
 import { QueuedHttpClientFactory } from "./queueHttpClient";
 import { spotifyRateLimitState } from "./rateLimitState";
 
 export const spotifyHttpClientFactory = new QueuedHttpClientFactory({
+  baseURL: "https://api.spotify.com/v1",
+  headers: { "Content-Type": "application/json" },
+  rateLimitState: spotifyRateLimitState,
+  minimumIntervalMs: getWithDefault("SPOTIFY_REQUEST_INTERVAL_MS", 200),
+});
+
+export const spotifyLoginHttpClientFactory = new QueuedHttpClientFactory({
   baseURL: "https://api.spotify.com/v1",
   headers: { "Content-Type": "application/json" },
   rateLimitState: spotifyRateLimitState,

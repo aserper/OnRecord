@@ -12,6 +12,8 @@ interface HttpClientRequestConfig {
   retry429MaxAttempts?: number;
   /** Reject immediately on a recorded or new 429 cooldown; retry limits do not apply. */
   failFastOnRateLimit?: boolean;
+  /** Attempt despite a recorded cooldown; an actual 429 still fails fast. */
+  probeDuringRateLimit?: boolean;
 }
 
 interface HttpClientResponse<T> {
@@ -31,6 +33,7 @@ interface QueueState {
   highPriorityQueue: QueueItem<any>[];
   normalPriorityQueue: QueueItem<any>[];
   isProcessingQueue: boolean;
+  lastRequestAt: number;
 }
 
 export class HttpError extends Error {
@@ -57,6 +60,7 @@ function createQueueState(): QueueState {
     highPriorityQueue: [],
     normalPriorityQueue: [],
     isProcessingQueue: false,
+    lastRequestAt: 0,
   };
 }
 
@@ -68,6 +72,7 @@ export class QueuedHttpClientFactory {
       baseURL: string;
       headers: Record<string, string>;
       rateLimitState?: RateLimitState;
+      minimumIntervalMs?: number;
     },
   ) {}
 
@@ -78,6 +83,7 @@ export class QueuedHttpClientFactory {
       mergedHeaders,
       this.queueState,
       this.options.rateLimitState,
+      this.options.minimumIntervalMs,
     );
   }
 }
@@ -88,6 +94,7 @@ export class QueuedHttpClient {
     private readonly headers: Record<string, string>,
     private readonly queueState: QueueState = createQueueState(),
     private readonly rateLimitState?: RateLimitState,
+    private readonly minimumIntervalMs = 0,
   ) {}
 
   request<T = any>(
@@ -165,6 +172,7 @@ export class QueuedHttpClient {
 
   private async execute<T = any>(queueItem: QueueItem<T>) {
     await this.waitForRateLimit(queueItem.config);
+    await this.waitForRequestInterval();
 
     const url = new URL(queueItem.config.url);
 
@@ -240,6 +248,9 @@ export class QueuedHttpClient {
       if (remaining <= 0) {
         return;
       }
+      if (config.probeDuringRateLimit) {
+        return;
+      }
       if (config.failFastOnRateLimit) {
         throw new SpotifyRateLimitError(this.rateLimitState.getDeadline());
       }
@@ -294,5 +305,14 @@ export class QueuedHttpClient {
     return new Promise<void>((resolve) => {
       setTimeout(resolve, ms);
     });
+  }
+
+  private async waitForRequestInterval() {
+    const remaining =
+      this.queueState.lastRequestAt + this.minimumIntervalMs - Date.now();
+    if (remaining > 0) {
+      await this.sleep(remaining);
+    }
+    this.queueState.lastRequestAt = Date.now();
   }
 }

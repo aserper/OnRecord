@@ -87,3 +87,63 @@ test("fail-fast requests expose a typed cooldown error", async () => {
     },
   );
 });
+
+test("a login probe bypasses only the recorded cooldown", async () => {
+  const state = new RateLimitState();
+  state.registerDelay(60_000);
+  await withServer(
+    (_, response) => {
+      response.setHeader("content-type", "application/json");
+      response.end('{"id":"listener"}');
+    },
+    async (url) => {
+      const client = new QueuedHttpClient(url, {}, undefined, state);
+      const response = await client.get<{ id: string }>("/me", {
+        failFastOnRateLimit: true,
+        probeDuringRateLimit: true,
+      });
+      assert.equal(response.data.id, "listener");
+    },
+  );
+});
+
+test("an actual 429 still rejects a login probe", async () => {
+  const state = new RateLimitState();
+  state.registerDelay(1_000);
+  await withServer(
+    (_, response) => {
+      response.statusCode = 429;
+      response.setHeader("content-type", "application/json");
+      response.setHeader("retry-after", "60");
+      response.end('{"error":"slow down"}');
+    },
+    async (url) => {
+      const client = new QueuedHttpClient(url, {}, undefined, state);
+      await assert.rejects(
+        client.get("/me", {
+          failFastOnRateLimit: true,
+          probeDuringRateLimit: true,
+        }),
+        SpotifyRateLimitError,
+      );
+      assert.ok(state.getRemainingMs() > 50_000);
+    },
+  );
+});
+
+test("normal requests are paced within one queue", async () => {
+  const requestTimes: number[] = [];
+  await withServer(
+    (_, response) => {
+      requestTimes.push(Date.now());
+      response.setHeader("content-type", "application/json");
+      response.end('{"ok":true}');
+    },
+    async (url) => {
+      const client = new QueuedHttpClient(url, {}, undefined, undefined, 40);
+      await Promise.all([client.get("/one"), client.get("/two")]);
+      assert.equal(requestTimes.length, 2);
+      assert.ok(requestTimes[1]! - requestTimes[0]! >= 30);
+    },
+  );
+});

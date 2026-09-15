@@ -23,7 +23,7 @@ interface SpotifyPlaylist {
 export class SpotifyAPI {
   constructor(private readonly userId: string) {}
 
-  private async checkToken() {
+  private async checkToken(loginProbe = false) {
     const user = await getUserFromField(
       "_id",
       new Types.ObjectId(this.userId),
@@ -49,7 +49,9 @@ export class SpotifyAPI {
       access = infos.accessToken;
     }
     if (access) {
-      return spotifyProvider.getHttpClient(access);
+      return loginProbe
+        ? spotifyProvider.getLoginHttpClient(access)
+        : spotifyProvider.getHttpClient(access);
     } else {
       throw new Error("Could not get any access token");
     }
@@ -66,10 +68,11 @@ export class SpotifyAPI {
   }
 
   public async me() {
-    const client = await this.checkToken();
+    const client = await this.checkToken(true);
     const res = await client.get("/me", {
       priority: "high",
       failFastOnRateLimit: true,
+      probeDuringRateLimit: true,
     });
     return res.data as SpotifyMe;
   }

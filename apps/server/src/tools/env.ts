@@ -19,6 +19,10 @@ const validators = {
   MONGO_NO_ADMIN_RIGHTS: z.preprocess(toBoolean, z.boolean().optional()),
   PROMETHEUS_USERNAME: z.string().optional(),
   PROMETHEUS_PASSWORD: z.string().optional(),
+  SPOTIFY_REQUEST_INTERVAL_MS: z.preprocess(
+    toNumber,
+    z.number().min(0).optional(),
+  ),
   SPOTIFY_COOLDOWN_FILE: z.string().optional(),
 } as const;
 
