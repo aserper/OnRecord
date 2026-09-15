@@ -75,13 +75,6 @@
   font-weight: 760;
 }
 
-.brand svg {
-  width: 34px;
-  fill: none;
-  stroke: var(--world-accent);
-  stroke-width: 2.4;
-}
-
 .title {
   max-width: 11ch;
   margin-bottom: 24px;

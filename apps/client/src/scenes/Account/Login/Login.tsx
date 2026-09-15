@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
+import Brand from "../../../components/Brand/Brand";
 import Text from "../../../components/Text";
 import { useNavigate } from "../../../services/hooks/useNavigate";
 import { selectUser } from "../../../services/redux/modules/user/selector";
@@ -45,20 +46,16 @@ export default function Login() {
       </div>
       <section className={s.loginPanel} aria-labelledby="login-title">
         <div className={s.brand}>
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M3 18c5-13 8 9 13-4s8 8 13-2" />
-          </svg>
-          <span>Your Spotify</span>
+          <Brand />
         </div>
         <Text size="pagetitle" element="h1" className={s.title}>
-          <span id="login-title">Revisit every listen.</span>
+          <span id="login-title">Your listening history</span>
         </Text>
         <Text size="big" className={s.welcome}>
-          Sign in to explore the artists, tracks, and moments inside your
-          personal listening archive.
+          Sign in with Spotify to view your listening history and statistics.
         </Text>
         <a className={s.link} href={getSpotifyLogUrl()}>
-          Continue with Spotify
+          Sign in with Spotify
           <span aria-hidden="true">→</span>
         </a>
         <button
@@ -74,9 +71,6 @@ export default function Login() {
           />
           <Text size="normal">Keep me signed in on this device</Text>
         </button>
-        <p className={s.note}>
-          Private, self-hosted, and powered by your own listening history.
-        </p>
       </section>
     </main>
   );
