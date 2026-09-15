@@ -1,5 +1,5 @@
 {
-  "name": "@your_spotify/dev",
+  "name": "@onrecord/dev",
   "version": "0.0.1",
   "private": true,
   "dependencies": {

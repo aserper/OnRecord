@@ -1,7 +1,7 @@
 {
-  "name": "@your_spotify/root",
+  "name": "@onrecord/root",
   "version": "1.20.1",
-  "repository": "git@github.com:Yooooomi/your_spotify.git",
+  "repository": "git@github.com:aserper/OnRecord.git",
   "author": "Timothee <timothee.boussus@gmail.com>",
   "private": true
 }

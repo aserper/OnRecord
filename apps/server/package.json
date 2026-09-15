@@ -1,5 +1,5 @@
 {
-  "name": "@your_spotify/server",
+  "name": "@onrecord/server",
   "version": "1.20.1",
   "private": true,
   "scripts": {
@@ -36,7 +36,7 @@
     "@types/morgan": "^1.9.10",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.0.0",
-    "@your_spotify/dev": "workspace:*",
+    "@onrecord/dev": "workspace:*",
     "concurrently": "^10.0.3",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",

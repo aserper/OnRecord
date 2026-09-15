@@ -1,5 +1,5 @@
 {
-  "name": "@your_spotify/client",
+  "name": "@onrecord/client",
   "version": "1.20.1",
   "private": true,
   "scripts": {
@@ -46,7 +46,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-date-range": "^1.4.10",
     "@types/react-dom": "^19.2.3",
-    "@your_spotify/dev": "workspace:*",
+    "@onrecord/dev": "workspace:*",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:"

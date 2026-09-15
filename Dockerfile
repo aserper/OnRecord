@@ -10,8 +10,8 @@ COPY apps/dev/package.json apps/dev/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @your_spotify/client build \
- && pnpm --filter @your_spotify/server build
+RUN pnpm --filter @onrecord/client build \
+ && pnpm --filter @onrecord/server build
 
 FROM lscr.io/linuxserver/your_spotify@sha256:34f592ef352cce88db8f64ca502d646b17aa2ecd6076df47e053241b0dbef2da
 
