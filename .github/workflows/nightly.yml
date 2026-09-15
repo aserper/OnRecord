@@ -16,6 +16,8 @@ on:
 
 jobs:
   build:
+    # Upstream publishing credentials and image namespaces do not belong to forks.
+    if: github.repository == 'Yooooomi/your_spotify'
 
     runs-on: ubuntu-latest
 
