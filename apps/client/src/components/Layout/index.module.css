@@ -38,18 +38,6 @@
   box-shadow: 0 12px 32px -18px rgb(0 0 0 / 55%);
 }
 
-.worldswitcherinsider {
-  right: auto;
-  left: 12px;
-  bottom: 12px;
-}
-
-:global(body[data-design-world="programme"]) .worldswitcherinsider {
-  right: 16px;
-  left: auto;
-  bottom: 16px;
-}
-
 :global(body[data-design-world="programme"]) .root {
   flex-direction: column;
 }
@@ -60,6 +48,10 @@
   width: 100%;
   height: var(--programme-nav-height, 72px);
   z-index: 7;
+}
+
+:global(body[data-design-world="programme"]) .sider:empty {
+  display: none;
 }
 
 :global(body[data-design-world="programme"]) .contentdrawer {

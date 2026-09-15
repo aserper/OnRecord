@@ -3,6 +3,7 @@
   align-items: center;
   gap: 10px;
   color: var(--muted-text, var(--text-grey));
+  font-family: Manrope, sans-serif;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -22,7 +23,7 @@
 }
 
 .options button {
-  min-height: 30px;
+  min-height: 44px;
   padding: 5px 9px;
   border: 0;
   border-radius: calc(var(--control-radius, 6px) - 3px);
@@ -66,7 +67,7 @@
 }
 
 .compact .options button {
-  min-width: 30px;
+  width: 44px;
   padding-inline: 7px;
 }
 
@@ -85,7 +86,7 @@
   }
 
   .options button {
-    min-width: 30px;
+    min-width: 44px;
     padding-inline: 7px;
   }
 }

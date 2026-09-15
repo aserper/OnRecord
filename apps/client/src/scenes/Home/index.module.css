@@ -86,8 +86,8 @@
   grid-template-areas:
     "songs songs songs time time time artists artists artists artists artists artists"
     "bestartist bestartist bestartist bestartist bestartist timeline timeline timeline timeline timeline timeline timeline"
-    "bestartist bestartist bestartist bestartist bestartist history history history history history history history"
-    "repartition repartition repartition repartition repartition repartition bestsong bestsong bestsong bestsong bestsong bestsong";
+    "repartition repartition repartition repartition repartition repartition bestsong bestsong bestsong bestsong bestsong bestsong"
+    "history history history history history history history history history history history history";
   border-top: 1px solid var(--world-rule);
 }
 

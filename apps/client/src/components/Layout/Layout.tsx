@@ -43,15 +43,12 @@ export default function Layout({ children }: LayoutProps) {
             [s.content]: true,
             [s.contentdrawer]: siderAllowed && !siderIsDrawer,
           })}>
-          <div
-            className={clsx(s.worldswitcher, {
-              [s.worldswitcherinsider]: siderAllowed && !siderIsDrawer,
-            })}>
-            <DesignWorldSwitcher compact={siderAllowed && !siderIsDrawer} />
+          <div className={s.worldswitcher}>
+            <DesignWorldSwitcher compact />
           </div>
           {publicToken && (
             <div className={s.publictoken}>
-              <Text size="normal">You are viewing as guest</Text>
+              <Text size="normal">Viewing as a guest</Text>
             </div>
           )}
           {children}

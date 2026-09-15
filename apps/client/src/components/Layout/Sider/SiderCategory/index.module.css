@@ -44,7 +44,7 @@
 }
 
 .active {
-  color: var(--accent) !important;
+  color: var(--world-accent, var(--accent)) !important;
 }
 
 :global(body[data-design-world="programme"]) .category {
@@ -64,6 +64,10 @@
   color: inherit;
   border-radius: 0;
   white-space: nowrap;
+}
+
+:global(body[data-design-world="programme"]) .linkcontent {
+  color: inherit;
 }
 
 :global(body[data-design-world="programme"]) .linkcontent > :first-child {

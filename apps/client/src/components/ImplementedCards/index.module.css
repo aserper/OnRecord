@@ -2,24 +2,27 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   align-items: flex-end;
+}
+
+.root > :first-child {
+  flex-shrink: 0;
 }
 
 .twonumbers {
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .twonumbers > :last-child {
   transform: translateY(-2px);
 }
 
-.more {
-  color: green;
-}
-
+.more,
 .less {
-  color: red;
+  color: inherit;
 }
