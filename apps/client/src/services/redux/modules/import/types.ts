@@ -1,8 +1,11 @@
 export type ImporterStateStatus =
+  | "scheduled"
+  | "starting"
   | "progress"
   | "success"
   | "failure"
-  | "failure-removed";
+  | "failure-removed"
+  | "cancelled";
 
 export enum ImporterStateType {
   privacy = "privacy",
@@ -17,6 +20,7 @@ export interface BaseImporterState {
   current: number;
   total: number;
   status: ImporterStateStatus;
+  scheduledFor?: string;
 }
 
 export interface PrivacyImporterState extends BaseImporterState {
@@ -29,4 +33,4 @@ export interface FullPrivacyImporterState extends BaseImporterState {
   metadata: string[];
 }
 
-export type ImporterState = PrivacyImporterState;
+export type ImporterState = PrivacyImporterState | FullPrivacyImporterState;

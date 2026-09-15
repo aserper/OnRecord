@@ -17,3 +17,10 @@
 .right > span {
   margin-right: 8px;
 }
+
+.scheduledtime {
+  display: block;
+  margin-top: 4px;
+  color: var(--world-accent, var(--accent));
+  font-weight: 700;
+}

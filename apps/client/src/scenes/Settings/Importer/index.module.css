@@ -1,14 +1,7 @@
 .alert {
-  color: orange;
-  font-weight: bold;
-  margin: 16px 0px;
-  display: block;
-}
-
-.noalert {
-  color: green;
-  font-weight: bold;
-  margin: 16px 0px;
+  color: #e07052;
+  font-weight: 700;
+  margin: 12px 0;
   display: block;
 }
 
@@ -18,6 +11,187 @@
 }
 
 .selectimport {
-  width: 200px;
-  margin-bottom: 16px !important;
+  width: min(100%, 320px);
+  margin-bottom: 20px !important;
+}
+
+.intro {
+  max-width: 64ch;
+  color: var(--text-grey);
+  margin: 0 0 20px;
+}
+
+.uploadform {
+  display: grid;
+  gap: 22px;
+  max-width: 760px;
+}
+
+.guidance {
+  max-width: 68ch;
+  color: var(--text-grey);
+  line-height: 1.6;
+}
+
+.guidance a {
+  color: var(--world-accent, var(--accent));
+  font-weight: 700;
+}
+
+.uploadstep {
+  display: grid;
+  gap: 12px;
+}
+
+.uploadstep h3 {
+  margin: 0;
+}
+
+.hiddeninput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.filepicker {
+  display: grid;
+  gap: 6px;
+  padding: 22px;
+  border: 1px dashed var(--world-rule, var(--border-color));
+  border-radius: var(--control-radius, 8px);
+  background: color-mix(
+    in srgb,
+    var(--background) 84%,
+    var(--world-accent) 16%
+  );
+  cursor: pointer;
+}
+
+.filepicker:hover,
+.hiddeninput:focus-visible + .filepicker {
+  border-color: var(--world-accent, var(--accent));
+}
+
+.filepickerlabel {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.filepickerhint,
+.datetime small,
+.timingoption small {
+  color: var(--text-grey);
+  line-height: 1.45;
+}
+
+.fileselection {
+  padding: 14px 16px;
+  border: 1px solid var(--world-rule, var(--border-color));
+  background: var(--content-background);
+}
+
+.fileselection ul {
+  max-height: 150px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.schedule {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--world-rule, var(--border-color));
+  border-radius: var(--radius, 8px);
+}
+
+.schedule legend {
+  padding: 0 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.timingoption {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.timingoption:has(input:checked) {
+  border-color: var(--world-accent, var(--accent));
+  background: color-mix(
+    in srgb,
+    var(--background) 90%,
+    var(--world-accent) 10%
+  );
+}
+
+.timingoption input {
+  margin-top: 3px;
+  accent-color: var(--world-accent, var(--accent));
+}
+
+.timingoption span,
+.datetime {
+  display: grid;
+  gap: 4px;
+}
+
+.datetime {
+  margin: 0 12px 4px 42px;
+}
+
+.datetime input {
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 12px;
+  color: var(--primary);
+  border: 1px solid var(--world-rule, var(--border-color));
+  border-radius: var(--control-radius, 6px);
+  background: var(--background);
+  color-scheme: inherit;
+}
+
+.submitrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+:global(body[data-design-world="programme"]) .schedule,
+:global(body[data-design-world="programme"]) .filepicker {
+  border-width: 2px;
+}
+
+:global(body[data-design-world="darkroom"]) .filepicker {
+  border-style: dashed;
+  text-transform: uppercase;
+}
+
+@media screen and (max-width: 600px) {
+  .uploadform {
+    gap: 18px;
+  }
+
+  .filepicker,
+  .schedule {
+    padding: 14px;
+  }
+
+  .datetime {
+    margin-left: 12px;
+  }
+
+  .submitrow button {
+    width: 100%;
+  }
 }

@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CircularProgress,
   FormControl,
@@ -7,17 +6,20 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { getImports } from "../../../services/redux/modules/import/thunk";
-import { selectImportStates } from "../../../services/redux/modules/import/selector";
-import { ImporterStateType } from "../../../services/redux/modules/import/types";
+
 import Text from "../../../components/Text";
-import { useAppDispatch } from "../../../services/redux/tools";
 import TitleCard from "../../../components/TitleCard";
-import ImportHistory from "./ImportHistory";
-import s from "./index.module.css";
-import Privacy from "./Privacy";
+import { selectImportStates } from "../../../services/redux/modules/import/selector";
+import { getImports } from "../../../services/redux/modules/import/thunk";
+import { ImporterStateType } from "../../../services/redux/modules/import/types";
+import { useAppDispatch } from "../../../services/redux/tools";
 import FullPrivacy from "./FullPrivacy";
+import ImportHistory from "./ImportHistory";
+import Privacy from "./Privacy";
+
+import s from "./index.module.css";
 
 const ImportTypeToComponent: Record<ImporterStateType, any> = {
   privacy: { label: "Account data", component: Privacy },
@@ -46,30 +48,39 @@ export default function Importer() {
     fetch().catch(console.error);
   }, [fetch]);
 
-  const running = imports?.find((st) => st.status === "progress");
+  const running = imports?.find((st) =>
+    ["starting", "progress"].includes(st.status),
+  );
+  const scheduled = imports?.some((st) => st.status === "scheduled");
   const Component = importType
     ? ImportTypeToComponent[importType].component
     : null;
 
-  const isAtLeastOneImportRunning = Boolean(running);
+  const shouldRefresh = Boolean(running || scheduled);
 
   const timeout = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
-    if (!isAtLeastOneImportRunning) {
+    if (!shouldRefresh) {
       return;
     }
     async function refresh() {
       await fetch(true).catch(console.error);
-      timeout.current = setTimeout(refresh, REFRESH_IF_RUNNING_INTERVAL);
+      timeout.current = setTimeout(
+        refresh,
+        running ? REFRESH_IF_RUNNING_INTERVAL : 30_000,
+      );
     }
 
-    timeout.current = setTimeout(async () => {
-      await refresh();
-    }, REFRESH_IF_RUNNING_INTERVAL);
+    timeout.current = setTimeout(
+      async () => {
+        await refresh();
+      },
+      running ? REFRESH_IF_RUNNING_INTERVAL : 30_000,
+    );
 
     return () => clearTimeout(timeout.current);
-  }, [fetch, isAtLeastOneImportRunning]);
+  }, [fetch, running, shouldRefresh]);
 
   if (!imports) {
     return <CircularProgress />;
@@ -77,16 +88,25 @@ export default function Importer() {
 
   return (
     <TitleCard title="Import data">
+      <Text className={s.intro} size="normal">
+        Upload a Spotify export, verify the files, then run it now or reserve an
+        off-hours start. Scheduled files remain on persistent storage across
+        restarts.
+      </Text>
       <div>
         {running && (
           <div>
             <Text className={s.progress} size="normal">
-              Importing {running.current} of {running.total}
+              {running.status === "starting"
+                ? "Preparing scheduled import"
+                : `Importing ${running.current} of ${running.total}`}
             </Text>
             <LinearProgress
               style={{ width: "100%" }}
               variant="determinate"
-              value={(running.current / running.total) * 100}
+              value={
+                running.total > 0 ? (running.current / running.total) * 100 : 0
+              }
             />
           </div>
         )}

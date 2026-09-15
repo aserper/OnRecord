@@ -12,10 +12,13 @@ export interface HistoryImporter<T extends ImporterStateType> {
 }
 
 export type ImporterStateStatus =
+  | "scheduled"
+  | "starting"
   | "progress"
   | "success"
   | "failure"
-  | "failure-removed";
+  | "failure-removed"
+  | "cancelled";
 
 export interface BaseImporterState {
   _id: Types.ObjectId;
@@ -24,6 +27,7 @@ export interface BaseImporterState {
   current: number;
   total: number;
   status: ImporterStateStatus;
+  scheduledFor?: Date;
 }
 export interface PrivacyImporterState extends BaseImporterState {
   type: "privacy";

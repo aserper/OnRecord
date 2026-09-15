@@ -17,8 +17,8 @@ export const getImports = myAsyncThunk<
 
 export const startImportPrivacy = myAsyncThunk<
   void,
-  { files?: FileList; id?: string }
->("@import/privacy-start", async ({ files, id }, tapi) => {
+  { files?: FileList; id?: string; scheduledFor?: string }
+>("@import/privacy-start", async ({ files, id, scheduledFor }, tapi) => {
   try {
     if (!id) {
       if (!files) {
@@ -27,7 +27,7 @@ export const startImportPrivacy = myAsyncThunk<
       const filesArray = Array.from(Array(files.length).keys())
         .map((i) => files.item(i))
         .filter((f) => f);
-      await api.doImportPrivacy(filesArray as File[]);
+      await api.doImportPrivacy(filesArray as File[], scheduledFor);
     } else {
       await api.retryImport(id);
     }
@@ -35,7 +35,9 @@ export const startImportPrivacy = myAsyncThunk<
     tapi.dispatch(
       alertMessage({
         level: "success",
-        message: "Successfully started importing",
+        message: scheduledFor
+          ? `Import scheduled for ${new Date(scheduledFor).toLocaleString()}`
+          : "Successfully started importing",
       }),
     );
   } catch (e: any) {
@@ -61,8 +63,8 @@ export const startImportPrivacy = myAsyncThunk<
 
 export const startImportFullPrivacy = myAsyncThunk<
   void,
-  { files?: FileList; id?: string }
->("@import/full-privacy-start", async ({ files, id }, tapi) => {
+  { files?: FileList; id?: string; scheduledFor?: string }
+>("@import/full-privacy-start", async ({ files, id, scheduledFor }, tapi) => {
   try {
     if (!id) {
       if (!files) {
@@ -71,7 +73,7 @@ export const startImportFullPrivacy = myAsyncThunk<
       const filesArray = Array.from(Array(files.length).keys())
         .map((i) => files.item(i))
         .filter((f) => f);
-      await api.doImportFullPrivacy(filesArray as File[]);
+      await api.doImportFullPrivacy(filesArray as File[], scheduledFor);
     } else {
       await api.retryImport(id);
     }
@@ -79,7 +81,9 @@ export const startImportFullPrivacy = myAsyncThunk<
     tapi.dispatch(
       alertMessage({
         level: "success",
-        message: "Successfully started importing",
+        message: scheduledFor
+          ? `Import scheduled for ${new Date(scheduledFor).toLocaleString()}`
+          : "Successfully started importing",
       }),
     );
   } catch (e: any) {
@@ -120,6 +124,29 @@ export const cleanupImport = myAsyncThunk<void, string>(
         alertMessage({
           level: "success",
           message: "Could not clean up your import",
+        }),
+      );
+    }
+  },
+);
+
+export const cancelScheduledImport = myAsyncThunk<void, string>(
+  "@import/cancel-scheduled",
+  async (id, tapi) => {
+    try {
+      await api.cancelScheduledImport(id);
+      tapi.dispatch(
+        alertMessage({
+          level: "success",
+          message: "Scheduled import cancelled",
+        }),
+      );
+      tapi.dispatch(getImports(true)).catch(console.error);
+    } catch {
+      tapi.dispatch(
+        alertMessage({
+          level: "error",
+          message: "The import has already started and cannot be cancelled",
         }),
       );
     }

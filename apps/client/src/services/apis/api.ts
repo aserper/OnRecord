@@ -1,4 +1,5 @@
 import Axios from "axios";
+
 import { AdminAccount } from "../redux/modules/admin/reducer";
 import { ImporterState } from "../redux/modules/import/types";
 import { Playlist, PlaylistContext } from "../redux/modules/playlist/types";
@@ -292,20 +293,26 @@ export const api = {
       }[]
     >("/spotify/top/albums", { start, end, nb, offset }),
   getImports: () => get<ImporterState[]>("/imports"),
-  doImportPrivacy: (files: File[]) => {
+  doImportPrivacy: (files: File[], scheduledFor?: string) => {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("imports", file);
     });
+    if (scheduledFor) {
+      formData.append("scheduledFor", scheduledFor);
+    }
     return axios.post("/import/privacy", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
-  doImportFullPrivacy: (files: File[]) => {
+  doImportFullPrivacy: (files: File[], scheduledFor?: string) => {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("imports", file);
     });
+    if (scheduledFor) {
+      formData.append("scheduledFor", scheduledFor);
+    }
     return axios.post("/import/full-privacy", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -313,6 +320,7 @@ export const api = {
   retryImport: (existingStateId: string) =>
     post("/import/retry", { existingStateId }),
   cleanupImport: (id: string) => delet(`/import/clean/${id}`),
+  cancelScheduledImport: (id: string) => delet(`/import/schedule/${id}`),
   collaborativeBestSongs: (
     ids: string[],
     start: Date,
