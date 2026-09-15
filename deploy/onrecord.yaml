@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: your-spotify-mongo-pv
+  name: onrecord-mongo-pv
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
     app.kubernetes.io/part-of: media-stack
 spec:
   capacity:
@@ -17,16 +17,18 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: 192.168.1.124
+    # Unchanged from the Your Spotify deployment: existing Mongo data,
+    # cooldown file, and uploaded imports live here.
     path: /mnt/storage/media/containers/your-spotify/mongo
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: your-spotify-mongo-pvc
+  name: onrecord-mongo-pvc
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
     app.kubernetes.io/part-of: media-stack
 spec:
   storageClassName: manual
@@ -40,10 +42,10 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: your-spotify
+  name: onrecord
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
     app.kubernetes.io/part-of: media-stack
 spec:
   replicas: 1
@@ -51,15 +53,17 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: your-spotify
-      app.kubernetes.io/instance: your-spotify
+      app.kubernetes.io/name: onrecord
+      app.kubernetes.io/instance: onrecord
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: your-spotify
-        app.kubernetes.io/instance: your-spotify
+        app.kubernetes.io/name: onrecord
+        app.kubernetes.io/instance: onrecord
         app.kubernetes.io/part-of: media-stack
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
       - name: mongo
         image: quay.io/mongodb/mongodb-community-server:6.0-ubi8
@@ -75,8 +79,8 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-      - name: your-spotify
-        image: ghcr.io/aserper/your_spotify@sha256:f1aa6925c99d5b29378289f415ae3a0a07553d559d86b168d3e73636113cb9d7
+      - name: onrecord
+        image: ghcr.io/aserper/onrecord@sha256:27aeb9d57de2a8316d866b3098934ad99951c61c58b57cf7a5abf857b78f15be
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -88,19 +92,19 @@ spec:
         - name: TZ
           value: "Etc/UTC"
         - name: APP_URL
-          value: "https://your-spotify.amit.wtf"
+          value: "https://onrecord.amit.wtf"
         - name: SPOTIFY_PUBLIC
           valueFrom:
             secretKeyRef:
-              name: your-spotify-spotify
+              name: onrecord-spotify
               key: public
         - name: SPOTIFY_SECRET
           valueFrom:
             secretKeyRef:
-              name: your-spotify-spotify
+              name: onrecord-spotify
               key: secret
         - name: CORS
-          value: "https://your-spotify.amit.wtf:443"
+          value: "https://onrecord.amit.wtf:443"
         - name: MONGO_ENDPOINT
           value: "mongodb://localhost:27017/your_spotify"
         - name: SPOTIFY_COOLDOWN_FILE
@@ -138,21 +142,21 @@ spec:
       volumes:
       - name: mongo-data
         persistentVolumeClaim:
-          claimName: your-spotify-mongo-pvc
+          claimName: onrecord-mongo-pvc
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: your-spotify
+  name: onrecord
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
     app.kubernetes.io/part-of: media-stack
 spec:
   selector:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
   ports:
   - name: http
     port: 80
@@ -165,12 +169,28 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: your-spotify-tls
+  name: onrecord-tls
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
 spec:
-  secretName: your-spotify-tls
+  secretName: onrecord-tls
+  issuerRef:
+    name: letsencrypt-live
+    kind: ClusterIssuer
+  dnsNames:
+    - onrecord.amit.wtf
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: onrecord-legacy-tls
+  labels:
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
+spec:
+  secretName: onrecord-legacy-tls
   issuerRef:
     name: letsencrypt-live
     kind: ClusterIssuer
@@ -181,16 +201,63 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: your-spotify
+  name: onrecord
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
   annotations:
     gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Your Spotify"
-    gethomepage.dev/description: "Personal Spotify Statistics"
+    gethomepage.dev/name: "OnRecord"
+    gethomepage.dev/description: "Personal listening statistics"
     gethomepage.dev/group: "Media"
-    gethomepage.dev/icon: "spotify"
+    gethomepage.dev/icon: "mdi-record-vinyl"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`onrecord.amit.wtf`)
+      kind: Rule
+      services:
+        - name: onrecord
+          port: 80
+      middlewares:
+        - name: security-headers
+          namespace: traefik
+  tls:
+    secretName: onrecord-tls
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: onrecord-http
+  labels:
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`onrecord.amit.wtf`)
+      kind: Rule
+      services:
+        - name: onrecord
+          port: 80
+      middlewares:
+        - name: redirect-https
+          namespace: traefik
+
+---
+# Legacy host kept during the rename so existing bookmarks and the old
+# Spotify redirect URI keep resolving. Remove after the Spotify dashboard
+# lists the onrecord.amit.wtf redirect URI.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: onrecord-legacy
+  labels:
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
 spec:
   entryPoints:
     - websecure
@@ -198,22 +265,22 @@ spec:
     - match: Host(`your-spotify.amit.wtf`)
       kind: Rule
       services:
-        - name: your-spotify
+        - name: onrecord
           port: 80
       middlewares:
         - name: security-headers
           namespace: traefik
   tls:
-    secretName: your-spotify-tls
+    secretName: onrecord-legacy-tls
 
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: your-spotify-http
+  name: onrecord-legacy-http
   labels:
-    app.kubernetes.io/name: your-spotify
-    app.kubernetes.io/instance: your-spotify
+    app.kubernetes.io/name: onrecord
+    app.kubernetes.io/instance: onrecord
 spec:
   entryPoints:
     - web
@@ -221,7 +288,7 @@ spec:
     - match: Host(`your-spotify.amit.wtf`)
       kind: Rule
       services:
-        - name: your-spotify
+        - name: onrecord
           port: 80
       middlewares:
         - name: redirect-https
