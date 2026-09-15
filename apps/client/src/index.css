@@ -11,8 +11,8 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: unset;
   font-size: 0.9em;
   padding: 2px;
@@ -34,13 +34,13 @@ h6 {
 }
 
 :root {
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  --font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --track-options: 34px;
   --radius: 6px;
   --page-padding: 0 16px 16px 16px;
-  --accent: #FB717B;
+  --accent: #fb717b;
   --header-image-size: 60px;
   --secondary-dark: rgba(255, 255, 255, 0.15);
   --secondary-dark-hover: rgba(255, 255, 255, 0.25);
@@ -70,12 +70,12 @@ h6 {
 
   --input-background-color: var(--secondary-dark);
   --input-background-color-hover: var(--secondary-dark-hover);
- 
+
   --shortcut-background: rgb(96, 96, 96);
 }
 
 .light-vars {
-  --shadow: 5px 5px 8px -2px rgba(0,0,0,0.05);
+  --shadow: 5px 5px 8px -2px rgba(0, 0, 0, 0.05);
   --hardshadow: 5px 6px 40px -5px rgba(0, 0, 0, 0.2);
 
   --primary-tuple: 0, 0, 0;
@@ -146,4 +146,213 @@ h6 {
 
 .center {
   text-align: center;
+}
+
+html {
+  scrollbar-color: var(--world-accent, var(--accent)) var(--content-background);
+}
+
+body {
+  color: var(--primary);
+  transition:
+    background-color 180ms ease-out,
+    color 180ms ease-out;
+}
+
+::selection {
+  color: var(--world-active-ink, white);
+  background: var(--world-accent, var(--accent));
+}
+
+:focus-visible {
+  outline: 2px solid var(--world-accent, var(--accent));
+  outline-offset: 3px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--world-accent, var(--accent)) transparent;
+}
+
+body[data-design-world="atlas"] {
+  --font: "Archivo Variable", sans-serif;
+  --radius: 2px;
+  --control-radius: 2px;
+  --world-accent: #f05a47;
+  --chart-0: #f05a47;
+  --chart-1: #e8ece7;
+  --chart-2: #8aa39a;
+  --chart-3: #d8a03a;
+  --chart-4: #6e8992;
+  --chart-5: #b75d57;
+  --world-active-ink: #10151d;
+  --world-rule: #39464d;
+  --world-control: #161d25;
+  --shadow: 0 18px 44px -28px rgb(0 0 0 / 80%);
+  --hardshadow: 0 24px 60px -30px rgb(0 0 0 / 88%);
+}
+
+body.dark-vars[data-design-world="atlas"] {
+  --primary-tuple: 232, 236, 231;
+  --primary: #e8ece7;
+  --text-grey: #aebbb4;
+  --border-color: #39464d;
+  --background: #141a22;
+  --content-background: #10151d;
+  --hover: #202c31;
+  --selected: #293a37;
+  --divider: #39464d;
+  --content-border: 1px solid #39464d;
+}
+
+body.light-vars[data-design-world="atlas"] {
+  --primary-tuple: 24, 31, 34;
+  --primary: #181f22;
+  --text-grey: #53625a;
+  --border-color: #9eaaa2;
+  --background: #edf0eb;
+  --content-background: #e2e7e1;
+  --hover: #d4ddd5;
+  --selected: #c7d4c9;
+  --divider: #9eaaa2;
+  --content-border: 1px solid #9eaaa2;
+  --world-control: #f3f4ef;
+}
+
+body[data-design-world="programme"] {
+  --font: "Archivo Variable", sans-serif;
+  --radius: 0px;
+  --control-radius: 0px;
+  --world-accent: #3157d5;
+  --chart-0: #3157d5;
+  --chart-1: #e24d34;
+  --chart-2: #8ba029;
+  --chart-3: #11100f;
+  --chart-4: #d68c2f;
+  --chart-5: #6879bf;
+  --world-active-ink: #f3efe5;
+  --world-rule: #77736a;
+  --shadow: none;
+  --hardshadow: 0 24px 54px -34px rgb(0 0 0 / 60%);
+}
+
+body[data-design-world="programme"] h1,
+body[data-design-world="programme"] h2,
+body[data-design-world="programme"] h3 {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+body.light-vars[data-design-world="programme"] {
+  --primary-tuple: 17, 16, 15;
+  --primary: #11100f;
+  --text-grey: #5f5a52;
+  --border-color: #77736a;
+  --background: #f3efe5;
+  --content-background: #ebe6dc;
+  --hover: #ded8cb;
+  --selected: #d7ee48;
+  --divider: #77736a;
+  --content-border: 1px solid #77736a;
+  --world-control: #f3efe5;
+}
+
+body.dark-vars[data-design-world="programme"] {
+  --primary-tuple: 243, 239, 229;
+  --primary: #f3efe5;
+  --text-grey: #bdb6a9;
+  --border-color: #69655d;
+  --background: #171614;
+  --content-background: #11100f;
+  --hover: #292722;
+  --selected: #3157d5;
+  --divider: #69655d;
+  --content-border: 1px solid #69655d;
+  --world-control: #171614;
+}
+
+body[data-design-world="darkroom"] {
+  --font: "Archivo Variable", sans-serif;
+  --radius: 1px;
+  --control-radius: 1px;
+  --world-accent: #d8508b;
+  --chart-0: #d8508b;
+  --chart-1: #e7e4da;
+  --chart-2: #817d77;
+  --chart-3: #9d315f;
+  --chart-4: #c0b8a7;
+  --chart-5: #68475a;
+  --world-active-ink: #171717;
+  --world-rule: #686560;
+  --shadow: 0 18px 34px -24px rgb(0 0 0 / 75%);
+  --hardshadow: 0 28px 58px -30px rgb(0 0 0 / 80%);
+}
+
+body.light-vars[data-design-world="darkroom"] {
+  --primary-tuple: 23, 23, 23;
+  --primary: #171717;
+  --text-grey: #5b5853;
+  --border-color: #8d8981;
+  --background: #e7e4da;
+  --content-background: #dcd9d0;
+  --hover: #cecac0;
+  --selected: #efb7cf;
+  --divider: #8d8981;
+  --content-border: 1px solid #8d8981;
+  --world-control: #eeeae0;
+}
+
+body.dark-vars[data-design-world="darkroom"] {
+  --primary-tuple: 231, 228, 218;
+  --primary: #e7e4da;
+  --text-grey: #b7b2a8;
+  --border-color: #5b5853;
+  --background: #1c1b1a;
+  --content-background: #141414;
+  --hover: #2d2a2b;
+  --selected: #72344f;
+  --divider: #5b5853;
+  --content-border: 1px solid #5b5853;
+  --world-control: #1f1e1c;
+}
+
+body[data-design-world="standard"] {
+  --font: "Manrope Variable", sans-serif;
+  --radius: 10px;
+  --control-radius: 8px;
+  --world-accent: #6c7bff;
+  --chart-0: #6c7bff;
+  --chart-1: #51b8b0;
+  --chart-2: #b765d3;
+  --chart-3: #e68a55;
+  --chart-4: #8494c5;
+  --chart-5: #7fc071;
+  --world-active-ink: white;
+  --world-rule: #30394a;
+  --shadow: 0 14px 34px -22px rgb(0 0 0 / 70%);
+  --hardshadow: 0 24px 60px -30px rgb(0 0 0 / 80%);
+}
+
+body.dark-vars[data-design-world="standard"] {
+  --primary-tuple: 244, 245, 247;
+  --primary: #f4f5f7;
+  --text-grey: #aab2c2;
+  --border-color: #30394a;
+  --background: #121722;
+  --content-background: #0f131b;
+  --hover: #202737;
+  --selected: #2b3350;
+  --divider: #30394a;
+  --content-border: 1px solid #30394a;
+  --world-control: #171d29;
+}
+
+body.light-vars[data-design-world="standard"] {
+  --world-rule: #d4d9e3;
+  --world-control: white;
+  --accent: #5968ed;
+  --world-accent: #5968ed;
+  --chart-0: #5968ed;
 }

@@ -26,16 +26,80 @@
   .play-button-holder .play-image {
     opacity: inherit;
   }
-  
+
   .play-button-holder .play-button {
     display: none !important;
   }
-  
+
   .play-button-holder:hover .play-image {
     opacity: 0.4;
   }
-  
+
   .play-button-holder:hover .play-button {
     display: inherit !important;
+  }
+}
+
+.MuiPaper-root,
+.MuiButton-root,
+.MuiOutlinedInput-root,
+.MuiDialog-paper {
+  border-radius: var(--radius) !important;
+}
+
+.MuiButton-containedPrimary {
+  color: var(--world-active-ink) !important;
+  background: var(--world-accent) !important;
+}
+
+.MuiButton-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiMenuItem-root:focus-visible {
+  outline: 2px solid var(--world-accent) !important;
+  outline-offset: 2px;
+}
+
+body[data-design-world="programme"] .MuiPaper-root {
+  box-shadow: none !important;
+}
+
+body[data-design-world="programme"] .MuiButton-root {
+  font-weight: 750;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+body[data-design-world="darkroom"] img {
+  filter: saturate(0.68) contrast(1.06);
+  transition: filter 180ms ease-out;
+}
+
+body[data-design-world="darkroom"] a:hover img,
+body[data-design-world="darkroom"] button:hover img {
+  filter: saturate(1) contrast(1.02);
+}
+
+body[data-design-world="atlas"] .recharts-cartesian-grid line {
+  stroke: #52645b;
+  stroke-dasharray: 2 6;
+}
+
+body[data-design-world="programme"] .recharts-cartesian-grid line {
+  stroke: var(--world-rule);
+}
+
+body[data-design-world="darkroom"] .recharts-cartesian-grid line {
+  stroke: #6f6b65;
+  stroke-dasharray: 1 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

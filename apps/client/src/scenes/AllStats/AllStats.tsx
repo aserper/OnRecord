@@ -1,5 +1,5 @@
-import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+
 import Header from "../../components/Header";
 import ArtistListeningRepartition from "../../components/ImplementedCharts/ArtistListeningRepartition";
 import AverageAlbumReleaseDate from "../../components/ImplementedCharts/AverageAlbumReleaseDate";
@@ -11,6 +11,7 @@ import ListeningRepartition from "../../components/ImplementedCharts/ListeningRe
 import SongsListenedPer from "../../components/ImplementedCharts/SongsListenedPer";
 import TimeListenedPer from "../../components/ImplementedCharts/TimeListenedPer";
 import { selectUser } from "../../services/redux/modules/user/selector";
+
 import s from "./index.module.css";
 
 export default function AllStats() {
@@ -20,44 +21,46 @@ export default function AllStats() {
     return null;
   }
 
+  const charts = [
+    ["artists", <BestArtistsBar key="artists" className={s.chart} />],
+    [
+      "repartition",
+      <ListeningRepartition key="repartition" className={s.chart} />,
+    ],
+    [
+      "artist-share",
+      <ArtistListeningRepartition key="artist-share" className={s.chart} />,
+    ],
+    ["hours", <BestOfHour key="hours" className={s.chart} />],
+    ["songs", <SongsListenedPer key="songs" className={s.chart} />],
+    ["time", <TimeListenedPer key="time" className={s.chart} />],
+    [
+      "discovery",
+      <DifferentArtistListenedPer key="discovery" className={s.chart} />,
+    ],
+    ["release", <AverageAlbumReleaseDate key="release" className={s.chart} />],
+    [
+      "collaboration",
+      <AverageNumberArtistPer key="collaboration" className={s.chart} />,
+    ],
+  ] as const;
+
   return (
     <div className={s.root}>
       <Header
-        title="All stats"
-        subtitle="You can find here all kind of stats based on the time span on the
-          right"
+        title="The shape of your listening"
+        subtitle="Every view uses the selected period—open an artist, album, or track to keep exploring"
       />
-      <div className={s.content}>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <BestArtistsBar className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <ListeningRepartition className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <ArtistListeningRepartition className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <BestOfHour className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <SongsListenedPer className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <TimeListenedPer className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <DifferentArtistListenedPer className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <AverageAlbumReleaseDate className={s.chart} />
-          </Grid>
-          <Grid size={{ xs: 12, md: 12, lg: 6 }}>
-            <AverageNumberArtistPer className={s.chart} />
-          </Grid>
-        </Grid>
-      </div>
+      <main className={s.content}>
+        {charts.map(([key, chart], index) => (
+          <section
+            key={key}
+            className={index === 0 ? s.lead : undefined}
+            data-chart={key}>
+            {chart}
+          </section>
+        ))}
+      </main>
     </div>
   );
 }

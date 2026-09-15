@@ -1,11 +1,116 @@
 .root {
+  min-height: 100vh;
 }
 
 .content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--world-gap, 16px);
   padding: var(--page-padding);
-  height: 500px;
+}
+
+.content > section {
+  min-width: 0;
 }
 
 .chart {
-  height: 300px;
+  height: 340px;
+}
+
+:global(body[data-design-world="atlas"]) .content {
+  --world-gap: 1px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  padding: 1px 16px 16px;
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="atlas"]) .content > section {
+  grid-column: span 6;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="atlas"]) .content > .lead {
+  grid-column: span 8;
+}
+
+:global(body[data-design-world="atlas"]) .content > section:nth-child(2) {
+  grid-column: span 4;
+}
+
+:global(body[data-design-world="atlas"]) .lead .chart {
+  height: 430px;
+}
+
+:global(body[data-design-world="programme"]) .content {
+  --world-gap: 0;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  border-top: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="programme"]) .content > section {
+  grid-column: span 6;
+  border-right: 1px solid var(--world-rule);
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="programme"]) .content > .lead {
+  grid-column: span 7;
+}
+
+:global(body[data-design-world="programme"]) .content > section:nth-child(2) {
+  grid-column: span 5;
+}
+
+:global(body[data-design-world="darkroom"]) .content {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+}
+
+:global(body[data-design-world="darkroom"]) .content > .lead {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+:global(body[data-design-world="darkroom"]) .lead .chart {
+  height: 690px;
+}
+
+@media screen and (max-width: 1100px) {
+  .content,
+  :global(body[data-design-world]) .content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    background: var(--content-background);
+  }
+
+  .content > section,
+  :global(body[data-design-world]) .content > section,
+  :global(body[data-design-world]) .content > .lead,
+  :global(body[data-design-world]) .content > section:nth-child(2) {
+    grid-column: auto;
+    grid-row: auto;
+    border: 0;
+  }
+
+  :global(body[data-design-world]) .lead .chart {
+    height: 340px;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .content,
+  :global(body[data-design-world]) .content {
+    display: block;
+    padding: 0 8px 72px;
+  }
+
+  .content > section {
+    margin-bottom: 8px;
+  }
+
+  .chart,
+  :global(body[data-design-world]) .lead .chart {
+    height: 320px;
+  }
 }

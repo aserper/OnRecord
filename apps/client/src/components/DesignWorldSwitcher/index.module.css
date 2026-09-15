@@ -1,0 +1,91 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-text, var(--text-grey));
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.options {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--world-rule, var(--border-color));
+  border-radius: var(--control-radius, 6px);
+  background: var(--world-control, var(--background));
+}
+
+.options button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: calc(var(--control-radius, 6px) - 3px);
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+}
+
+.options button:hover {
+  color: var(--primary);
+  background: var(--hover);
+}
+
+.options button:focus-visible {
+  outline: 2px solid var(--world-accent, var(--accent));
+  outline-offset: 2px;
+}
+
+.options .active {
+  color: var(--world-active-ink, var(--text-on-dark));
+  background: var(--world-accent, var(--accent));
+}
+
+.short {
+  display: none;
+}
+
+.compact .label,
+.compact .full {
+  display: none;
+}
+
+.compact .short {
+  display: inline;
+}
+
+.compact {
+  gap: 0;
+}
+
+.compact .options button {
+  min-width: 30px;
+  padding-inline: 7px;
+}
+
+@media screen and (max-width: 720px) {
+  .label,
+  .full {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+
+  .root {
+    gap: 0;
+  }
+
+  .options button {
+    min-width: 30px;
+    padding-inline: 7px;
+  }
+}

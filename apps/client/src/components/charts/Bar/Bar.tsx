@@ -33,7 +33,7 @@ export default function Bar({
           style={{ fontWeight: "bold" }}
         />
         <YAxis dataKey="y" tickFormatter={yFormat} width="auto" />
-        <RBar dataKey="y" fill="var(--primary)" />
+        <RBar dataKey="y" fill="var(--world-accent, var(--primary))" />
         <Tooltip
           wrapperStyle={{ zIndex: 10 }}
           contentStyle={{ backgroundColor: "var(--background)" }}

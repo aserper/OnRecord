@@ -39,3 +39,54 @@
 .drawerbutton {
   margin-right: 8px !important;
 }
+
+:global(body[data-design-world="atlas"]) .root {
+  min-height: 112px;
+  border-bottom: 1px solid var(--world-rule);
+  background-image: repeating-radial-gradient(
+    ellipse at 15% 120%,
+    transparent 0 25px,
+    rgb(134 168 138 / 10%) 26px 27px
+  );
+}
+
+:global(body[data-design-world="atlas"]) .texts > h1 {
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  letter-spacing: -0.04em;
+}
+
+:global(body[data-design-world="programme"]) .root {
+  min-height: 120px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="programme"]) .texts > h1 {
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  line-height: 0.86;
+}
+
+:global(body[data-design-world="darkroom"]) .root {
+  min-height: 106px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="darkroom"]) .texts > h1 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.035em;
+}
+
+:global(body[data-design-world="standard"]) .root {
+  min-height: 92px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+@media screen and (max-width: 700px) {
+  :global(body[data-design-world]) .root {
+    min-height: 72px;
+  }
+
+  :global(body[data-design-world]) .texts > h1 {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+}

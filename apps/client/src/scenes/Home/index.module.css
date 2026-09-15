@@ -1,7 +1,211 @@
-.content {
+.root {
+  min-height: 100vh;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--world-gap, 16px);
   padding: var(--page-padding);
 }
 
-.timelisten {
-  height: 300px;
+.dashboard > section {
+  min-width: 0;
+}
+
+.songs,
+.time,
+.artists {
+  grid-column: span 4;
+}
+
+.timeline,
+.repartition {
+  grid-column: span 8;
+}
+
+.bestartist,
+.bestsong {
+  grid-column: span 4;
+}
+
+.history {
+  grid-column: 1 / -1;
+}
+
+.chart {
+  height: 320px;
+}
+
+:global(body[data-design-world="atlas"]) .dashboard {
+  --world-gap: 1px;
+  grid-template-areas:
+    "songs songs songs songs time time time time artists artists artists artists"
+    "timeline timeline timeline timeline timeline timeline timeline timeline timeline bestartist bestartist bestartist"
+    "timeline timeline timeline timeline timeline timeline timeline timeline timeline bestsong bestsong bestsong"
+    "repartition repartition repartition repartition repartition history history history history history history history";
+  padding: 1px 16px 16px;
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="atlas"]) .dashboard > section {
+  padding: 0;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="atlas"]) .songs {
+  grid-area: songs;
+}
+:global(body[data-design-world="atlas"]) .time {
+  grid-area: time;
+}
+:global(body[data-design-world="atlas"]) .artists {
+  grid-area: artists;
+}
+:global(body[data-design-world="atlas"]) .timeline {
+  grid-area: timeline;
+}
+:global(body[data-design-world="atlas"]) .bestartist {
+  grid-area: bestartist;
+}
+:global(body[data-design-world="atlas"]) .repartition {
+  grid-area: repartition;
+}
+:global(body[data-design-world="atlas"]) .bestsong {
+  grid-area: bestsong;
+}
+:global(body[data-design-world="atlas"]) .history {
+  grid-area: history;
+}
+:global(body[data-design-world="atlas"]) .chart {
+  height: 430px;
+}
+
+:global(body[data-design-world="programme"]) .dashboard {
+  --world-gap: 0;
+  grid-template-areas:
+    "songs songs songs time time time artists artists artists artists artists artists"
+    "bestartist bestartist bestartist bestartist bestartist timeline timeline timeline timeline timeline timeline timeline"
+    "bestartist bestartist bestartist bestartist bestartist history history history history history history history"
+    "repartition repartition repartition repartition repartition repartition bestsong bestsong bestsong bestsong bestsong bestsong";
+  border-top: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="programme"]) .dashboard > section {
+  border-right: 1px solid var(--world-rule);
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="programme"]) .songs {
+  grid-area: songs;
+}
+:global(body[data-design-world="programme"]) .time {
+  grid-area: time;
+}
+:global(body[data-design-world="programme"]) .artists {
+  grid-area: artists;
+}
+:global(body[data-design-world="programme"]) .timeline {
+  grid-area: timeline;
+}
+:global(body[data-design-world="programme"]) .bestartist {
+  grid-area: bestartist;
+}
+:global(body[data-design-world="programme"]) .repartition {
+  grid-area: repartition;
+}
+:global(body[data-design-world="programme"]) .bestsong {
+  grid-area: bestsong;
+}
+:global(body[data-design-world="programme"]) .history {
+  grid-area: history;
+}
+:global(body[data-design-world="programme"]) .chart {
+  height: 360px;
+}
+
+:global(body[data-design-world="darkroom"]) .dashboard {
+  --world-gap: 10px;
+  grid-template-areas:
+    "bestartist bestartist bestartist bestartist songs songs time time artists artists artists artists"
+    "bestartist bestartist bestartist bestartist timeline timeline timeline timeline timeline timeline timeline timeline"
+    "bestsong bestsong bestsong bestsong timeline timeline timeline timeline timeline timeline timeline timeline"
+    "history history history history history history history repartition repartition repartition repartition repartition";
+  padding: 10px;
+}
+
+:global(body[data-design-world="darkroom"]) .dashboard > section {
+  outline: 1px solid var(--world-rule);
+  outline-offset: -1px;
+}
+
+:global(body[data-design-world="darkroom"]) .songs {
+  grid-area: songs;
+}
+:global(body[data-design-world="darkroom"]) .time {
+  grid-area: time;
+}
+:global(body[data-design-world="darkroom"]) .artists {
+  grid-area: artists;
+}
+:global(body[data-design-world="darkroom"]) .timeline {
+  grid-area: timeline;
+}
+:global(body[data-design-world="darkroom"]) .bestartist {
+  grid-area: bestartist;
+}
+:global(body[data-design-world="darkroom"]) .repartition {
+  grid-area: repartition;
+}
+:global(body[data-design-world="darkroom"]) .bestsong {
+  grid-area: bestsong;
+}
+:global(body[data-design-world="darkroom"]) .history {
+  grid-area: history;
+}
+:global(body[data-design-world="darkroom"]) .chart {
+  height: 440px;
+}
+
+@media screen and (max-width: 1100px) {
+  .dashboard,
+  :global(body[data-design-world]) .dashboard {
+    grid-template-areas: none;
+    gap: 10px;
+    background: var(--content-background);
+  }
+
+  .dashboard > section,
+  :global(body[data-design-world]) .dashboard > section {
+    grid-area: auto;
+    grid-column: span 6;
+    border: 0;
+  }
+
+  .timeline,
+  .repartition,
+  .history,
+  :global(body[data-design-world]) .timeline,
+  :global(body[data-design-world]) .repartition,
+  :global(body[data-design-world]) .history {
+    grid-column: 1 / -1;
+  }
+}
+
+@media screen and (max-width: 680px) {
+  .dashboard,
+  :global(body[data-design-world]) .dashboard {
+    display: block;
+    padding: 0 8px 72px;
+  }
+
+  .dashboard > section,
+  :global(body[data-design-world]) .dashboard > section {
+    margin-bottom: 8px;
+  }
+
+  .chart,
+  :global(body[data-design-world]) .chart {
+    height: 320px;
+  }
 }

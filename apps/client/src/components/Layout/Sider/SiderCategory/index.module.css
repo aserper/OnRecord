@@ -36,7 +36,7 @@
 }
 
 .link:has(.active) {
-    background-color: var(--secondary-dark);
+  background-color: var(--secondary-dark);
 }
 
 .link:hover {
@@ -45,4 +45,48 @@
 
 .active {
   color: var(--accent) !important;
+}
+
+:global(body[data-design-world="programme"]) .category {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+:global(body[data-design-world="programme"]) .categoryname {
+  display: none;
+}
+
+:global(body[data-design-world="programme"]) .link {
+  margin: 0;
+  padding: 8px 10px;
+  color: inherit;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+:global(body[data-design-world="programme"]) .linkcontent > :first-child {
+  display: none;
+}
+
+:global(body[data-design-world="programme"]) .link:has(.active) {
+  box-shadow: inset 0 -3px 0 #3157d5;
+  background: transparent;
+}
+
+@media screen and (max-width: 960px) {
+  :global(body[data-design-world="programme"]) .category {
+    display: block;
+    margin-bottom: 28px;
+  }
+
+  :global(body[data-design-world="programme"]) .categoryname,
+  :global(body[data-design-world="programme"]) .linkcontent > :first-child {
+    display: initial;
+  }
+
+  :global(body[data-design-world="programme"]) .link {
+    color: #f3efe5;
+  }
 }

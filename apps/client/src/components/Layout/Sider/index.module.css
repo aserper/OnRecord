@@ -35,3 +35,77 @@
   color: rgb(108, 108, 108);
   transform: translateY(-1px);
 }
+
+:global(body[data-design-world="atlas"]) .root {
+  background:
+    repeating-radial-gradient(
+      ellipse at 20% 35%,
+      transparent 0 17px,
+      rgb(134 168 138 / 9%) 18px 19px
+    ),
+    #10151d;
+  border-right: 1px solid #34404a;
+}
+
+:global(body[data-design-world="darkroom"]) .root {
+  background: #151515;
+  border-right: 1px solid #3f3d39;
+}
+
+:global(body[data-design-world="standard"]) .root {
+  background: #0c1018;
+  border-right: 1px solid #252d3b;
+}
+
+:global(body[data-design-world="programme"]) .root {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 0.6fr) 1fr auto;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  height: var(--programme-nav-height, 72px);
+  padding: 10px 24px;
+  overflow: visible;
+  color: #11100f;
+  background: #f3efe5;
+  border-bottom: 1px solid #11100f;
+}
+
+:global(body.dark-vars[data-design-world="programme"]) .root {
+  color: #f3efe5;
+  background: #11100f;
+  border-color: #615f58;
+}
+
+:global(body[data-design-world="programme"]) .title {
+  margin: 0;
+  color: inherit;
+}
+
+:global(body[data-design-world="programme"]) .root nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+:global(body[data-design-world="programme"]) .versionwrapper {
+  margin: 0;
+}
+
+@media screen and (max-width: 960px) {
+  :global(body[data-design-world="programme"]) .root {
+    display: block;
+    width: 300px;
+    height: 100vh;
+    padding: 16px;
+    overflow-y: auto;
+    color: #f3efe5;
+    background: #11100f;
+  }
+
+  :global(body[data-design-world="programme"]) .root nav {
+    display: block;
+  }
+}

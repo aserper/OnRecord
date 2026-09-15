@@ -1,13 +1,16 @@
-import React, { useState } from "react";
 import { Drawer } from "@mui/material";
 import clsx from "clsx";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+
 import { selectPublicToken } from "../../services/redux/modules/user/selector";
+import DesignWorldSwitcher from "../DesignWorldSwitcher";
 import Text from "../Text";
-import s from "./index.module.css";
-import Sider from "./Sider";
 import { LayoutContext } from "./LayoutContext";
+import Sider from "./Sider";
 import { useSider } from "./useSider";
+
+import s from "./index.module.css";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -40,6 +43,12 @@ export default function Layout({ children }: LayoutProps) {
             [s.content]: true,
             [s.contentdrawer]: siderAllowed && !siderIsDrawer,
           })}>
+          <div
+            className={clsx(s.worldswitcher, {
+              [s.worldswitcherinsider]: siderAllowed && !siderIsDrawer,
+            })}>
+            <DesignWorldSwitcher compact={siderAllowed && !siderIsDrawer} />
+          </div>
           {publicToken && (
             <div className={s.publictoken}>
               <Text size="normal">You are viewing as guest</Text>

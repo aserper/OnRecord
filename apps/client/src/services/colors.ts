@@ -339,5 +339,5 @@ const colors = [
 ];
 
 export function getColor(index: number) {
-  return colors[index];
+  return `var(--chart-${index % 6}, ${colors[index % colors.length]})`;
 }
