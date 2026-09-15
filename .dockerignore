@@ -1,0 +1,11 @@
+.git
+.github
+.gitea
+.impeccable
+.pi
+**/.impeccable
+**/build
+**/node_modules
+node_modules
+db_data
+*.log
