@@ -8,6 +8,7 @@ import { logger } from "../logger";
 import { chunk } from "../misc";
 import { spotifyProvider } from "../oauth/Provider";
 import { batchedLookup, SPOTIFY_BATCH_SIZES } from "./batchedLookup";
+import { getCatalogPool } from "./catalogPool";
 import { HttpError } from "./queueHttpClient";
 
 export interface SpotifyMe {
@@ -158,8 +159,13 @@ export class SpotifyAPI {
     return this.handleAddIdsToPlaylist(data.id, ids);
   }
 
+  private async catalogClient() {
+    const pooled = await getCatalogPool().acquire();
+    return pooled ? pooled.client : await this.checkToken();
+  }
+
   public async getTracksBatched(ids: string[]) {
-    const client = await this.checkToken();
+    const client = await this.catalogClient();
     return batchedLookup(ids, SPOTIFY_BATCH_SIZES.tracks, async (page) => {
       const { data } = await client.get(`/tracks?ids=${page.join(",")}`);
       return (data.tracks ?? []) as SpotifyTrack[];
@@ -186,7 +192,7 @@ export class SpotifyAPI {
   }
 
   public async getAlbumsBatched(ids: string[]) {
-    const client = await this.checkToken();
+    const client = await this.catalogClient();
     return batchedLookup(ids, SPOTIFY_BATCH_SIZES.albums, async (page) => {
       const { data } = await client.get(`/albums?ids=${page.join(",")}`);
       return (data.albums ?? []) as SpotifyAlbum[];
@@ -213,7 +219,7 @@ export class SpotifyAPI {
   }
 
   public async getArtistsBatched(ids: string[]) {
-    const client = await this.checkToken();
+    const client = await this.catalogClient();
     return batchedLookup(ids, SPOTIFY_BATCH_SIZES.artists, async (page) => {
       const { data } = await client.get(`/artists?ids=${page.join(",")}`);
       return (data.artists ?? []) as SpotifyArtist[];
