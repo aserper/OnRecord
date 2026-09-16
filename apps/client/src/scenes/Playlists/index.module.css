@@ -1,0 +1,113 @@
+.root {
+  min-height: 100vh;
+}
+
+.content {
+  display: grid;
+  gap: 16px;
+  padding: var(--page-padding);
+  max-width: 900px;
+}
+
+.addform {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.addform > :first-child {
+  flex: 1;
+  min-width: 240px;
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+.playlist {
+  display: grid;
+  gap: 12px;
+}
+
+.playlisthead {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.artwork {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--world-rule, var(--border-color));
+}
+
+.playlistmeta {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.playlistmeta > :first-child {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.error {
+  color: #c0392b;
+}
+
+.changes {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.change {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--world-rule, var(--border-color));
+}
+
+.changedate {
+  font-size: 13px;
+}
+
+.changeentries {
+  display: grid;
+  gap: 2px;
+  padding-left: 4px;
+}
+
+.added {
+  color: var(--world-accent, var(--accent));
+  font-weight: 700;
+}
+
+.removed {
+  color: var(--text-grey);
+  font-weight: 700;
+}
+
+.removedname {
+  color: var(--text-grey);
+  text-decoration: line-through;
+}

@@ -16,6 +16,8 @@ import {
   ShareOutlined,
   Speed,
   SpeedOutlined,
+  QueueMusic,
+  QueueMusicOutlined,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 
@@ -41,6 +43,12 @@ export function useLinks() {
           link: "/sessions",
           icon: <SpeedOutlined />,
           iconOn: <Speed />,
+        },
+        {
+          label: "Playlists",
+          link: "/playlists",
+          icon: <QueueMusicOutlined />,
+          iconOn: <QueueMusic />,
         },
         {
           label: "Statistics",

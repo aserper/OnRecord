@@ -19,6 +19,7 @@ import {
   UnboxPromise,
   TrackWithFullArtistAlbum,
   AlbumWithFullArtist,
+  TrackedPlaylist,
 } from "../types";
 
 const axios = Axios.create({
@@ -409,6 +410,12 @@ export const api = {
         distanceToLast: { distance: { subtract: number; info: TrackInfo }[] };
       }[]
     >("/spotify/top/sessions", { start, end }),
+  trackPlaylist: (url: string) =>
+    post<TrackedPlaylist>("/playlist/track", { url }),
+  getTrackedPlaylists: () => get<TrackedPlaylist[]>("/playlist/tracked"),
+  refreshTrackedPlaylist: (id: string) =>
+    post<TrackedPlaylist>(`/playlist/tracked/${id}/refresh`),
+  removeTrackedPlaylist: (id: string) => delet(`/playlist/tracked/${id}`),
 };
 
 export const DEFAULT_ITEMS_TO_LOAD = 20;

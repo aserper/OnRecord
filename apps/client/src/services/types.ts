@@ -31,6 +31,30 @@ export enum Precision {
   year = "year",
 }
 
+export interface PlaylistChangeItem {
+  id: string;
+  name: string;
+  artists: string[];
+}
+
+export interface PlaylistChange {
+  detectedAt: string;
+  added: PlaylistChangeItem[];
+  removed: PlaylistChangeItem[];
+}
+
+export interface TrackedPlaylist {
+  _id: string;
+  spotifyId: string;
+  name: string;
+  imageUrl?: string;
+  trackCount: number;
+  lastCheckedAt?: string;
+  lastChangedAt?: string;
+  lastError?: string;
+  changes: PlaylistChange[];
+}
+
 export interface SpotifyImage {
   url: string;
   height: number;
