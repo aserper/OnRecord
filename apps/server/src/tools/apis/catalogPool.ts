@@ -95,6 +95,7 @@ export class CatalogApp {
   readonly rateLimitState: RateLimitState;
   private readonly factory: QueuedHttpClientFactory;
   private token: CachedToken | null = null;
+  private batchLookupsDisabled = false;
 
   constructor(
     private readonly credentials: SpotifyAppCredentials,
@@ -123,6 +124,14 @@ export class CatalogApp {
 
   invalidateToken() {
     this.token = null;
+  }
+
+  supportsBatchLookups(): boolean {
+    return !this.batchLookupsDisabled;
+  }
+
+  disableBatchLookups() {
+    this.batchLookupsDisabled = true;
   }
 
   async createClient(): Promise<QueuedHttpClient> {
