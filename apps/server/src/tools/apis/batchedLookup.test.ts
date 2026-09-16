@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { batchedLookup, SPOTIFY_BATCH_SIZES } from "./batchedLookup";
+import {
+  batchedLookup,
+  batchedLookupParallel,
+  SPOTIFY_BATCH_SIZES,
+} from "./batchedLookup";
 
 test("returns an empty array without calling the fetcher", async () => {
   let calls = 0;
@@ -44,6 +48,31 @@ test("propagates fetch errors", async () => {
       }),
     /boom/,
   );
+});
+
+test("parallel lookup uses multiple workers and preserves result order", async () => {
+  let active = 0;
+  let maximumActive = 0;
+  const workers = new Set<number>();
+  const result = await batchedLookupParallel(
+    ["a", "b", "c", "d"],
+    1,
+    2,
+    async (page, workerIndex) => {
+      workers.add(workerIndex);
+      active += 1;
+      maximumActive = Math.max(maximumActive, active);
+      await new Promise((resolve) =>
+        setTimeout(resolve, page[0] === "a" ? 20 : 2),
+      );
+      active -= 1;
+      return [`result-${page[0]}`];
+    },
+  );
+
+  assert.deepEqual(result, ["result-a", "result-b", "result-c", "result-d"]);
+  assert.equal(workers.size, 2);
+  assert.equal(maximumActive, 2);
 });
 
 test("batch sizes respect Spotify lookup limits", () => {

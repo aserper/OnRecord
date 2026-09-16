@@ -130,7 +130,7 @@ The combined image derives `CLIENT_ENDPOINT` from `APP_URL` and serves the API u
 | `TIMEZONE` | `Europe/Paris` | Default statistics timezone; each user can override it in Settings |
 | `SPOTIFY_REQUEST_INTERVAL_MS` | `200` | Minimum interval in milliseconds between Spotify API requests; use it instead of the delay variables other forks document |
 | `SPOTIFY_COOLDOWN_FILE` | Unset | File used to persist the Spotify rate-limit deadline across restarts |
-| `SPOTIFY_EXTRA_APPS` | Unset | Additional Spotify app credentials (`clientId:clientSecret` pairs, comma-separated). Catalog lookups during imports round-robin across these apps, each with its own rate budget, so one app's cooldown cannot stall an import. Create the extra apps in the Spotify dashboard; each app must comply with Spotify's developer terms. |
+| `SPOTIFY_EXTRA_APPS` | Unset | Additional Spotify app credentials (`clientId:clientSecret` pairs, comma-separated). Imports use the primary app plus one independently paced catalog worker per healthy extra app, processing metadata batches concurrently while skipping apps in cooldown. Create the extra apps in the Spotify dashboard; each app must comply with Spotify's developer terms. |
 | `COOKIE_VALIDITY_MS` | `1h` | Sign-in token lifetime; a numeric millisecond value also makes the browser cookie persistent |
 | `MAX_IMPORT_CACHE_SIZE` | `100000` | Import cache entries; a larger cache uses more memory and sends fewer requests to Spotify |
 | `CORS` | Origin of `CLIENT_ENDPOINT` | Comma-separated additional browser origins |

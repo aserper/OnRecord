@@ -94,6 +94,34 @@ test("acquire waits on the earliest deadline when all apps cool", async () => {
   assert.equal(app, soon);
 });
 
+test("acquireAll returns one client per healthy app", async () => {
+  const first = makeApp(1);
+  const cooling = makeApp(2);
+  const third = makeApp(3);
+  cooling.rateLimitState.registerDelay(3_600_000);
+  const pool = new CatalogPool([first, cooling, third]);
+
+  const acquired = await pool.acquireAll();
+  assert.deepEqual(
+    acquired.map(({ app }) => app),
+    [first, third],
+  );
+});
+
+test("acquireAll falls back to the earliest app when all are cooling", async () => {
+  const soon = makeApp(1);
+  const later = makeApp(2);
+  soon.rateLimitState.registerDelay(60_000);
+  later.rateLimitState.registerDelay(600_000);
+  const pool = new CatalogPool([later, soon]);
+
+  const acquired = await pool.acquireAll();
+  assert.deepEqual(
+    acquired.map(({ app }) => app),
+    [soon],
+  );
+});
+
 test("acquire penalizes an app whose token fetch fails", async () => {
   const broken = makeApp(1, {
     fetchToken: async () => {

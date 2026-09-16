@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { get } from "../env";
 import { logger } from "../logger";
 import { QueuedHttpClient, QueuedHttpClientFactory } from "./queueHttpClient";
-import { RateLimitState } from "./rateLimitState";
+import { RateLimitState, spotifyRateLimitState } from "./rateLimitState";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 const TOKEN_EXPIRY_MARGIN_MS = 60_000;
@@ -181,12 +181,7 @@ export class CatalogPool {
     if (this.apps.length === 0) {
       return null;
     }
-    const now = Date.now();
-    const ordered = [...this.apps].sort(
-      (a, b) => a.availableAt() - b.availableAt(),
-    );
-    const healthy = ordered.filter((app) => app.availableAt() <= now);
-    const preferred = healthy.length > 0 ? this.rotate(healthy) : [ordered[0]!];
+    const preferred = this.rotate(this.availableApps());
 
     let lastError: unknown;
     for (const app of preferred) {
@@ -204,6 +199,43 @@ export class CatalogPool {
     throw lastError ?? new Error("No catalog app could be used");
   }
 
+  /** Acquires one independently queued client for every healthy Spotify app. */
+  async acquireAll(): Promise<{ app: CatalogApp; client: QueuedHttpClient }[]> {
+    if (this.apps.length === 0) {
+      return [];
+    }
+    const outcomes = await Promise.all(
+      this.availableApps().map(async (app) => {
+        try {
+          return { result: { app, client: await app.createClient() } };
+        } catch (error) {
+          logger.warn(
+            `Catalog app ${app.label} failed to authenticate; skipping it for ten minutes`,
+          );
+          app.penalize();
+          return { error };
+        }
+      }),
+    );
+    const acquired = outcomes.flatMap((outcome) =>
+      outcome.result ? [outcome.result] : [],
+    );
+    if (acquired.length > 0) {
+      return acquired;
+    }
+    const failed = outcomes.find((outcome) => outcome.error);
+    throw failed?.error ?? new Error("No catalog app could be used");
+  }
+
+  private availableApps(): CatalogApp[] {
+    const now = Date.now();
+    const ordered = [...this.apps].sort(
+      (a, b) => a.availableAt() - b.availableAt(),
+    );
+    const healthy = ordered.filter((app) => app.availableAt() <= now);
+    return healthy.length > 0 ? healthy : [ordered[0]!];
+  }
+
   private rotate(candidates: CatalogApp[]): CatalogApp[] {
     if (candidates.length <= 1) {
       return candidates;
@@ -215,8 +247,14 @@ export class CatalogPool {
 }
 
 export function createCatalogPool(): CatalogPool {
-  const credentials = parseExtraApps(get("SPOTIFY_EXTRA_APPS"));
-  const apps = credentials.map(
+  const primary = new CatalogApp(
+    { clientId: get("SPOTIFY_PUBLIC")!, clientSecret: get("SPOTIFY_SECRET")! },
+    {
+      rateLimitState: spotifyRateLimitState,
+      minimumIntervalMs: get("SPOTIFY_REQUEST_INTERVAL_MS"),
+    },
+  );
+  const extras = parseExtraApps(get("SPOTIFY_EXTRA_APPS")).map(
     (credentials, index) =>
       new CatalogApp(credentials, {
         rateLimitState: new RateLimitState(
@@ -225,17 +263,15 @@ export function createCatalogPool(): CatalogPool {
         minimumIntervalMs: get("SPOTIFY_REQUEST_INTERVAL_MS"),
       }),
   );
-  if (apps.length > 0) {
-    logger.info(
-      `Catalog request pool initialized with ${apps.length} extra Spotify app(s)`,
-    );
-  }
-  return new CatalogPool(apps);
+  logger.info(
+    `Catalog request pool initialized with ${1 + extras.length} Spotify app(s) (${extras.length} extra)`,
+  );
+  return new CatalogPool([primary, ...extras]);
 }
 
 let pool: CatalogPool | null = null;
 
-/** Shared catalog pool; empty (and unused) until SPOTIFY_EXTRA_APPS is set. */
+/** Shared primary-plus-extra Spotify catalog pool. */
 export function getCatalogPool(): CatalogPool {
   if (!pool) {
     pool = createCatalogPool();
