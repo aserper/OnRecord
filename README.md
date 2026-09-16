@@ -37,7 +37,7 @@ The scheme, hostname, port, and path must match your deployment. Use HTTPS for a
 
 The fork publishes **`ghcr.io/aserper/onrecord:latest`**. If the pull fails with `denied`, the package is still private: flip it to public once under the package's Package settings. Its [Dockerfile](Dockerfile) builds this repository's client and server, then installs them into a pinned [LinuxServer Your Spotify image](https://github.com/linuxserver/docker-your_spotify). The container serves the frontend at `/` and the API at `/api`; MongoDB runs separately.
 
-The upstream `yooooomi/your_spotify_server` and `yooooomi/your_spotify_client` images do **not** contain this fork's changes. The existing split-container Compose files in this repository are legacy examples, not the installation below.
+The upstream `yooooomi/your_spotify_server` and `yooooomi/your_spotify_client` images do **not** contain this fork's changes. Upstream's split-container Compose examples apply to those images, not to the installation below.
 
 Create a private `.env` file beside your `compose.yaml`:
 
@@ -214,8 +214,6 @@ pnpm --filter @onrecord/client build
 To run from source, provide MongoDB and export the server environment variables, including `CLIENT_ENDPOINT`, `API_ENDPOINT`, and the Spotify credentials. Run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`.
 
 Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`. Copy `variables-template.js` to `variables.js` in that directory and replace `__API_ENDPOINT__` with the public backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` is for a proxy that mounts the backend under `/api`.
-
-[LOCAL_INSTALL.md](LOCAL_INSTALL.md) contains inherited hosting and systemd notes. Its Yarn, Node 16, and `lib/bin/www` commands are legacy; use the commands and `build/index.js` entry point above for this fork.
 
 ## Support and credits
 
