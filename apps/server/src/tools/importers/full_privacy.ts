@@ -60,7 +60,7 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       return [];
     }
     const res = await retryPromise(
-      () => this.spotifyApi.getTracks(spotifyIds),
+      () => this.spotifyApi.getTracksBatched(spotifyIds),
       10,
       30,
     );

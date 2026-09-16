@@ -29,7 +29,7 @@ export const getTracks = async (
   );
   const missingIds = uniqueIds.filter((id) => !tracksById.has(id));
   if (missingIds.length > 0) {
-    const fetchedTracks = compact(await client.getTracks(missingIds));
+    const fetchedTracks = compact(await client.getTracksBatched(missingIds));
     fetchedTracks.forEach((track) => tracksById.set(track.id, track));
   }
   const spotifyTracks = compact(uniqueIds.map((id) => tracksById.get(id)));
@@ -51,7 +51,7 @@ export const getTracks = async (
 
 export const getAlbums = async (userId: string, ids: string[]) => {
   const client = new SpotifyAPI(userId);
-  const spotifyAlbums = compact(await client.getAlbums(ids));
+  const spotifyAlbums = compact(await client.getAlbumsBatched(ids));
 
   const albums: Album[] = spotifyAlbums.map((alb) => {
     logger.info(
@@ -67,7 +67,7 @@ export const getAlbums = async (userId: string, ids: string[]) => {
 
 export const getArtists = async (userId: string, ids: string[]) => {
   const client = new SpotifyAPI(userId);
-  const spotifyArtists = compact(await client.getArtists(ids));
+  const spotifyArtists = compact(await client.getArtistsBatched(ids));
 
   for (const spotifyArtist of spotifyArtists) {
     logger.info(`Storing non existing artist ${spotifyArtist.name}`);

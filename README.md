@@ -13,6 +13,7 @@ OnRecord is a fork of [Yooooomi/your_spotify](https://github.com/Yooooomi/your_s
 - **Scheduled history imports:** upload Spotify export files now and start the import at an off-hours time. Pending jobs survive restarts and can be cancelled.
 - **Playlist tracking:** paste a playlist link and OnRecord records every track that is added to or removed from it, with a full change history.
 - **Gentle on Spotify's API:** configurable request pacing, an isolated login queue, and cooldown persistence. Scheduling and pacing respect Spotify's limits; they do not increase your quota.
+ - **Gentle on Spotify's API:** metadata lookups are batched (up to 50 tracks, 20 albums, or 50 artists per request), with configurable request pacing, an isolated login queue, and cooldown persistence. This respects Spotify's limits; it does not increase your quota.
 - **ARM64 and AMD64:** images are published for both architectures.
 
 [Installation](#installation) · [Configuration](#configuration) · [History imports](#history-imports) · [Playlist tracking](#playlist-tracking) · [Troubleshooting](#troubleshooting) · [Development](#development) · [Credits](#support-and-credits)
