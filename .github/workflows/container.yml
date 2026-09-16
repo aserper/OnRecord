@@ -6,7 +6,6 @@ on:
     branches: [master]
     paths-ignore:
       - "deploy/**"
-      - "argocd-application.yaml"
   workflow_dispatch:
 
 permissions:
