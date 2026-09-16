@@ -64,34 +64,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Record image digest for ArgoCD
-        env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/onrecord@${{ steps.build.outputs.digest }}
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          manifest = Path("deploy/onrecord.yaml")
-          content = manifest.read_text()
-          lines = content.splitlines()
-          matches = [
-              index
-              for index, line in enumerate(lines)
-              if line.strip().startswith("image: ghcr.io/aserper/onrecord@")
-          ]
-          if len(matches) != 1:
-              raise SystemExit(f"expected one deploy image, found {len(matches)}")
-          indentation = lines[matches[0]][: len(lines[matches[0]]) - len(lines[matches[0]].lstrip())]
-          lines[matches[0]] = f"{indentation}image: {os.environ['IMAGE']}"
-          manifest.write_text("\n".join(lines) + "\n")
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add deploy/onrecord.yaml
-          if git diff --cached --quiet; then
-            echo "Manifest already references this digest"
-            exit 0
-          fi
-          git commit -m "deploy: onrecord ${GITHUB_SHA::7} [skip ci]"
-          git push origin HEAD:master
