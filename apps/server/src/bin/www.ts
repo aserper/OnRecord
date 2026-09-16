@@ -6,6 +6,7 @@ import { fixRunningImportsAtStart } from "../database/queries/importer";
 import { dbLoop } from "../spotify/looper";
 import { get, getWithDefault } from "../tools/env";
 import { startImportScheduler } from "../tools/importers/scheduler";
+import { startPlaylistTracker } from "../spotify/playlistTracker";
 import { logger } from "../tools/logger";
 
 export function startServer() {
@@ -50,6 +51,7 @@ export function startServer() {
       server.on("listening", onListening);
       await fixRunningImportsAtStart();
       startImportScheduler();
+      startPlaylistTracker();
       checkBlacklistConsistency().catch(logger.error);
       const domain = get("CLIENT_ENDPOINT");
       if (domain.toLowerCase().includes("spotify")) {

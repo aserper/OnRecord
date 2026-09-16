@@ -8,6 +8,8 @@ export const credentials = {
       "user-read-private",
       "user-read-email",
       "user-read-recently-played",
+      "playlist-read-private",
+      "playlist-read-collaborative",
       "user-modify-playback-state",
       "playlist-modify-private",
       "playlist-modify-public",

@@ -13,6 +13,7 @@ import { router as globalRouter } from "./routes/global";
 import { router as importRouter } from "./routes/importer";
 import { router as metricsRouter } from "./routes/metrics";
 import { router as oauthRouter } from "./routes/oauth";
+import { router as playlistRouter } from "./routes/playlist";
 import { router as searchRouter } from "./routes/search";
 import { router as spotifyRouter } from "./routes/spotify";
 import { router as trackRouter } from "./routes/track";
@@ -99,6 +100,7 @@ app.use("/artist", artistRouter);
 app.use("/album", albumRouter);
 app.use("/track", trackRouter);
 app.use("/search", searchRouter);
+app.use("/playlist", playlistRouter);
 app.use("/", importRouter);
 app.use("/", metricsRouter);
 

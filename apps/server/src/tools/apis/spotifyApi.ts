@@ -92,6 +92,46 @@ export class SpotifyAPI {
     return items;
   }
 
+  public async getPlaylistMeta(
+    id: string,
+  ): Promise<{
+    id: string;
+    name: string;
+    images: { url: string }[];
+    tracks: { total: number };
+  }> {
+    const client = await this.checkToken();
+    const { data } = await client.get(
+      `/playlists/${id}?fields=id,name,images,tracks.total`,
+    );
+    return data;
+  }
+
+  public async getPlaylistTracks(
+    id: string,
+  ): Promise<{ id: string; name: string; artists: { name: string }[] }[]> {
+    const tracks: { id: string; name: string; artists: { name: string }[] }[] =
+      [];
+    let offset = 0;
+    for (;;) {
+      const client = await this.checkToken();
+      const { data } = await client.get(
+        `/playlists/${id}/tracks?limit=100&offset=${offset}`,
+      );
+      for (const item of data.items ?? []) {
+        const track = item?.track;
+        if (track?.id) {
+          tracks.push(track);
+        }
+      }
+      if (data.items.length < 100 || offset > 10000) {
+        break;
+      }
+      offset += data.items.length;
+    }
+    return tracks;
+  }
+
   private async handleAddIdsToPlaylist(id: string, ids: string[]) {
     const chunks = chunk(ids, 100);
     for (let i = 0; i < chunks.length; i += 1) {
