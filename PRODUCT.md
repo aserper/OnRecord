@@ -26,6 +26,7 @@ The application runs in a private Kubernetes cluster and is reached through `htt
 
 - Preserve all existing routes and user-facing behavior, including overview statistics, history, top artists/albums/tracks, detail views, longest sessions, benchmarks, collaborative affinity, account settings, imports, registration controls, and light/dark mode.
 - Deep exploration is the leading workflow; movement between aggregate statistics and underlying artists, albums, tracks, and time periods should be especially strong.
+- Users can track external Spotify playlists by URL and review a recorded history of what was added to or removed from each playlist over time.
 - Spotify OAuth, playback/link affordances, configurable date ranges, multiple accounts, and responsive behavior must continue to work.
 - The maintained fork must incorporate the live rate-limit/OAuth and metadata-request hotfixes in source code rather than relying on bundle string replacement.
 - Deployment must retain persistent MongoDB data and uploaded import files, use a Recreate strategy, and support a safe migration from the current LinuxServer image.

@@ -11,6 +11,7 @@ OnRecord is [aserper/OnRecord](https://github.com/aserper/OnRecord), a fork of *
 - **Four themes:** Atlas, Programme, Darkroom, and Standard, with light and dark appearance settings.
 - **Deep listening exploration:** track, album, and artist histories; listening sessions; rankings over time; and comparisons between users.
 - **Scheduled imports:** upload Spotify export files now and choose an off-hours start time. Pending jobs survive restarts when MongoDB and the upload directory are persistent. Cancel a pending schedule from import history.
+- **Playlist tracking:** paste a Spotify playlist URL and OnRecord checks it about every ten minutes, recording every track that is added to or removed from it.
 - **An isolated login queue:** login and profile requests do not wait behind bulk import requests. They can try during a recorded bulk cooldown, but an actual Spotify `429` response still produces a retry-later response.
 - **Configurable request pacing and sessions:** set the interval between bulk Spotify requests and the authentication cookie lifetime. Optionally persist Spotify's cooldown deadline across restarts.
 
@@ -119,7 +120,21 @@ docker compose up -d onrecord
 
 For reproducible deployments, pin a published image digest instead of `latest`. Do not change MongoDB major versions without following MongoDB's upgrade procedure.
 
-The [Kubernetes manifest](deploy/onrecord.yaml) shows the combined image, persistent uploads, cooldown storage, and MongoDB in use. It is deployment-specific: replace its storage, ingress, certificate, and secret references before using it. The [container workflow](.github/workflows/container.yml) verifies the code, publishes GHCR images, and records the image digest in that manifest.
+The [container workflow](.github/workflows/container.yml) verifies the code and publishes GHCR images. Pin the published digest in your own deployment manifest rather than trusting a moving tag.
+
+## Configuration
+## Playlist tracking
+
+Open **Playlists** in the navigation, paste a playlist link (an `open.spotify.com` URL, a `spotify:playlist:` URI, or a bare playlist id), and confirm. OnRecord stores an initial snapshot, then re-checks each tracked playlist roughly every ten minutes.
+
+Every check compares the current track list against the stored one and records what was **added** and what was **removed**, with track names and artists, in each playlist's change history. Pure reorders and duplicate copies of a track already present are not reported as changes. The history keeps the last 50 changes per playlist.
+
+Notes:
+
+- Checks go through the same paced, rate-limit-aware queue as everything else. If Spotify returns a `429`, checks pause with the rest of the app and resume afterwards.
+- Public playlists work for every signed-in user. Tracking a **private** or collaborative playlist requires the new `playlist-read-private` / `playlist-read-collaborative` scopes, so use **Reconnect** under **Spotify connection** in Settings once.
+- A playlist that becomes unavailable or switches to private is flagged on its card instead of failing silently.
+- **Check now** forces an immediate check; **Stop tracking** deletes the stored history for that playlist.
 
 ## Configuration
 
