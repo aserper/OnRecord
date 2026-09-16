@@ -2,60 +2,56 @@
 
 ![OnRecord](apps/client/public/brand/social.png)
 
-Self-hosted Spotify listening history, with four interface themes, detailed listening statistics, and scheduled history imports.
+Self-hosted Spotify listening history. OnRecord continuously records what you listen to and turns it into an archive you can actually explore: rankings, trends, sessions, and playlists, with four distinct interface themes.
 
-OnRecord is [aserper/OnRecord](https://github.com/aserper/OnRecord), a fork of **[Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify)** renamed and extended. Credit for the original application and its statistics platform belongs to Yooooomi and the upstream contributors. This fork builds on that work with a redesigned interface and changes to import scheduling, login handling, and deployment.
+OnRecord is a fork of [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify), renamed and extended. Credit for the original application belongs to Yooooomi and the upstream contributors.
 
-## What this fork includes
+## Features
 
-- **Four themes:** Atlas, Programme, Darkroom, and Standard, with light and dark appearance settings.
-- **Deep listening exploration:** track, album, and artist histories; listening sessions; rankings over time; and comparisons between users.
-- **Scheduled imports:** upload Spotify export files now and choose an off-hours start time. Pending jobs survive restarts when MongoDB and the upload directory are persistent. Cancel a pending schedule from import history.
-- **Playlist tracking:** paste a Spotify playlist URL and OnRecord checks it about every ten minutes, recording every track that is added to or removed from it.
-- **An isolated login queue:** login and profile requests do not wait behind bulk import requests. They can try during a recorded bulk cooldown, but an actual Spotify `429` response still produces a retry-later response.
-- **Configurable request pacing and sessions:** set the interval between bulk Spotify requests and the authentication cookie lifetime. Optionally persist Spotify's cooldown deadline across restarts.
+- **Four themes:** Atlas, Programme, Darkroom, and Standard, each with light and dark modes. Switch freely; your route, date range, and theme preference are preserved.
+- **Deep exploration:** move from an overview statistic down to the artists, albums, tracks, and sessions behind it. Everything has a full history.
+- **Scheduled history imports:** upload Spotify export files now and start the import at an off-hours time. Pending jobs survive restarts and can be cancelled.
+- **Playlist tracking:** paste a playlist link and OnRecord records every track that is added to or removed from it, with a full change history.
+- **Gentle on Spotify's API:** configurable request pacing, an isolated login queue, and cooldown persistence. Scheduling and pacing respect Spotify's limits; they do not increase your quota.
+- **ARM64 and AMD64:** images are published for both architectures.
 
-Spotify's API limits still apply. Scheduling and pacing do not increase your quota or guarantee an uninterrupted import.
-
-[Installation](#installation) · [Configuration](#configuration) · [History imports](#history-imports) · [Troubleshooting](#troubleshooting) · [Development](#development) · [Support](#support-and-credits)
+[Installation](#installation) · [Configuration](#configuration) · [History imports](#history-imports) · [Playlist tracking](#playlist-tracking) · [Troubleshooting](#troubleshooting) · [Development](#development) · [Credits](#support-and-credits)
 
 ## Installation
 
 ### 1. Create a Spotify application
 
-Create an app in the [Spotify developer dashboard](https://developer.spotify.com/dashboard), select **Web API**, and copy its client ID and client secret. Follow Spotify's current account and development-mode requirements; add other permitted users through the app's user management settings.
+Create an app in the [Spotify developer dashboard](https://developer.spotify.com/dashboard), enable **Web API**, and copy the client ID and client secret. Add the users who should have access through the app's user management settings.
 
-For the combined container documented here, register this exact redirect URI, replacing the example domain with yours:
+Register this redirect URI on the app, replacing the domain with yours:
 
-```text
+```
 https://music.example.com/api/oauth/spotify/callback
 ```
 
-The scheme, hostname, port, and path must match your deployment. Use HTTPS for a remote deployment. For local testing, follow Spotify's current loopback redirect rules rather than assuming `localhost` is accepted.
+The scheme, hostname, port, and path must match your deployment exactly. Use HTTPS for anything reachable over the internet.
 
-### 2. Run the combined image and MongoDB
+### 2. Run the containers
 
-The fork publishes **`ghcr.io/aserper/onrecord:latest`**. If the pull fails with `denied`, the package is still private: flip it to public once under the package's Package settings. Its [Dockerfile](Dockerfile) builds this repository's client and server, then installs them into a pinned [LinuxServer Your Spotify image](https://github.com/linuxserver/docker-your_spotify). The container serves the frontend at `/` and the API at `/api`; MongoDB runs separately.
+OnRecord ships as a single container that serves the web app and the API; MongoDB runs separately.
 
-The upstream `yooooomi/your_spotify_server` and `yooooomi/your_spotify_client` images do **not** contain this fork's changes. Upstream's split-container Compose examples apply to those images, not to the installation below.
+Create a `.env` file next to your `compose.yaml` and keep it out of version control:
 
-Create a private `.env` file beside your `compose.yaml`:
-
-```dotenv
-SPOTIFY_PUBLIC=replace_with_spotify_client_id
-SPOTIFY_SECRET=replace_with_spotify_client_secret
+```
+SPOTIFY_PUBLIC=your_spotify_client_id
+SPOTIFY_SECRET=your_spotify_client_secret
 ```
 
-Keep this file out of version control and restrict its permissions (`chmod 600 .env`). Create writable storage directories, using the UID and GID you will set as `PUID` and `PGID`:
+Create writable storage directories for the user the container runs as:
 
-```sh
+```
 mkdir -p data/config data/imports
 sudo chown -R 1000:1000 data/config data/imports
 ```
 
 Save this as `compose.yaml`:
 
-```yaml
+```
 services:
   onrecord:
     image: ghcr.io/aserper/onrecord:latest
@@ -90,116 +86,107 @@ volumes:
   mongo_data:
 ```
 
-```sh
+Start it:
+
+```
 docker compose up -d
 docker compose logs -f onrecord
 ```
 
-Point a TLS-terminating reverse proxy on the Docker host at `http://127.0.0.1:8080`, serving `https://music.example.com`. Forward the original host and scheme. If your proxy is another container, connect it to the same Docker network and use `onrecord:80` instead. Do not expose MongoDB publicly. Adjust proxy upload-size and timeout limits for large history exports.
+Put a TLS-terminating reverse proxy in front of `http://127.0.0.1:8080` and serve `https://music.example.com` through it. If your proxy is itself a container, attach it to the same Docker network and point it at `onrecord:80` instead. Keep MongoDB off the public internet, and raise your proxy's upload size and timeout limits so large history exports go through.
 
-The first registered account becomes an administrator. Once your users have joined, you can disable new registrations in **Settings**.
+The first account to register becomes an administrator. Once your users have joined, you can disable new registrations in **Settings**.
 
-### Storage and updates
+### Storage
 
-Keep all three storage locations:
-
-| Container path | What it preserves |
+| Path | What it holds |
 | :--- | :--- |
-| `/config` | LinuxServer runtime configuration and, in this example, the cooldown file |
-| `/tmp/imports` | Uploaded files needed by pending jobs and failed-import retries |
-| `/data/db` in MongoDB | Users, listening history, preferences, and import job records |
+| `/config` | Container configuration and, in this example, the Spotify cooldown file |
+| `/tmp/imports` | Uploaded import files needed by pending and retryable jobs |
+| MongoDB volume | Users, listening history, preferences, and import job records |
 
-If you set `SPOTIFY_COOLDOWN_FILE` elsewhere, persist its **parent directory** and make it writable by `PUID`/`PGID`. The server writes a temporary file and renames it, so use a directory mount rather than a single-file mount. A `/config` volume alone does not preserve `/tmp/imports`.
+All three are required for scheduled imports to survive a restart. If you move `SPOTIFY_COOLDOWN_FILE` elsewhere, persist its parent directory, not a single-file mount: the server writes a temporary file and renames it.
 
-Back up MongoDB and the app storage before updating. Avoid updates during a running import. To update only the app image:
+Before updating, back up MongoDB and the storage directories, and avoid updating while an import is running:
 
-```sh
+```
 docker compose pull onrecord
 docker compose up -d onrecord
 ```
 
-For reproducible deployments, pin a published image digest instead of `latest`. Do not change MongoDB major versions without following MongoDB's upgrade procedure.
-
-The [container workflow](.github/workflows/container.yml) verifies the code and publishes GHCR images. Pin the published digest in your own deployment manifest rather than trusting a moving tag.
-
-## Configuration
-## Playlist tracking
-
-Open **Playlists** in the navigation, paste a playlist link (an `open.spotify.com` URL, a `spotify:playlist:` URI, or a bare playlist id), and confirm. OnRecord stores an initial snapshot, then re-checks each tracked playlist roughly every ten minutes.
-
-Every check compares the current track list against the stored one and records what was **added** and what was **removed**, with track names and artists, in each playlist's change history. Pure reorders and duplicate copies of a track already present are not reported as changes. The history keeps the last 50 changes per playlist.
-
-Notes:
-
-- Checks go through the same paced, rate-limit-aware queue as everything else. If Spotify returns a `429`, checks pause with the rest of the app and resume afterwards.
-- Public playlists work for every signed-in user. Tracking a **private** or collaborative playlist requires the new `playlist-read-private` / `playlist-read-collaborative` scopes, so use **Reconnect** under **Spotify connection** in Settings once.
-- A playlist that becomes unavailable or switches to private is flagged on its card instead of failing silently.
-- **Check now** forces an immediate check; **Stop tracking** deletes the stored history for that playlist.
+For reproducible deployments, pin the image by digest instead of `latest`, and do not change MongoDB major versions without following MongoDB's upgrade procedure.
 
 ## Configuration
 
-The combined image derives `CLIENT_ENDPOINT` from `APP_URL` and `API_ENDPOINT` from `${APP_URL}/api`. Set `APP_URL` to the URL your browser uses, without a trailing slash. Do not override the internal server port in this image.
-
-Server settings are defined in [env.ts](apps/server/src/tools/env.ts); defaults below refer to this fork's server, not every LinuxServer image version.
+The combined image derives `CLIENT_ENDPOINT` from `APP_URL` and serves the API under `${APP_URL}/api`. Set `APP_URL` to the address your browser uses, without a trailing slash. Do not override the internal server port.
 
 | Variable | Default | Purpose |
 | :--- | :--- | :--- |
-| `APP_URL` | Set explicitly | Public URL for the combined image |
+| `APP_URL` | Set explicitly | Public URL of the deployment |
 | `SPOTIFY_PUBLIC`, `SPOTIFY_SECRET` | Required | Spotify app client ID and secret |
-| `PUID`, `PGID`, `TZ` | Set explicitly | Container file ownership and operating-system timezone |
+| `PUID`, `PGID`, `TZ` | Set explicitly | Container file ownership and timezone |
 | `MONGO_ENDPOINT` | `mongodb://mongo:27017/your_spotify` | MongoDB connection string |
 | `TIMEZONE` | `Europe/Paris` | Default statistics timezone; each user can override it in Settings |
-| `SPOTIFY_REQUEST_INTERVAL_MS` | `200` | Minimum interval in milliseconds between bulk-queue request starts; nonnegative |
-| `SPOTIFY_COOLDOWN_FILE` | Unset | File for persisting the rate-limit deadline; otherwise held in memory |
-| `COOKIE_VALIDITY_MS` | `1h` | Authentication token lifetime; use a positive integer in milliseconds for a persistent browser cookie too |
-| `MAX_IMPORT_CACHE_SIZE` | `100000` | Import cache entry limit; a larger cache uses more memory to reduce API lookups |
-| `CORS` | Origin of `CLIENT_ENDPOINT` | Comma-separated allowed browser origins |
+| `SPOTIFY_REQUEST_INTERVAL_MS` | `200` | Minimum interval in milliseconds between Spotify API requests; use it instead of the delay variables other forks document |
+| `SPOTIFY_COOLDOWN_FILE` | Unset | File used to persist the Spotify rate-limit deadline across restarts |
+| `COOKIE_VALIDITY_MS` | `1h` | Sign-in token lifetime; a numeric millisecond value also makes the browser cookie persistent |
+| `MAX_IMPORT_CACHE_SIZE` | `100000` | Import cache entries; a larger cache uses more memory and sends fewer requests to Spotify |
+| `CORS` | Origin of `CLIENT_ENDPOINT` | Comma-separated additional browser origins |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, or `error` |
-| `MONGO_NO_ADMIN_RIGHTS` | `false` | Skip MongoDB admin operations when using restricted database credentials |
+| `MONGO_NO_ADMIN_RIGHTS` | `false` | Set `true` when your MongoDB credentials cannot run admin commands |
 | `PROMETHEUS_USERNAME`, `PROMETHEUS_PASSWORD` | Unset | Basic-auth credentials for [metrics](apps/server/README.md#prometheus) |
-| `CLIENT_ENDPOINT`, `API_ENDPOINT` | Required outside combined image | Browser-facing frontend and backend URLs for a source installation |
-| `PORT` | `8080` | Backend listener for a source installation |
+| `CLIENT_ENDPOINT`, `API_ENDPOINT`, `PORT` | Required for source installs | Only needed when you run the client and server separately |
 
-The Compose example sets `COOKIE_VALIDITY_MS=2592000000` for 30 days. Duration strings such as `1h` set token expiry, but only a numeric millisecond value sets the browser cookie's persistent lifetime.
+Notes:
 
-Use `SPOTIFY_REQUEST_INTERVAL_MS` for this fork, not `SPOTIFY_API_DELAY_MS` from other image documentation. CORS usually needs no override. If you set it, list exact origins, for example `https://music.example.com,https://dashboard.example.com`, without paths or trailing slashes. An explicit default port such as `:443` may not match the browser's normalized origin.
+- `COOKIE_VALIDITY_MS=2592000000` (30 days) keeps you signed in and reduces how often Spotify re-authentication is needed.
+- `CORS` rarely needs an override. If you set it, list exact origins such as `https://music.example.com` without paths, trailing slashes, or default ports.
 
 ## History imports
 
-The app polls Spotify for recent listening activity after registration. This does not retrieve your entire past history. Request an export from [Spotify account privacy](https://www.spotify.com/account/privacy/), then open **Settings → Account → Import data**:
+After registration, OnRecord polls Spotify for new listening as it happens. Your past history is not included: request an export from [Spotify account privacy](https://www.spotify.com/account/privacy/), then open **Settings → Account → Import data**.
 
-- **Account data:** select `StreamingHistory*.json` files, generally covering the past year.
-- **Extended streaming history:** select `Streaming_History_Audio_*.json` files for the longer history provided by Spotify. This is the recommended format.
+- **Account data:** `StreamingHistory*.json` files, generally covering the past year.
+- **Extended streaming history (recommended):** `Streaming_History_Audio_*.json` files, covering your account's full history.
 
-Spotify controls export availability and delivery time. Upload the extracted JSON files, not the ZIP archive.
+Upload the extracted JSON files, not the ZIP. Spotify controls how long exports take to arrive.
 
-Choose **Start now** or **Schedule for later**. The schedule uses your browser's local time and initially suggests the next 02:00. Files are uploaded immediately; the server stores the job in MongoDB and checks for due jobs at startup and every 30 seconds. A due job can wait if that user already has an import running.
+Choose **Start now** or **Schedule for later**. Scheduling uses your browser's local time and suggests the next 02:00 by default. Files are uploaded immediately and stored; a scheduler checks for due jobs at startup and every 30 seconds.
 
-**Restart behavior matters:**
+Restart behavior:
 
-- A still-pending scheduled job survives a restart if both MongoDB and `/tmp/imports` are preserved. An overdue pending job can start after the server returns.
-- A job that was starting or running is marked failed after a server restart. It does not resume automatically. Use **Retry** in import history; its files must still exist.
-- **Cancel scheduled import** applies only to pending jobs and removes their uploaded files. Cleaning up a failed import removes its uploaded files, so retry it before cleaning up if you still need it.
+- A **pending scheduled job** survives a restart if MongoDB and `/tmp/imports` are preserved.
+- A job that was **running or starting** when the server stopped is marked failed and does not resume automatically. Use **Retry** in the import history; its files must still exist.
+- **Cancel scheduled import** removes a pending job and its uploaded files. Cleaning up a failed import also removes its files, so retry before cleaning up if you still want the import.
 
-API errors or exhausted retries can also fail an import. Duplicate detection reduces overlap, but duplicates can still occur. See the [scheduler](apps/server/src/tools/importers/scheduler.ts) and [import lifecycle](apps/server/src/tools/importers/importer.ts) for implementation details.
+Imports can also fail on API errors or exhausted retries. Duplicate detection limits overlap with existing history, but a small number of duplicates can still occur.
+
+## Playlist tracking
+
+Open **Playlists**, paste a Spotify playlist link (an `open.spotify.com` URL, a `spotify:playlist:` URI, or a bare playlist id), and confirm. OnRecord snapshots the playlist, then re-checks it about every ten minutes and records every track that is **added** or **removed**, with names and artists.
+
+- Reorders and duplicate copies of a track already present are not reported as changes.
+- The history keeps the last 50 changes per playlist, and **Check now** forces an immediate check.
+- Public playlists work for every signed-in user. Tracking private or collaborative playlists requires extra scopes: use **Reconnect** under **Spotify connection** in Settings once.
+- Checks respect the same rate limits as everything else; if Spotify asks the app to pause, tracking pauses with it.
 
 ## Troubleshooting
 
-**Spotify asks the app to pause.** Bulk requests wait for the recorded cooldown. Login uses its own queue, but if Spotify returns a real `429` there too, the app reports a retry time. Wait, then begin a fresh sign-in rather than refreshing an old callback. Restarting the container or deleting the cooldown file does not reset Spotify's quota.
+**Spotify asks the app to pause.** Requests wait out the recorded cooldown, then continue automatically. Restarting the container or deleting the cooldown file does not reset Spotify's quota; only waiting does.
 
-**Login fails or the browser cannot retrieve global preferences.** Check `APP_URL`, the registered redirect URI, and reverse-proxy routing to `/api`. In a source installation, `API_ENDPOINT` must reach the backend from the user's browser, not point to the frontend. Check explicit CORS origins if configured.
+**Login fails.** Check the registered redirect URI, `APP_URL`, and your proxy's routing to `/api`. If Spotify itself returned a rate limit during sign-in, wait for the reported time and start a fresh sign-in.
 
-**Listening history stops updating.** If Spotify access was revoked, use **Reconnect** under **Spotify connection** in Settings. Check server logs for API errors and cooldowns.
+**Listening history stops updating.** If you revoked Spotify access, use **Reconnect** under **Spotify connection** in Settings. Server logs show API errors and cooldowns.
 
-**An import is missing files or cannot start.** Check that `/tmp/imports` is mounted persistently and writable by the container's UID/GID. Also check free disk space and proxy upload limits. Running jobs interrupted by a restart need a manual retry.
+**An import cannot start or files are missing.** Verify `/tmp/imports` is mounted persistently and writable by the container's user, and check disk space and proxy upload limits.
 
-**Statistics use the wrong timezone.** Change your timezone in Settings. `TIMEZONE` is the server-side default; history timestamps and other local displays use the device timezone. Stored timestamps remain UTC.
+**Statistics use the wrong timezone.** Set your timezone in Settings. `TIMEZONE` is only the server-side default; history timestamps use your device's timezone and are stored in UTC.
 
 ## Development
 
 Use Node.js 24 and pnpm 10.17.1, matching the [Dockerfile](Dockerfile) and CI:
 
-```sh
+```
 git clone https://github.com/aserper/OnRecord.git
 cd OnRecord
 npm install --global pnpm@10.17.1
@@ -211,14 +198,12 @@ pnpm --filter @onrecord/server build
 pnpm --filter @onrecord/client build
 ```
 
-To run from source, provide MongoDB and export the server environment variables, including `CLIENT_ENDPOINT`, `API_ENDPOINT`, and the Spotify credentials. Run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`.
-
-Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`. Copy `variables-template.js` to `variables.js` in that directory and replace `__API_ENDPOINT__` with the public backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` is for a proxy that mounts the backend under `/api`.
+To run from source, point `CLIENT_ENDPOINT` and `API_ENDPOINT` at your local setup, provide the Spotify credentials, run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`. Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`, copying `variables-template.js` to `variables.js` and replacing `__API_ENDPOINT__` with the backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` applies when a proxy mounts the backend under `/api`.
 
 ## Support and credits
 
-Report fork bugs and feature requests in [aserper/OnRecord issues](https://github.com/aserper/OnRecord/issues). Include the image digest or commit, relevant configuration with secrets removed, and redacted logs.
+Found a bug or want a feature? [Open an issue](https://github.com/aserper/OnRecord/issues) with the image digest or commit, your configuration with secrets removed, and redacted logs.
 
-- **Upstream project and support:** [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify) and [upstream issues](https://github.com/Yooooomi/your_spotify/issues). Please report fork-specific problems here first.
-- **Container foundation:** [LinuxServer Your Spotify](https://github.com/linuxserver/docker-your_spotify).
+- **Upstream project:** [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify) and its [issues](https://github.com/Yooooomi/your_spotify/issues) for upstream-specific questions.
+- **Container base:** [LinuxServer Your Spotify](https://github.com/linuxserver/docker-your_spotify).
 - **License:** [GNU GPL v3](LICENSE), retained from upstream.
