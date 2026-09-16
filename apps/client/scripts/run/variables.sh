@@ -22,7 +22,7 @@ echo "Setting API Endpoint to '$API_ENDPOINT'"
 sed -i "s;__API_ENDPOINT__;$API_ENDPOINT;g" "$VAR_PATH/variables.js"
 
 # Editing meta image urls
-sed -i "s;image\" content=\"\(.[^\"]*\);image\" content=\"$API_ENDPOINT/static/your_spotify_1200.png;g" "$VAR_PATH/index.html"
+sed -i "s;image\" content=\"\(.[^\"]*\);image\" content=\"$API_ENDPOINT/brand/social.png;g" "$VAR_PATH/index.html"
 
 # Restricting connect-src to API_ENDPOINT with a trailing /, or to * if hostname has an _
 CSP_CONNECT_SRC=$API_ENDPOINT
