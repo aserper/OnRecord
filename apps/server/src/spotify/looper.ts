@@ -8,7 +8,7 @@ import { HttpError } from "../tools/apis/queueHttpClient";
 import { SpotifyAPI } from "../tools/apis/spotifyApi";
 import { logger } from "../tools/logger";
 import { retryPromise, wait } from "../tools/misc";
-import { getTracksAlbumsArtists, storeIterationOfLoop } from "./dbTools";
+import { getTracksAlbumsFromSupplied, storeIterationOfLoop } from "./dbTools";
 
 const RETRY = 10;
 
@@ -49,10 +49,6 @@ const loop = async (user: User) => {
   }
 
   const spotifyTracks = items.map((e) => e.track);
-  const { tracks, albums, artists } = await getTracksAlbumsArtists(
-    user._id.toString(),
-    spotifyTracks,
-  );
   const infos: Omit<Infos, "owner">[] = [];
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i]!;
@@ -82,16 +78,20 @@ const loop = async (user: User) => {
       });
     }
   }
+  const { tracks, albums } = await getTracksAlbumsFromSupplied(
+    user._id.toString(),
+    spotifyTracks,
+  );
   await storeIterationOfLoop(
     user._id.toString(),
     lastTimestamp,
     tracks,
     albums,
-    artists,
+    [],
     infos,
   );
   logger.info(
-    `[${user.username}]: ${tracks.length} tracks, ${albums.length} albums, ${artists.length} artists`,
+    `[${user.username}]: stored ${infos.length} plays immediately (${tracks.length} tracks, ${albums.length} albums)`,
   );
 };
 

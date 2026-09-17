@@ -16,6 +16,7 @@ import { logger } from "../tools/logger";
 import { Metrics } from "../tools/metrics";
 import { minOfArray, uniqBy } from "../tools/misc";
 import { compact } from "../tools/utils";
+import { albumsFromSuppliedTracks } from "./suppliedMetadata";
 
 export const getTracks = async (
   userId: string,
@@ -47,6 +48,41 @@ export const getTracks = async (
   Metrics.ingestedTracksTotal.inc({ user: userId }, tracks.length);
 
   return tracks;
+};
+
+/**
+ * Builds missing track and album records entirely from a recently-played
+ * payload. This path intentionally performs no Spotify catalog requests.
+ */
+export const getTracksAlbumsFromSupplied = async (
+  userId: string,
+  spotifyTracks: SpotifyTrack[],
+) => {
+  const trackIds = [...new Set(spotifyTracks.map((track) => track.id))];
+  const storedTracks: Track[] = await TrackModel.find({
+    id: { $in: trackIds },
+  });
+  const storedTrackIds = new Set(storedTracks.map((track) => track.id));
+  const missingTrackIds = trackIds.filter((id) => !storedTrackIds.has(id));
+  const tracks =
+    missingTrackIds.length > 0
+      ? await getTracks(userId, missingTrackIds, spotifyTracks)
+      : [];
+
+  const albumIds = [
+    ...new Set(spotifyTracks.map((track) => track.album.id.toString())),
+  ];
+  const storedAlbums: Album[] = await AlbumModel.find({
+    id: { $in: albumIds },
+  });
+  const storedAlbumIds = new Set(storedAlbums.map((album) => album.id));
+  const missingAlbumIds = new Set(
+    albumIds.filter((id) => !storedAlbumIds.has(id)),
+  );
+  const albums = albumsFromSuppliedTracks(spotifyTracks, missingAlbumIds);
+  Metrics.ingestedAlbumsTotal.inc({ user: userId }, albums.length);
+
+  return { tracks, albums };
 };
 
 export const getAlbums = async (userId: string, ids: string[]) => {
@@ -176,23 +212,24 @@ export async function storeIterationOfLoop(
   infos: Omit<Infos, "owner">[],
 ) {
   await longWriteDbLock.lock();
+  try {
+    await storeTrackAlbumArtist({ tracks, albums, artists });
 
-  await storeTrackAlbumArtist({ tracks, albums, artists });
+    await addTrackIdsToUser(userId, infos);
 
-  await addTrackIdsToUser(userId, infos);
+    await storeInUser("_id", new mongoose.Types.ObjectId(userId), {
+      lastTimestamp: iterationTimestamp,
+    });
 
-  await storeInUser("_id", new mongoose.Types.ObjectId(userId), {
-    lastTimestamp: iterationTimestamp,
-  });
+    const min = minOfArray(infos, (item) => item.played_at.getTime());
 
-  const min = minOfArray(infos, (item) => item.played_at.getTime());
-
-  if (min) {
-    const minInfo = infos[min.minIndex]?.played_at;
-    if (minInfo) {
-      await storeFirstListenedAtIfLess(userId, minInfo);
+    if (min) {
+      const minInfo = infos[min.minIndex]?.played_at;
+      if (minInfo) {
+        await storeFirstListenedAtIfLess(userId, minInfo);
+      }
     }
+  } finally {
+    longWriteDbLock.unlock();
   }
-
-  longWriteDbLock.unlock();
 }
