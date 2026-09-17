@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer, RequestListener } from "node:http";
 import test from "node:test";
 
-import { QueuedHttpClient, RequestPacer } from "./queueHttpClient";
+import { QueuedHttpClient } from "./queueHttpClient";
 import { RateLimitState, SpotifyRateLimitError } from "./rateLimitState";
 
 async function withServer(
@@ -21,23 +21,6 @@ async function withServer(
     );
   }
 }
-
-test("a shared request pacer reserves aggregate request slots", async () => {
-  let now = 1_000;
-  const waits: number[] = [];
-  const pacer = new RequestPacer(
-    () => now,
-    async (ms) => {
-      waits.push(ms);
-      now += ms;
-    },
-  );
-
-  await pacer.wait(200);
-  await pacer.wait(200);
-  await pacer.wait(200);
-  assert.deepEqual(waits, [200, 200]);
-});
 
 test("a 429 is requeued and resolves only after a successful response", async () => {
   let requests = 0;

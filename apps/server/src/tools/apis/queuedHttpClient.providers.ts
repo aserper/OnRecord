@@ -6,7 +6,7 @@ export const spotifyHttpClientFactory = new QueuedHttpClientFactory({
   baseURL: "https://api.spotify.com/v1",
   headers: { "Content-Type": "application/json" },
   rateLimitState: spotifyRateLimitState,
-  minimumIntervalMs: getWithDefault("SPOTIFY_REQUEST_INTERVAL_MS", 200),
+  minimumIntervalMs: getWithDefault("SPOTIFY_REQUEST_INTERVAL_MS", 1000),
   name: "Spotify primary API",
 });
 

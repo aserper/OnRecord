@@ -24,11 +24,6 @@ const validators = {
     z.number().min(0).optional(),
   ),
   SPOTIFY_COOLDOWN_FILE: z.string().optional(),
-  SPOTIFY_EXTRA_APPS: z.string().optional(),
-  SPOTIFY_EXTRA_APP_INTERVAL_MS: z.preprocess(
-    toNumber,
-    z.number().min(0).optional(),
-  ),
 } as const;
 
 const validatedEnv: Record<string, any> = {};

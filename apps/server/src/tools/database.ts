@@ -21,7 +21,6 @@ import {
   getTracks,
   storeTrackAlbumArtist,
 } from "../spotify/dbTools";
-import { getCatalogPool } from "./apis/catalogPool";
 import { spotifyRateLimitState } from "./apis/rateLimitState";
 import { getWithDefault } from "./env";
 import { longWriteDbLock } from "./lock";
@@ -69,12 +68,8 @@ export class Database {
       if (missing === 0) {
         return;
       }
-      const now = Date.now();
-      const cooldownDeadline = Math.max(
-        spotifyRateLimitState.getDeadline(),
-        getCatalogPool().getBlockingDeadline(now),
-      );
-      const cooldownRemaining = cooldownDeadline - now;
+      const cooldownRemaining =
+        spotifyRateLimitState.getDeadline() - Date.now();
       if (cooldownRemaining > 60_000) {
         logger.warn(
           `Spotify cooldown active for another ${Math.round(

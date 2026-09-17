@@ -1,14 +1,6 @@
-import { createHash } from "node:crypto";
-import { existsSync, unlinkSync } from "node:fs";
-import { dirname, join } from "node:path";
-
 import { get, getWithDefault } from "../env";
 import { logger } from "../logger";
-import {
-  QueuedHttpClient,
-  QueuedHttpClientFactory,
-  RequestPacer,
-} from "./queueHttpClient";
+import { QueuedHttpClient, QueuedHttpClientFactory } from "./queueHttpClient";
 import { RateLimitState, spotifyRateLimitState } from "./rateLimitState";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
@@ -18,75 +10,6 @@ const APP_FAILURE_COOLDOWN_MS = 600_000;
 export interface SpotifyAppCredentials {
   clientId: string;
   clientSecret: string;
-}
-
-/**
- * Parses SPOTIFY_EXTRA_APPS: comma-separated `clientId:clientSecret` pairs.
- * Invalid entries are skipped so one bad value cannot disable the others.
- */
-export function parseExtraApps(
-  raw: string | undefined,
-): SpotifyAppCredentials[] {
-  if (!raw) {
-    return [];
-  }
-  const apps: SpotifyAppCredentials[] = [];
-  for (const part of raw.split(",")) {
-    const trimmed = part.trim();
-    if (!trimmed) {
-      continue;
-    }
-    const separator = trimmed.indexOf(":");
-    if (separator <= 0 || separator === trimmed.length - 1) {
-      logger.warn(
-        "Ignoring an invalid SPOTIFY_EXTRA_APPS entry (expected clientId:clientSecret)",
-      );
-      continue;
-    }
-    apps.push({
-      clientId: trimmed.slice(0, separator),
-      clientSecret: trimmed.slice(separator + 1),
-    });
-  }
-  return apps;
-}
-
-export function catalogCooldownFilePath(
-  base: string | undefined,
-  clientId: string,
-): string | undefined {
-  if (!base) {
-    return undefined;
-  }
-  const identity = createHash("sha256")
-    .update(clientId)
-    .digest("hex")
-    .slice(0, 16);
-  return join(dirname(base), `catalog-cooldown-${identity}.json`);
-}
-
-export function legacyCatalogCooldownFilePath(
-  base: string | undefined,
-  index: number,
-): string | undefined {
-  return base
-    ? join(dirname(base), `catalog-cooldown-${index}.json`)
-    : undefined;
-}
-
-/** Moves an index-based cooldown to a stable client-identity file exactly once. */
-export function catalogRateLimitState(
-  base: string | undefined,
-  clientId: string,
-  legacyIndex: number,
-): RateLimitState {
-  const state = new RateLimitState(catalogCooldownFilePath(base, clientId));
-  const legacyFile = legacyCatalogCooldownFilePath(base, legacyIndex);
-  if (legacyFile && existsSync(legacyFile)) {
-    state.registerDeadline(new RateLimitState(legacyFile).getDeadline());
-    unlinkSync(legacyFile);
-  }
-  return state;
 }
 
 interface CachedToken {
@@ -124,19 +47,20 @@ async function defaultFetchToken(
   };
 }
 
+/** A single app-only client for public Spotify catalog metadata. */
 export class CatalogApp {
   readonly label: string;
   readonly rateLimitState: RateLimitState;
   private readonly factory: QueuedHttpClientFactory;
   private token: CachedToken | null = null;
   private batchLookupsDisabled = false;
+  private readonly fetchToken: typeof defaultFetchToken;
 
   constructor(
     private readonly credentials: SpotifyAppCredentials,
     options: {
       rateLimitState: RateLimitState;
       minimumIntervalMs?: number;
-      requestPacer?: RequestPacer;
       fetchToken?: typeof defaultFetchToken;
     },
   ) {
@@ -147,13 +71,10 @@ export class CatalogApp {
       headers: { "Content-Type": "application/json" },
       rateLimitState: options.rateLimitState,
       minimumIntervalMs: options.minimumIntervalMs,
-      requestPacer: options.requestPacer,
       name: this.label,
     });
     this.fetchToken = options.fetchToken ?? defaultFetchToken;
   }
-
-  private fetchToken: typeof defaultFetchToken;
 
   availableAt(): number {
     return this.rateLimitState.getDeadline();
@@ -176,7 +97,6 @@ export class CatalogApp {
     return this.factory.createClient({ Authorization: `Bearer ${token}` });
   }
 
-  /** Cooldowns this app after a failure so the pool tries others first. */
   penalize() {
     this.rateLimitState.registerDelay(APP_FAILURE_COOLDOWN_MS);
     this.invalidateToken();
@@ -199,155 +119,50 @@ export class CatalogApp {
   }
 }
 
+/** Primary-app catalog access; intentionally has no credential rotation. */
 export class CatalogPool {
-  private cursor = 0;
-
-  constructor(private readonly apps: CatalogApp[]) {}
+  constructor(private readonly app: CatalogApp) {}
 
   get size(): number {
-    return this.apps.length;
+    return 1;
   }
 
-  /** Returns zero when at least one app can run now, otherwise the first deadline. */
   getBlockingDeadline(now = Date.now()): number {
-    if (this.apps.length === 0) {
-      return 0;
-    }
-    const deadlines = this.apps.map((app) => app.availableAt());
-    return deadlines.some((deadline) => deadline <= now)
-      ? 0
-      : Math.min(...deadlines);
+    const deadline = this.app.availableAt();
+    return deadline > now ? deadline : 0;
   }
 
   invalidateTokens() {
-    for (const app of this.apps) {
-      app.invalidateToken();
-    }
+    this.app.invalidateToken();
   }
 
-  /**
-   * Round-robins over apps that are not in a Spotify cooldown. When every
-   * app is cooling down, waits on the one with the earliest deadline rather
-   * than failing. Returns null when no extra apps are configured, so callers
-   * can fall back to the primary user-token client.
-   */
-  async acquire(): Promise<{
-    app: CatalogApp;
-    client: QueuedHttpClient;
-  } | null> {
-    if (this.apps.length === 0) {
-      return null;
-    }
-    const preferred = this.rotate(this.availableApps());
-
-    let lastError: unknown;
-    for (const app of preferred) {
-      try {
-        const client = await app.createClient();
-        return { app, client };
-      } catch (error) {
-        lastError = error;
-        logger.warn(
-          `Catalog app ${app.label} failed to authenticate; skipping it for ten minutes`,
-        );
-        app.penalize();
-      }
-    }
-    throw lastError ?? new Error("No catalog app could be used");
-  }
-
-  /** Acquires one independently queued client for every healthy Spotify app. */
   async acquireAll(): Promise<{ app: CatalogApp; client: QueuedHttpClient }[]> {
-    if (this.apps.length === 0) {
-      return [];
+    try {
+      return [{ app: this.app, client: await this.app.createClient() }];
+    } catch (error) {
+      logger.warn(
+        `Catalog app ${this.app.label} failed to authenticate; retrying after ten minutes`,
+      );
+      this.app.penalize();
+      throw error;
     }
-    const outcomes = await Promise.all(
-      this.availableApps().map(async (app) => {
-        try {
-          return { result: { app, client: await app.createClient() } };
-        } catch (error) {
-          logger.warn(
-            `Catalog app ${app.label} failed to authenticate; skipping it for ten minutes`,
-          );
-          app.penalize();
-          return { error };
-        }
-      }),
-    );
-    const acquired = outcomes.flatMap((outcome) =>
-      outcome.result ? [outcome.result] : [],
-    );
-    if (acquired.length > 0) {
-      return acquired;
-    }
-    const failed = outcomes.find((outcome) => outcome.error);
-    throw failed?.error ?? new Error("No catalog app could be used");
-  }
-
-  private availableApps(): CatalogApp[] {
-    const now = Date.now();
-    const ordered = [...this.apps].sort(
-      (a, b) => a.availableAt() - b.availableAt(),
-    );
-    const healthy = ordered.filter((app) => app.availableAt() <= now);
-    return healthy.length > 0 ? healthy : [ordered[0]!];
-  }
-
-  private rotate(candidates: CatalogApp[]): CatalogApp[] {
-    if (candidates.length <= 1) {
-      return candidates;
-    }
-    const start = this.cursor % candidates.length;
-    this.cursor = (this.cursor + 1) % candidates.length;
-    return [...candidates.slice(start), ...candidates.slice(0, start)];
   }
 }
 
 export function createCatalogPool(): CatalogPool {
-  const extraPacer = new RequestPacer();
   const primary = new CatalogApp(
     { clientId: get("SPOTIFY_PUBLIC")!, clientSecret: get("SPOTIFY_SECRET")! },
     {
       rateLimitState: spotifyRateLimitState,
-      minimumIntervalMs: get("SPOTIFY_REQUEST_INTERVAL_MS"),
+      minimumIntervalMs: getWithDefault("SPOTIFY_REQUEST_INTERVAL_MS", 1000),
     },
   );
-  const extras = parseExtraApps(get("SPOTIFY_EXTRA_APPS")).map(
-    (credentials, index) =>
-      new CatalogApp(credentials, {
-        rateLimitState: catalogRateLimitState(
-          get("SPOTIFY_COOLDOWN_FILE"),
-          credentials.clientId,
-          index + 1,
-        ),
-        minimumIntervalMs: getWithDefault(
-          "SPOTIFY_EXTRA_APP_INTERVAL_MS",
-          1000,
-        ),
-        requestPacer: extraPacer,
-      }),
-  );
-  for (const app of extras) {
-    const deadline = app.availableAt();
-    if (deadline > Date.now()) {
-      logger.warn(
-        `${app.label} cooldown finishes at ${new Date(deadline).toISOString()}`,
-      );
-    }
-  }
-  if (extras.length > 0) {
-    logger.info(
-      `Catalog request pool initialized with ${extras.length} extra Spotify app(s); primary app reserved for user data`,
-    );
-    return new CatalogPool(extras);
-  }
-  logger.info("Catalog request pool initialized with the primary Spotify app");
-  return new CatalogPool([primary]);
+  logger.info("Catalog requests use the primary Spotify app");
+  return new CatalogPool(primary);
 }
 
 let pool: CatalogPool | null = null;
 
-/** Shared catalog pool; extra apps take over completely when configured. */
 export function getCatalogPool(): CatalogPool {
   if (!pool) {
     pool = createCatalogPool();
