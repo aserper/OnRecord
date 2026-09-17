@@ -36,6 +36,14 @@ export class RateLimitState {
 
   registerDelay(delayMs: number) {
     const deadline = Date.now() + Math.max(0, delayMs);
+    return this.registerDeadline(deadline);
+  }
+
+  /** Registers an absolute deadline without losing precision during migration. */
+  registerDeadline(deadline: number) {
+    if (!Number.isFinite(deadline) || deadline < 0) {
+      return this.getDeadline();
+    }
     if (deadline <= this.getDeadline()) {
       return this.deadline;
     }

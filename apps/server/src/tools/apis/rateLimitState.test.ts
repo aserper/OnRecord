@@ -33,6 +33,19 @@ test("cooldown writes are persisted and monotonic", () => {
   }
 });
 
+test("absolute deadlines preserve their exact timestamp", () => {
+  const directory = mkdtempSync(join(tmpdir(), "onrecord-rate-limit-"));
+  const file = join(directory, "cooldown.json");
+  try {
+    const state = new RateLimitState(file);
+    const deadline = Date.now() + 123_456;
+    assert.equal(state.registerDeadline(deadline), deadline);
+    assert.equal(JSON.parse(readFileSync(file, "utf8")).deadline, deadline);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("a later persisted deadline extends a running process", () => {
   const directory = mkdtempSync(join(tmpdir(), "onrecord-rate-limit-"));
   const file = join(directory, "cooldown.json");

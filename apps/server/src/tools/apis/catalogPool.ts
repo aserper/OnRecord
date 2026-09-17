@@ -1,8 +1,14 @@
+import { createHash } from "node:crypto";
+import { existsSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 import { get, getWithDefault } from "../env";
 import { logger } from "../logger";
-import { QueuedHttpClient, QueuedHttpClientFactory } from "./queueHttpClient";
+import {
+  QueuedHttpClient,
+  QueuedHttpClientFactory,
+  RequestPacer,
+} from "./queueHttpClient";
 import { RateLimitState, spotifyRateLimitState } from "./rateLimitState";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
@@ -47,12 +53,40 @@ export function parseExtraApps(
 
 export function catalogCooldownFilePath(
   base: string | undefined,
-  index: number,
+  clientId: string,
 ): string | undefined {
   if (!base) {
     return undefined;
   }
-  return join(dirname(base), `catalog-cooldown-${index}.json`);
+  const identity = createHash("sha256")
+    .update(clientId)
+    .digest("hex")
+    .slice(0, 16);
+  return join(dirname(base), `catalog-cooldown-${identity}.json`);
+}
+
+export function legacyCatalogCooldownFilePath(
+  base: string | undefined,
+  index: number,
+): string | undefined {
+  return base
+    ? join(dirname(base), `catalog-cooldown-${index}.json`)
+    : undefined;
+}
+
+/** Moves an index-based cooldown to a stable client-identity file exactly once. */
+export function catalogRateLimitState(
+  base: string | undefined,
+  clientId: string,
+  legacyIndex: number,
+): RateLimitState {
+  const state = new RateLimitState(catalogCooldownFilePath(base, clientId));
+  const legacyFile = legacyCatalogCooldownFilePath(base, legacyIndex);
+  if (legacyFile && existsSync(legacyFile)) {
+    state.registerDeadline(new RateLimitState(legacyFile).getDeadline());
+    unlinkSync(legacyFile);
+  }
+  return state;
 }
 
 interface CachedToken {
@@ -102,6 +136,7 @@ export class CatalogApp {
     options: {
       rateLimitState: RateLimitState;
       minimumIntervalMs?: number;
+      requestPacer?: RequestPacer;
       fetchToken?: typeof defaultFetchToken;
     },
   ) {
@@ -112,6 +147,8 @@ export class CatalogApp {
       headers: { "Content-Type": "application/json" },
       rateLimitState: options.rateLimitState,
       minimumIntervalMs: options.minimumIntervalMs,
+      requestPacer: options.requestPacer,
+      name: this.label,
     });
     this.fetchToken = options.fetchToken ?? defaultFetchToken;
   }
@@ -267,6 +304,7 @@ export class CatalogPool {
 }
 
 export function createCatalogPool(): CatalogPool {
+  const extraPacer = new RequestPacer();
   const primary = new CatalogApp(
     { clientId: get("SPOTIFY_PUBLIC")!, clientSecret: get("SPOTIFY_SECRET")! },
     {
@@ -277,15 +315,26 @@ export function createCatalogPool(): CatalogPool {
   const extras = parseExtraApps(get("SPOTIFY_EXTRA_APPS")).map(
     (credentials, index) =>
       new CatalogApp(credentials, {
-        rateLimitState: new RateLimitState(
-          catalogCooldownFilePath(get("SPOTIFY_COOLDOWN_FILE"), index + 1),
+        rateLimitState: catalogRateLimitState(
+          get("SPOTIFY_COOLDOWN_FILE"),
+          credentials.clientId,
+          index + 1,
         ),
         minimumIntervalMs: getWithDefault(
           "SPOTIFY_EXTRA_APP_INTERVAL_MS",
           1000,
         ),
+        requestPacer: extraPacer,
       }),
   );
+  for (const app of extras) {
+    const deadline = app.availableAt();
+    if (deadline > Date.now()) {
+      logger.warn(
+        `${app.label} cooldown finishes at ${new Date(deadline).toISOString()}`,
+      );
+    }
+  }
   if (extras.length > 0) {
     logger.info(
       `Catalog request pool initialized with ${extras.length} extra Spotify app(s); primary app reserved for user data`,

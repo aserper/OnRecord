@@ -131,7 +131,7 @@ The combined image derives `CLIENT_ENDPOINT` from `APP_URL` and serves the API u
 | `SPOTIFY_REQUEST_INTERVAL_MS` | `200` | Minimum interval in milliseconds between Spotify API requests; use it instead of the delay variables other forks document |
 | `SPOTIFY_COOLDOWN_FILE` | Unset | File used to persist the Spotify rate-limit deadline across restarts |
 | `SPOTIFY_EXTRA_APPS` | Unset | Additional Spotify app credentials (`clientId:clientSecret` pairs, comma-separated). When set, catalog imports use one worker per healthy extra app while the primary app is reserved for user-scoped live data. Create the extra apps in the Spotify dashboard; each app must comply with Spotify's developer terms. |
-| `SPOTIFY_EXTRA_APP_INTERVAL_MS` | `1000` | Minimum interval per extra catalog app. New Development Mode apps use single-item endpoints, so this safer pace avoids immediately exhausting their smaller rate budgets. |
+| `SPOTIFY_EXTRA_APP_INTERVAL_MS` | `1000` | Minimum interval across the complete extra-app pool. New Development Mode apps use single-item endpoints, so aggregate pacing avoids exhausting a developer/IP-level rate budget when several workers are active. |
 | `COOKIE_VALIDITY_MS` | `1h` | Sign-in token lifetime; a numeric millisecond value also makes the browser cookie persistent |
 | `MAX_IMPORT_CACHE_SIZE` | `100000` | Import cache entries; a larger cache uses more memory and sends fewer requests to Spotify |
 | `CORS` | Origin of `CLIENT_ENDPOINT` | Comma-separated additional browser origins |
@@ -145,6 +145,7 @@ Notes:
 - `COOKIE_VALIDITY_MS=2592000000` (30 days) keeps you signed in and reduces how often Spotify re-authentication is needed.
 - `CORS` rarely needs an override. If you set it, list exact origins such as `https://music.example.com` without paths, trailing slashes, or default ports.
 - Spotify removed bulk catalog endpoints from newly created Development Mode apps in February 2026. OnRecord detects that restriction and uses supported single-item endpoints for those apps; older or Extended Quota Mode apps retain efficient bulk requests.
+- Each extra app persists Spotify's exact `Retry-After` deadline in a client-identity-specific cooldown file. Reordering `SPOTIFY_EXTRA_APPS` therefore cannot attach a cooldown to the wrong app.
 
 ## History imports
 

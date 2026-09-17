@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 import {
   CatalogApp,
   CatalogPool,
   catalogCooldownFilePath,
+  catalogRateLimitState,
+  legacyCatalogCooldownFilePath,
   parseExtraApps,
 } from "./catalogPool";
 import { RateLimitState } from "./rateLimitState";
@@ -50,12 +55,37 @@ test("parseExtraApps handles unset input", () => {
   assert.deepEqual(parseExtraApps(""), []);
 });
 
-test("catalogCooldownFilePath sits beside the base file", () => {
-  assert.equal(
-    catalogCooldownFilePath("/config/spotify-cooldown.json", 2),
-    "/config/catalog-cooldown-2.json",
+test("catalog cooldown paths are stable per client identity", () => {
+  const first = catalogCooldownFilePath(
+    "/config/spotify-cooldown.json",
+    "client-a",
   );
-  assert.equal(catalogCooldownFilePath(undefined, 1), undefined);
+  assert.equal(
+    first,
+    catalogCooldownFilePath("/config/spotify-cooldown.json", "client-a"),
+  );
+  assert.notEqual(
+    first,
+    catalogCooldownFilePath("/config/spotify-cooldown.json", "client-b"),
+  );
+  assert.match(first!, /^\/config\/catalog-cooldown-[a-f0-9]{16}\.json$/);
+  assert.equal(catalogCooldownFilePath(undefined, "client-a"), undefined);
+});
+
+test("legacy cooldown migration preserves the exact deadline once", () => {
+  const directory = mkdtempSync(join(tmpdir(), "onrecord-catalog-pool-"));
+  const base = join(directory, "spotify-cooldown.json");
+  const legacy = legacyCatalogCooldownFilePath(base, 1)!;
+  const deadline = Date.now() + 123_456;
+  try {
+    writeFileSync(legacy, JSON.stringify({ deadline }));
+    const state = catalogRateLimitState(base, "client-a", 1);
+    assert.equal(state.getDeadline(), deadline);
+    assert.equal(existsSync(legacy), false);
+    assert.equal(existsSync(catalogCooldownFilePath(base, "client-a")!), true);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("blocking deadline is zero when any app is healthy", () => {

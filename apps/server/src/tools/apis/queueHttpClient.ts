@@ -1,4 +1,24 @@
+import { logger } from "../logger";
 import { RateLimitState, SpotifyRateLimitError } from "./rateLimitState";
+
+export class RequestPacer {
+  private nextRequestAt = 0;
+
+  constructor(
+    private readonly clock = () => Date.now(),
+    private readonly sleeper = (ms: number) =>
+      new Promise<void>((resolve) => setTimeout(resolve, ms)),
+  ) {}
+
+  async wait(minimumIntervalMs: number) {
+    const now = this.clock();
+    const requestAt = Math.max(now, this.nextRequestAt);
+    this.nextRequestAt = requestAt + minimumIntervalMs;
+    if (requestAt > now) {
+      await this.sleeper(requestAt - now);
+    }
+  }
+}
 
 export type RequestPriority = "normal" | "high";
 
@@ -73,6 +93,8 @@ export class QueuedHttpClientFactory {
       headers: Record<string, string>;
       rateLimitState?: RateLimitState;
       minimumIntervalMs?: number;
+      requestPacer?: RequestPacer;
+      name?: string;
     },
   ) {}
 
@@ -84,6 +106,8 @@ export class QueuedHttpClientFactory {
       this.queueState,
       this.options.rateLimitState,
       this.options.minimumIntervalMs,
+      this.options.requestPacer,
+      this.options.name,
     );
   }
 }
@@ -95,6 +119,8 @@ export class QueuedHttpClient {
     private readonly queueState: QueueState = createQueueState(),
     private readonly rateLimitState?: RateLimitState,
     private readonly minimumIntervalMs = 0,
+    private readonly requestPacer?: RequestPacer,
+    private readonly name = "HTTP client",
   ) {}
 
   request<T = any>(
@@ -206,6 +232,11 @@ export class QueuedHttpClient {
 
       const retryAfterMs = this.parseRetryAfterHeader(response);
       const retryAt = this.rateLimitState?.registerDelay(retryAfterMs);
+      if (retryAt) {
+        logger.warn(
+          `${this.name} rate limited until ${new Date(retryAt).toISOString()}`,
+        );
+      }
 
       if (queueItem.config.failFastOnRateLimit && retryAt) {
         throw new SpotifyRateLimitError(retryAt);
@@ -308,6 +339,10 @@ export class QueuedHttpClient {
   }
 
   private async waitForRequestInterval() {
+    if (this.requestPacer) {
+      await this.requestPacer.wait(this.minimumIntervalMs);
+      return;
+    }
     const remaining =
       this.queueState.lastRequestAt + this.minimumIntervalMs - Date.now();
     if (remaining > 0) {
