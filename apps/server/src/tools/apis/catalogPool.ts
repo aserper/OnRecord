@@ -1,6 +1,6 @@
 import { dirname, join } from "node:path";
 
-import { get } from "../env";
+import { get, getWithDefault } from "../env";
 import { logger } from "../logger";
 import { QueuedHttpClient, QueuedHttpClientFactory } from "./queueHttpClient";
 import { RateLimitState, spotifyRateLimitState } from "./rateLimitState";
@@ -171,6 +171,17 @@ export class CatalogPool {
     return this.apps.length;
   }
 
+  /** Returns zero when at least one app can run now, otherwise the first deadline. */
+  getBlockingDeadline(now = Date.now()): number {
+    if (this.apps.length === 0) {
+      return 0;
+    }
+    const deadlines = this.apps.map((app) => app.availableAt());
+    return deadlines.some((deadline) => deadline <= now)
+      ? 0
+      : Math.min(...deadlines);
+  }
+
   invalidateTokens() {
     for (const app of this.apps) {
       app.invalidateToken();
@@ -269,18 +280,25 @@ export function createCatalogPool(): CatalogPool {
         rateLimitState: new RateLimitState(
           catalogCooldownFilePath(get("SPOTIFY_COOLDOWN_FILE"), index + 1),
         ),
-        minimumIntervalMs: get("SPOTIFY_REQUEST_INTERVAL_MS"),
+        minimumIntervalMs: getWithDefault(
+          "SPOTIFY_EXTRA_APP_INTERVAL_MS",
+          1000,
+        ),
       }),
   );
-  logger.info(
-    `Catalog request pool initialized with ${1 + extras.length} Spotify app(s) (${extras.length} extra)`,
-  );
-  return new CatalogPool([primary, ...extras]);
+  if (extras.length > 0) {
+    logger.info(
+      `Catalog request pool initialized with ${extras.length} extra Spotify app(s); primary app reserved for user data`,
+    );
+    return new CatalogPool(extras);
+  }
+  logger.info("Catalog request pool initialized with the primary Spotify app");
+  return new CatalogPool([primary]);
 }
 
 let pool: CatalogPool | null = null;
 
-/** Shared primary-plus-extra Spotify catalog pool. */
+/** Shared catalog pool; extra apps take over completely when configured. */
 export function getCatalogPool(): CatalogPool {
   if (!pool) {
     pool = createCatalogPool();

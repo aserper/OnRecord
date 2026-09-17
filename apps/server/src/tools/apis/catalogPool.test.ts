@@ -58,6 +58,22 @@ test("catalogCooldownFilePath sits beside the base file", () => {
   assert.equal(catalogCooldownFilePath(undefined, 1), undefined);
 });
 
+test("blocking deadline is zero when any app is healthy", () => {
+  const cooling = makeApp(1);
+  cooling.rateLimitState.registerDelay(60_000);
+  const pool = new CatalogPool([cooling, makeApp(2)]);
+  assert.equal(pool.getBlockingDeadline(), 0);
+});
+
+test("blocking deadline is the earliest deadline when every app cools", () => {
+  const soon = makeApp(1);
+  const later = makeApp(2);
+  soon.rateLimitState.registerDelay(60_000);
+  later.rateLimitState.registerDelay(600_000);
+  const pool = new CatalogPool([later, soon]);
+  assert.equal(pool.getBlockingDeadline(), soon.availableAt());
+});
+
 test("acquire returns null when no apps are configured", async () => {
   const pool = new CatalogPool([]);
   assert.equal(await pool.acquire(), null);
