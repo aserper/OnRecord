@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0 (2026-09-18)
+
+
+### Features
+
+* establish OnRecord build identity and release versioning ([#1](https://github.com/aserper/OnRecord/issues/1)) ([ae76cbe](https://github.com/aserper/OnRecord/commit/ae76cbe9ab6aa49e7bf218ac53a4699ff60f4402))
+
+## Changelog
+
 All notable changes to OnRecord are documented here by Release Please.
 
 ## Unreleased
