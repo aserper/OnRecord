@@ -24,16 +24,88 @@
 
 .versionwrapper {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   margin-left: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.versionrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .version {
-  color: rgb(108, 108, 108);
-  transform: translateY(-1px);
+  color: #a8adb5;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.version a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.version a:hover,
+.refresh:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.update {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.refresh {
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.version:focus-visible,
+.version a:focus-visible,
+.update:focus-visible,
+.refresh:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+:global(body[data-design-world="programme"]:not(.dark-vars)) .version {
+  color: #615f58;
+}
+
+@media screen and (max-width: 960px) {
+  .version a,
+  .update,
+  .refresh {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .update {
+    min-width: 44px;
+  }
+
+  :global(body[data-design-world="programme"]:not(.dark-vars)) .version {
+    color: #a8adb5;
+  }
 }
 
 :global(body[data-design-world="atlas"]) .root {

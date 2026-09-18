@@ -1,7 +1,14 @@
 {
   "name": "@onrecord/root",
-  "version": "1.20.1",
+  "version": "0.1.0",
   "repository": "git@github.com:aserper/OnRecord.git",
   "author": "Timothee <timothee.boussus@gmail.com>",
-  "private": true
+  "private": true,
+  "scripts": {
+    "build:info": "node scripts/generate-build-info.mjs",
+    "check:versions": "node scripts/check-versions.mjs",
+    "lint:versioning": "apps/dev/node_modules/.bin/oxlint -c apps/dev/.oxlintrc.json scripts apps/client/rsbuild.config.ts apps/client/src/build-globals.d.ts apps/client/src/services/buildInfo.ts apps/client/src/services/buildInfo.test.mjs apps/client/src/components/Layout/Sider/BuildVersion.tsx apps/client/src/components/Layout/Sider/Sider.tsx apps/client/src/services/apis/api.ts apps/client/src/services/redux/modules/settings/reducer.ts apps/client/src/services/redux/modules/settings/selector.ts apps/client/src/services/redux/modules/settings/thunk.ts apps/server/rsbuild.config.ts apps/server/src/build-globals.d.ts apps/server/src/tools/version.ts apps/server/src/tools/version.test.ts apps/server/src/tools/buildInfo.ts apps/server/src/tools/buildInfo.test.ts apps/server/src/tools/apis/githubApi.ts apps/server/src/routes/index.ts",
+    "test:versioning": "node --test scripts/*.test.mjs && pnpm --filter @onrecord/server exec tsx --test src/tools/version.test.ts src/tools/buildInfo.test.ts",
+    "build": "pnpm check:versions && pnpm build:info && pnpm --filter @onrecord/client build && pnpm --filter @onrecord/server build"
+  }
 }

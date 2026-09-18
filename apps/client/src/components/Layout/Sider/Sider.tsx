@@ -1,5 +1,3 @@
-import { SystemUpdateAlt as UpdateIcon } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
 import clsx from "clsx";
 import { useContext } from "react";
 import { useSelector } from "react-redux";
@@ -8,16 +6,13 @@ import { useLocation } from "react-router-dom";
 import { useShareLink } from "../../../services/hooks/hooks";
 import { useNavigate } from "../../../services/hooks/useNavigate";
 import { alertMessage } from "../../../services/redux/modules/message/reducer";
-import {
-  selectUpdateAvailable,
-  selectVersion,
-} from "../../../services/redux/modules/settings/selector";
+import { selectBuildInfo } from "../../../services/redux/modules/settings/selector";
 import { selectUser } from "../../../services/redux/modules/user/selector";
 import { useAppDispatch } from "../../../services/redux/tools";
 import { Album, Artist, Track } from "../../../services/types";
 import SiderSearch from "../../SiderSearch";
-import Text from "../../Text";
 import { LayoutContext } from "../LayoutContext";
+import BuildVersion from "./BuildVersion";
 import SiderCategory from "./SiderCategory/SiderCategory";
 import SiderTitle from "./SiderTitle";
 import { useLinks } from "./useLinks";
@@ -68,8 +63,7 @@ export default function Sider({ className, isDrawer }: SiderProps) {
 
   const toCopy = useShareLink();
 
-  const version = useSelector(selectVersion);
-  const updateAvailable = useSelector(selectUpdateAvailable);
+  const buildInfo = useSelector(selectBuildInfo);
 
   const links = useLinks();
 
@@ -100,25 +94,7 @@ export default function Sider({ className, isDrawer }: SiderProps) {
           />
         ))}
       </nav>
-      <div className={s.versionwrapper}>
-        {version && (
-          <Text noStyle className={s.version} size="small">
-            v{version}
-          </Text>
-        )}
-        {updateAvailable && (
-          <Tooltip title="An update is available">
-            <a
-              href="https://github.com/Yooooomi/your_spotify/releases"
-              target="_blank"
-              rel="noreferrer">
-              <Text onDark size="normal">
-                <UpdateIcon fontSize="small" color="info" />
-              </Text>
-            </a>
-          </Tooltip>
-        )}
-      </div>
+      <BuildVersion backend={buildInfo} />
     </div>
   );
 }

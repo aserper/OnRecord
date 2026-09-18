@@ -1,85 +1,39 @@
----
-
-name: Release CI
+name: Release Please
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
 
 jobs:
-  build:
-    # Upstream publishing credentials and image namespaces do not belong to forks.
-    if: github.repository == 'Yooooomi/your_spotify'
-
+  release:
+    if: github.repository == 'aserper/OnRecord' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Docker metadata
-        id: docker-meta
-        uses: docker/metadata-action@v5
+      - uses: googleapis/release-please-action@v4
+        id: release
         with:
-          images: yooooomi/your_spotify # required dummy value, will not be used
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get current tag
-        id: tag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-
-      - name: Verify tag matches package.json before pushing
-        run: |
-          for PKG_PATH in "./package.json" "./apps/client/package.json" "./apps/server/package.json"; do
-            if [ -f "$PKG_PATH" ] && [ "$(node -p "require('$PKG_PATH').version")" != "${{ steps.tag.outputs.tag }}" ]; then
-              echo "Error: $PKG_PATH version doesn't match tag ${{ steps.tag.outputs.tag }}"
-              exit 1
-            fi
-          done
-
-      - name: Build and push client release
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.client.production
-          platforms: linux/amd64,linux/arm64
-          push: true
-          labels: ${{ steps.docker-meta.outputs.labels }}
-          tags: |
-            yooooomi/your_spotify_client:latest
-            yooooomi/your_spotify_client:${{ steps.tag.outputs.tag }}
-            ghcr.io/yooooomi/your_spotify_client:latest
-            ghcr.io/yooooomi/your_spotify_client:${{ steps.tag.outputs.tag }}
-
-      - name: Build and push server release
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.server.production
-          platforms: linux/amd64,linux/arm64
-          push: true
-          labels: ${{ steps.docker-meta.outputs.labels }}
-          tags: |
-            yooooomi/your_spotify_server:latest
-            yooooomi/your_spotify_server:${{ steps.tag.outputs.tag }}
-            ghcr.io/yooooomi/your_spotify_server:latest
-            ghcr.io/yooooomi/your_spotify_server:${{ steps.tag.outputs.tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: master
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+  publish:
+    needs: release
+    if: needs.release.outputs.created == 'true'
+    uses: ./.github/workflows/publish.yml
+    with:
+      channel: stable
+      ref: ${{ needs.release.outputs.tag }}
+    secrets: inherit

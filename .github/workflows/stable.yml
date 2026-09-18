@@ -1,0 +1,21 @@
+name: Publish stable tag
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing stable tag, e.g. v0.1.0 (never a branch or SHA)'
+        required: true
+        type: string
+permissions:
+  contents: read
+  packages: write
+jobs:
+  publish:
+    if: github.repository == 'aserper/OnRecord'
+    uses: ./.github/workflows/publish.yml
+    with:
+      channel: stable
+      ref: ${{ inputs.tag || github.ref_name }}
+    secrets: inherit

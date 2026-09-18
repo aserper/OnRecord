@@ -9,3 +9,6 @@
 node_modules
 db_data
 *.log
+
+# Generated once per build
+/build-info.json

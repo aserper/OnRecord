@@ -1,0 +1,235 @@
+name: Reusable verified container publish
+on:
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      publish:
+        default: true
+        type: boolean
+permissions:
+  contents: read
+  packages: write
+
+# Serialize every publisher, including release-created and manual/tag retries.
+concurrency:
+  group: onrecord-container-${{ inputs.publish && 'publish' || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      ONRECORD_CHANNEL: ${{ inputs.channel }}
+      REQUESTED_REF: ${{ inputs.ref }}
+    steps:
+      - name: Validate requested identity before checkout
+        shell: bash
+        run: |
+          case "$ONRECORD_CHANNEL" in
+            stable) [[ "$REQUESTED_REF" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ;;
+            edge) [[ "$REQUESTED_REF" =~ ^[0-9a-f]{40}$ ]] ;;
+            *) exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.channel == 'stable' && format('refs/tags/{0}', inputs.ref) || inputs.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test publishing policy
+        run: |
+          python -m pip install PyYAML==6.0.2
+          python .github/workflows/test_release_contract.py
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Establish one build identity
+        id: identity
+        shell: bash
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          DISPLAY_VERSION="$VERSION-dev"
+          COMMIT=$(git rev-parse HEAD)
+          BUILT_AT=$(node -p 'new Date().toISOString()')
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/onrecord"
+          TAG=""
+          IMMUTABLE="sha-$COMMIT"
+          # The moving edge alias is promoted only after build/verification.
+          TAGS="$IMAGE:$IMMUTABLE"
+          if [[ "$ONRECORD_CHANNEL" == stable ]]; then
+            [[ "$REQUESTED_REF" == "v$VERSION" ]]
+            [[ "$(git rev-parse "refs/tags/$REQUESTED_REF^{commit}")" == "$COMMIT" ]]
+            git merge-base --is-ancestor "$COMMIT" origin/master
+            TAG="$REQUESTED_REF"
+            DISPLAY_VERSION="$VERSION"
+            IMMUTABLE="sha-$COMMIT-stable"
+            TAGS="$IMAGE:$VERSION,$IMAGE:latest,$IMAGE:$IMMUTABLE"
+          fi
+          {
+            printf 'ONRECORD_VERSION=%s\n' "$VERSION"
+            printf 'DISPLAY_VERSION=%s\n' "$DISPLAY_VERSION"
+            printf 'ONRECORD_COMMIT=%s\n' "$COMMIT"
+            printf 'ONRECORD_BUILT_AT=%s\n' "$BUILT_AT"
+            printf 'ONRECORD_TAG=%s\n' "$TAG"
+            printf 'IMAGE=%s\n' "$IMAGE"
+            printf 'IMMUTABLE=%s\n' "$IMMUTABLE"
+          } >> "$GITHUB_ENV"
+          printf 'tags=%s\n' "$TAGS" >> "$GITHUB_OUTPUT"
+      - run: pnpm install --frozen-lockfile
+      - name: Check versions and generate shared metadata
+        run: |
+          node scripts/check-versions.mjs
+          node scripts/generate-build-info.mjs
+      - run: pnpm lint:versioning
+      - run: pnpm test:versioning
+      - run: pnpm --filter @onrecord/client test
+      - run: pnpm --filter @onrecord/server test
+      - run: pnpm --filter @onrecord/server typecheck
+      - run: pnpm --filter @onrecord/client typecheck
+      - run: pnpm --filter @onrecord/server build
+      - run: pnpm --filter @onrecord/client build
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: inputs.publish
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Refuse immutable overwrite and stable rollback
+        id: guard
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: python
+        run: |
+          import base64, json, os, re, urllib.request, urllib.error
+          repo = os.environ['IMAGE'].removeprefix('ghcr.io/')
+          basic = base64.b64encode((os.environ['GITHUB_ACTOR'] + ':' + os.environ['GH_TOKEN']).encode()).decode()
+          request = urllib.request.Request('https://ghcr.io/token?service=ghcr.io&scope=repository:' + repo + ':pull', headers={'Authorization': 'Basic ' + basic})
+          token = json.load(urllib.request.urlopen(request))['token']
+          accept = ', '.join(['application/vnd.oci.image.index.v1+json', 'application/vnd.docker.distribution.manifest.list.v2+json', 'application/vnd.oci.image.manifest.v1+json', 'application/vnd.docker.distribution.manifest.v2+json'])
+          def get(kind, ref):
+              request = urllib.request.Request('https://ghcr.io/v2/' + repo + '/' + kind + '/' + ref, headers={'Authorization': 'Bearer ' + token, 'Accept': accept})
+              try:
+                  with urllib.request.urlopen(request) as response:
+                      return json.load(response), response.headers.get('Docker-Content-Digest')
+              except urllib.error.HTTPError as error:
+                  if error.code == 404:
+                      return None, None
+                  raise
+          def labels(manifest):
+              assert manifest and 'manifests' in manifest, 'Expected multiarchitecture index'
+              platforms = {m['platform']['architecture']: m for m in manifest['manifests'] if m.get('platform', {}).get('os') == 'linux'}
+              assert {'amd64', 'arm64'} <= platforms.keys(), 'Missing required architecture'
+              result = []
+              for arch in ('amd64', 'arm64'):
+                  child, _ = get('manifests', platforms[arch]['digest'])
+                  config, _ = get('blobs', child['config']['digest'])
+                  result.append(config['config']['Labels'])
+              return result
+          stable = os.environ['ONRECORD_CHANNEL'] == 'stable'
+          version = os.environ['ONRECORD_VERSION']
+          immutable, immutable_digest = get('manifests', os.environ['IMMUTABLE'])
+          existing, digest = get('manifests', version) if stable else (immutable, immutable_digest)
+          for candidate in (existing, immutable):
+              if candidate:
+                  for label in labels(candidate):
+                      assert label['org.opencontainers.image.revision'] == os.environ['ONRECORD_COMMIT'], 'Refusing different source under immutable tag'
+                      assert label['org.opencontainers.image.version'] == (version if stable else version + '-dev'), 'Version mismatch'
+                      assert label['io.onrecord.channel'] == os.environ['ONRECORD_CHANNEL'], 'Channel mismatch'
+          if existing or immutable:
+              assert existing and immutable and digest == immutable_digest, 'Partial/inconsistent publish: repair by digest after review, never rebuild'
+              print('Verified existing identity; skip rebuild and leave moving channel untouched.')
+          if stable and not existing:
+              latest, _ = get('manifests', 'latest')
+              if latest:
+                  for label in labels(latest):
+                      # Legacy latest may be edge; only stable labels define a release ordering.
+                      if label.get('io.onrecord.channel') == 'stable':
+                          old = label['org.opencontainers.image.version']
+                          assert re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', old)
+                          assert tuple(map(int, version.split('.'))) > tuple(map(int, old.split('.'))), 'Refusing stable latest rollback'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('exists=' + str(bool(existing)).lower() + '\n')
+      - name: Build both architectures (push only trusted refs)
+        uses: docker/build-push-action@v6
+        if: steps.guard.outputs.exists != 'true'
+        id: image
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ inputs.publish }}
+          tags: ${{ steps.identity.outputs.tags }}
+          build-args: |
+            ONRECORD_VERSION=${{ env.ONRECORD_VERSION }}
+            ONRECORD_COMMIT=${{ env.ONRECORD_COMMIT }}
+            ONRECORD_BUILT_AT=${{ env.ONRECORD_BUILT_AT }}
+            ONRECORD_CHANNEL=${{ env.ONRECORD_CHANNEL }}
+            ONRECORD_TAG=${{ env.ONRECORD_TAG }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ env.DISPLAY_VERSION }}
+            org.opencontainers.image.revision=${{ env.ONRECORD_COMMIT }}
+            org.opencontainers.image.created=${{ env.ONRECORD_BUILT_AT }}
+            io.onrecord.channel=${{ env.ONRECORD_CHANNEL }}
+          cache-from: type=gha,scope=${{ inputs.channel }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.channel }}
+      - name: Verify published index and tag digests
+        if: inputs.publish && steps.guard.outputs.exists != 'true'
+        env:
+          EXPECTED_DIGEST: ${{ steps.image.outputs.digest }}
+          PUBLISHED_TAGS: ${{ steps.identity.outputs.tags }}
+        shell: bash
+        run: |
+          IFS=',' read -ra TAGS <<< "$PUBLISHED_TAGS"
+          for TAG in "${TAGS[@]}"; do
+            DIGEST=$(docker buildx imagetools inspect "$TAG" --format '{{json .Manifest}}' | jq -r '.digest')
+            [[ "$DIGEST" == "$EXPECTED_DIGEST" ]]
+          done
+          docker buildx imagetools inspect "$IMAGE@$EXPECTED_DIGEST" --raw > /tmp/index.json
+          jq -e '[.manifests[].platform | select(.os == "linux") | .architecture] | contains(["amd64", "arm64"])' /tmp/index.json
+          printf 'Published `%s@%s` (%s)\n' "$IMAGE" "$EXPECTED_DIGEST" "$ONRECORD_CHANNEL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Promote edge only from current master
+        id: promote_edge
+        if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_DIGEST: ${{ steps.image.outputs.digest }}
+        shell: python
+        run: |
+          import json, os, re, subprocess, urllib.request
+          image = os.environ['IMAGE']
+          digest = os.environ['EXPECTED_DIGEST']
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', digest), 'Invalid image digest'
+          def require_current_master():
+              request = urllib.request.Request(
+                  'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/ref/heads/master',
+                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  head = json.load(response)['object']['sha']
+              assert head == os.environ['ONRECORD_COMMIT'], 'Refusing edge promotion: master changed; use the current master run'
+          # No long build between this live check and the alias write. All writers
+          # share the workflow lock; an old retry cannot overwrite a newer publisher.
+          require_current_master()
+          subprocess.run(['docker', 'buildx', 'imagetools', 'create', '--tag', image + ':edge', image + '@' + digest], check=True)
+          # GitHub refs and GHCR have no cross-service transaction. Detect a push
+          # during the write and fail, never attempt a rollback over newer work.
+          require_current_master()
+      - name: Verify edge alias digest
+        if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
+        env:
+          EXPECTED_DIGEST: ${{ steps.image.outputs.digest }}
+        shell: bash
+        run: |
+          DIGEST=$(docker buildx imagetools inspect "$IMAGE:edge" --format '{{json .Manifest}}' | jq -r '.digest')
+          [[ "$DIGEST" == "$EXPECTED_DIGEST" ]]

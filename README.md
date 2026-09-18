@@ -202,6 +202,15 @@ pnpm --filter @onrecord/client build
 
 To run from source, point `CLIENT_ENDPOINT` and `API_ENDPOINT` at your local setup, provide the Spotify credentials, run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`. Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`, copying `variables-template.js` to `variables.js` and replacing `__API_ENDPOINT__` with the backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` applies when a proxy mounts the backend under `/api`.
 
+For live development, `pnpm --filter @onrecord/client start` and
+`pnpm --filter @onrecord/server dev` create missing shared `build-info.json`
+before starting their build tools. Concurrent fresh starts reuse one atomically
+created identity. Published metadata or a changed local commit/version/dirty state
+is refreshed automatically; matching local metadata retains its timestamp. To
+force a new timestamp, stop both processes, run `pnpm build:info`, and restart
+them. Production builds should
+use root `pnpm build` (or generate metadata once before the two filtered builds).
+
 ## Support and credits
 
 Found a bug or want a feature? [Open an issue](https://github.com/aserper/OnRecord/issues) with the image digest or commit, your configuration with secrets removed, and redacted logs.

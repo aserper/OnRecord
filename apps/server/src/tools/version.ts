@@ -1,35 +1,17 @@
-import packageJson from "../../package.json";
+import semver from "semver";
 
 export class Version {
-  private constructor(private readonly parts: number[]) {}
+  private constructor(private readonly value: string) {}
 
   static from(version: string) {
-    return new Version(version.split(".").map((entry) => Number(entry)));
+    const parsed = semver.valid(version);
+    if (!parsed) throw new Error(`Invalid version: ${version}`);
+    return new Version(parsed);
   }
 
-  static thisOne() {
-    return Version.from(packageJson.version as string);
-  }
-
-  toString() {
-    return this.parts.join(".");
-  }
+  toString() { return this.value; }
 
   isNewerThan(version: Version) {
-    for (let i = 0; i < this.parts.length; i += 1) {
-      const currentPart = this.parts[i]!;
-      const currentVersionPart = version.parts[i];
-
-      if (!currentVersionPart) {
-        return false;
-      }
-      if (currentPart && !currentVersionPart) {
-        return true;
-      }
-      if (currentPart > currentVersionPart) {
-        return true;
-      }
-    }
-    return false;
+    return semver.gt(this.value, version.value);
   }
 }

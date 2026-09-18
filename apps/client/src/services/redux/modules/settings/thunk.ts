@@ -1,22 +1,23 @@
 import { api } from "../../../apis/api";
+import { VersionResponse } from "../../../buildInfo";
 import { GlobalPreferences } from "../../../types";
 import { myAsyncThunk } from "../../tools";
 import { alertMessage } from "../message/reducer";
 import { checkLogged } from "../user/thunk";
 import { User } from "../user/types";
 
-export const getVersion = myAsyncThunk<
-  { update: boolean; version: string },
-  void
->("@settings/version", async () => {
-  try {
-    const version = await api.version();
-    return version.data;
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+export const getVersion = myAsyncThunk<VersionResponse, void>(
+  "@settings/version",
+  async () => {
+    try {
+      const version = await api.version();
+      return version.data;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 export const getSettings = myAsyncThunk<GlobalPreferences | null, void>(
   "@settings/get",

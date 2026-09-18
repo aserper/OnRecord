@@ -1,4 +1,6 @@
 import { createReducer } from "@reduxjs/toolkit";
+
+import { VersionResponse } from "../../../buildInfo";
 import { GlobalPreferences } from "../../../types";
 import {
   changeRegistrations,
@@ -11,12 +13,14 @@ interface SettingsReducer {
   settings: GlobalPreferences | null;
   version: string | null;
   update: boolean;
+  buildInfo: VersionResponse | null;
 }
 
 const initialState: SettingsReducer = {
   settings: null,
   version: null,
   update: false,
+  buildInfo: null,
 };
 
 export default createReducer(initialState, (builder) => {
@@ -33,6 +37,7 @@ export default createReducer(initialState, (builder) => {
   });
 
   builder.addCase(getVersion.fulfilled, (state, { payload }) => {
+    state.buildInfo = payload;
     state.version = payload.version;
     state.update = payload.update;
   });
