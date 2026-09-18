@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, linkSync, renameSync, rmSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const base = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
@@ -18,6 +19,31 @@ if (builtAt !== null && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.tes
 if (channel !== 'local' && (!commit || !builtAt)) fail('Published builds require commit and builtAt');
 const info = { version: channel === 'stable' ? base : `${base}-dev`, commit, builtAt, channel, dirty: channel === 'local' && Boolean(git('status', '--porcelain')) };
 const args = process.argv.slice(2);
-if (args.length && (args.length !== 2 || args[0] !== '--output')) fail('Usage: generate-build-info.mjs [--output path]');
-writeFileSync(args[1] || new URL('../build-info.json', import.meta.url), JSON.stringify(info, null, 2) + '\n');
-console.log(JSON.stringify(info));
+const ifMissing = args[0] === '--if-missing';
+if (ifMissing) args.shift();
+if (args.length && (args.length !== 2 || args[0] !== '--output' || !args[1])) fail('Usage: generate-build-info.mjs [--if-missing] [--output path]');
+if (ifMissing && channel !== 'local') fail('--if-missing is only for local development');
+const output = args[1] || fileURLToPath(new URL('../build-info.json', import.meta.url));
+const temporary = `${output}.${randomUUID()}.tmp`;
+// Publish only complete JSON. link is create-if-absent: concurrent dev starters
+// adopt the same winner rather than truncating or replacing each other's file.
+writeFileSync(temporary, JSON.stringify(info, null, 2) + '\n', { flag: 'wx' });
+try {
+  if (ifMissing) {
+    try {
+      linkSync(temporary, output);
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      const existing = JSON.parse(readFileSync(output, 'utf8'));
+      // Reuse a matching local identity, but never label dev as an old release.
+      if (['version', 'commit', 'channel', 'dirty'].some((key) => existing[key] !== info[key])) {
+        renameSync(temporary, output);
+      }
+    }
+  } else {
+    renameSync(temporary, output);
+  }
+} finally {
+  rmSync(temporary, { force: true });
+}
+console.log(JSON.stringify(JSON.parse(readFileSync(output, 'utf8'))));

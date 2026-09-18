@@ -113,3 +113,4 @@ db_data
 
 # Generated once per build
 /build-info.json
+/build-info.json.*.tmp

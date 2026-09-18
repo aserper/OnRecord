@@ -68,6 +68,53 @@ class PublishPolicy(unittest.TestCase):
         commands = [s.get('run', '') for s in WORKFLOW['jobs']['build']['steps']]
         self.assertIn('pnpm lint:versioning', commands)
 
+    def run_promotion(self, heads, failure=None):
+        step = next((s for s in WORKFLOW['jobs']['build']['steps'] if s.get('id') == 'promote_edge'), None)
+        self.assertIsNotNone(step, 'edge must be promoted separately after the long build')
+        env = {'IMAGE': 'ghcr.io/aserper/onrecord', 'GITHUB_REPOSITORY': 'aserper/OnRecord',
+               'GH_TOKEN': 'test-only', 'ONRECORD_COMMIT': SHA, 'EXPECTED_DIGEST': 'sha256:' + 'b' * 64}
+        def lookup(request, **kwargs):
+            self.assertEqual(request.full_url, 'https://api.github.com/repos/aserper/OnRecord/git/ref/heads/master')
+            if failure:
+                raise HTTPError(request.full_url, failure, 'failure', Message(), None)
+            return Registry({'object': {'sha': next(heads)}})
+        with patch.dict(os.environ, env), patch('urllib.request.urlopen', side_effect=lookup), patch('subprocess.run') as docker:
+            try:
+                exec(compile(step['run'], 'edge-promotion', 'exec'), {})
+            finally:
+                self.promotion_calls = docker.call_args_list
+
+    def test_edge_is_not_moved_by_build(self):
+        identity = next(s['run'] for s in WORKFLOW['jobs']['build']['steps'] if s.get('id') == 'identity')
+        self.assertNotIn('$IMAGE:edge', identity)
+        steps = WORKFLOW['jobs']['build']['steps']
+        promotion = next(s for s in steps if s.get('id') == 'promote_edge')
+        self.assertEqual(promotion['if'], "inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'")
+        verified = next(i for i, s in enumerate(steps) if s.get('name') == 'Verify published index and tag digests')
+        self.assertGreater(steps.index(promotion), verified)
+
+    def test_old_failed_run_without_immutable_cannot_move_edge(self):
+        self.assertEqual(self.run_guard({}, 'edge'), 'exists=false\n')
+        with self.assertRaisesRegex(AssertionError, 'master'):
+            self.run_promotion(iter(['c' * 40]))
+        self.assertEqual(self.promotion_calls, [])
+
+    def test_current_master_promotes_exact_digest(self):
+        self.run_promotion(iter([SHA, SHA]))
+        self.assertEqual(self.promotion_calls[0].args[0], ['docker', 'buildx', 'imagetools', 'create', '--tag', 'ghcr.io/aserper/onrecord:edge', 'ghcr.io/aserper/onrecord@sha256:' + 'b' * 64])
+        self.assertTrue(self.promotion_calls[0].kwargs['check'])
+
+    def test_master_change_during_promotion_fails_run(self):
+        with self.assertRaisesRegex(AssertionError, 'master'):
+            self.run_promotion(iter([SHA, 'c' * 40]))
+        self.assertEqual(len(self.promotion_calls), 1)
+
+    def test_master_lookup_errors_fail_closed(self):
+        for status in (401, 403, 404, 429, 500):
+            with self.subTest(status=status), self.assertRaises(HTTPError):
+                self.run_promotion(iter([]), failure=status)
+            self.assertEqual(self.promotion_calls, [])
+
     def test_first_stable(self):
         self.assertEqual(self.run_guard({}), 'exists=false\n')
 

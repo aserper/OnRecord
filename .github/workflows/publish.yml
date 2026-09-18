@@ -62,7 +62,8 @@ jobs:
           IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/onrecord"
           TAG=""
           IMMUTABLE="sha-$COMMIT"
-          TAGS="$IMAGE:edge,$IMAGE:$IMMUTABLE"
+          # The moving edge alias is promoted only after build/verification.
+          TAGS="$IMAGE:$IMMUTABLE"
           if [[ "$ONRECORD_CHANNEL" == stable ]]; then
             [[ "$REQUESTED_REF" == "v$VERSION" ]]
             [[ "$(git rev-parse "refs/tags/$REQUESTED_REF^{commit}")" == "$COMMIT" ]]
@@ -197,3 +198,38 @@ jobs:
           docker buildx imagetools inspect "$IMAGE@$EXPECTED_DIGEST" --raw > /tmp/index.json
           jq -e '[.manifests[].platform | select(.os == "linux") | .architecture] | contains(["amd64", "arm64"])' /tmp/index.json
           printf 'Published `%s@%s` (%s)\n' "$IMAGE" "$EXPECTED_DIGEST" "$ONRECORD_CHANNEL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Promote edge only from current master
+        id: promote_edge
+        if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPECTED_DIGEST: ${{ steps.image.outputs.digest }}
+        shell: python
+        run: |
+          import json, os, re, subprocess, urllib.request
+          image = os.environ['IMAGE']
+          digest = os.environ['EXPECTED_DIGEST']
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', digest), 'Invalid image digest'
+          def require_current_master():
+              request = urllib.request.Request(
+                  'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/ref/heads/master',
+                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  head = json.load(response)['object']['sha']
+              assert head == os.environ['ONRECORD_COMMIT'], 'Refusing edge promotion: master changed; use the current master run'
+          # No long build between this live check and the alias write. All writers
+          # share the workflow lock; an old retry cannot overwrite a newer publisher.
+          require_current_master()
+          subprocess.run(['docker', 'buildx', 'imagetools', 'create', '--tag', image + ':edge', image + '@' + digest], check=True)
+          # GitHub refs and GHCR have no cross-service transaction. Detect a push
+          # during the write and fail, never attempt a rollback over newer work.
+          require_current_master()
+      - name: Verify edge alias digest
+        if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
+        env:
+          EXPECTED_DIGEST: ${{ steps.image.outputs.digest }}
+        shell: bash
+        run: |
+          DIGEST=$(docker buildx imagetools inspect "$IMAGE:edge" --format '{{json .Manifest}}' | jq -r '.digest')
+          [[ "$DIGEST" == "$EXPECTED_DIGEST" ]]

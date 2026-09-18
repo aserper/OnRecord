@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "rsbuild dev --host",
+    "start": "node ../../scripts/generate-build-info.mjs --if-missing && rsbuild dev --host",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "test": "node --test src/services/*.test.mjs",
