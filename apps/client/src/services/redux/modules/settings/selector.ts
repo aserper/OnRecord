@@ -1,4 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
+
 import { RootState } from "../..";
 
 const selectSettingsState = (state: RootState) => state.settings;
@@ -6,6 +7,11 @@ const selectSettingsState = (state: RootState) => state.settings;
 export const selectSettings = createSelector(
   selectSettingsState,
   (state) => state.settings,
+);
+
+export const selectBuildInfo = createSelector(
+  selectSettingsState,
+  (state) => state.buildInfo,
 );
 
 export const selectVersion = createSelector(

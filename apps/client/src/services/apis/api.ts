@@ -1,5 +1,6 @@
 import Axios from "axios";
 
+import { VersionResponse } from "../buildInfo";
 import { AdminAccount } from "../redux/modules/admin/reducer";
 import { ImporterState } from "../redux/modules/import/types";
 import { Playlist, PlaylistContext } from "../redux/modules/playlist/types";
@@ -143,7 +144,7 @@ export type AlbumStatsResponse = {
 export const api = {
   publicToken: null as string | null,
 
-  version: () => get<{ update: boolean; version: string }>("/version"),
+  version: () => get<VersionResponse>("/version"),
   spotify: () => get("/oauth/spotify"),
   logout: () => axios.post("/logout"),
 

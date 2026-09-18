@@ -1,8 +1,12 @@
+import { readFileSync } from "node:fs";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginBabel } from "@rsbuild/plugin-babel";
 
+const buildInfo = JSON.parse(readFileSync(new URL("../../build-info.json", import.meta.url), "utf8"));
+
 export default defineConfig({
+  source: { define: { __BUILD_INFO__: JSON.stringify(buildInfo) } },
   html: { template: "./public/index.html" },
   output: { distPath: "./build" },
   performance: { chunkSplit: { strategy: "all-in-one" }, },

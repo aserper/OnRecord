@@ -1,12 +1,12 @@
 {
   "name": "@onrecord/client",
-  "version": "1.20.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "rsbuild dev --host",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
-    "test": "react-scripts test",
+    "test": "node --test src/services/*.test.mjs",
     "eject": "react-scripts eject",
     "lint": "oxlint -c ../dev/.oxlintrc.json . && oxfmt -c ../dev/.oxfmtrc.json --check .",
     "lint:fix": "oxlint -c ../dev/.oxlintrc.json --fix . && oxfmt -c ../dev/.oxfmtrc.json .",

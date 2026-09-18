@@ -12,8 +12,7 @@ import {
   setUserPublicToken,
   storeInUser,
 } from "../database";
-import { GithubAPI } from "../tools/apis/githubApi";
-import { getWithDefault } from "../tools/env";
+import { getVersionResponse } from "../tools/buildInfo";
 import {
   admin,
   isLoggedOrGuest,
@@ -23,7 +22,6 @@ import {
 } from "../tools/middleware";
 import { LoggedRequest, OptionalLoggedRequest } from "../tools/types";
 import { deleteUser } from "../tools/user";
-import { Version } from "../tools/version";
 import { toBoolean, toNumber } from "../tools/zod";
 
 export const router = Router();
@@ -146,19 +144,5 @@ router.put("/rename", logged, async (req, res) => {
 });
 
 router.get("/version", async (_, res) => {
-  if (getWithDefault("NODE_ENV", "development") === "development") {
-    res.status(200).send({ update: false, version: "0.1.2" });
-    return;
-  }
-  const thisOne = Version.thisOne();
-  const githubVersion = await GithubAPI.lastVersion();
-  if (!githubVersion) {
-    res.status(200).send({ update: false, version: thisOne.toString() });
-    return;
-  }
-  if (githubVersion.isNewerThan(thisOne)) {
-    res.status(200).send({ update: true, version: thisOne.toString() });
-    return;
-  }
-  res.status(200).send({ update: false, version: thisOne.toString() });
+  res.status(200).send(await getVersionResponse());
 });
