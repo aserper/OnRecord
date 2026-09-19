@@ -3,7 +3,7 @@ name: Container CI and edge
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,5 +16,5 @@ jobs:
     with:
       channel: edge
       ref: ${{ github.sha }}
-      publish: ${{ github.event_name != 'pull_request' && github.repository == 'aserper/OnRecord' && github.ref == 'refs/heads/master' }}
+      publish: ${{ github.event_name != 'pull_request' && github.repository == 'aserper/OnRecord' && github.ref == 'refs/heads/main' }}
     secrets: inherit

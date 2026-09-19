@@ -2,7 +2,7 @@ name: Release Please
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   release:
-    if: github.repository == 'aserper/OnRecord' && github.ref == 'refs/heads/master'
+    if: github.repository == 'aserper/OnRecord' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       created: ${{ steps.release.outputs.release_created }}
@@ -26,7 +26,7 @@ jobs:
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: master
+          target-branch: main
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
   publish:

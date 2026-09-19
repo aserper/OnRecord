@@ -67,7 +67,7 @@ jobs:
           if [[ "$ONRECORD_CHANNEL" == stable ]]; then
             [[ "$REQUESTED_REF" == "v$VERSION" ]]
             [[ "$(git rev-parse "refs/tags/$REQUESTED_REF^{commit}")" == "$COMMIT" ]]
-            git merge-base --is-ancestor "$COMMIT" origin/master
+            git merge-base --is-ancestor "$COMMIT" origin/main
             TAG="$REQUESTED_REF"
             DISPLAY_VERSION="$VERSION"
             IMMUTABLE="sha-$COMMIT-stable"
@@ -198,7 +198,7 @@ jobs:
           docker buildx imagetools inspect "$IMAGE@$EXPECTED_DIGEST" --raw > /tmp/index.json
           jq -e '[.manifests[].platform | select(.os == "linux") | .architecture] | contains(["amd64", "arm64"])' /tmp/index.json
           printf 'Published `%s@%s` (%s)\n' "$IMAGE" "$EXPECTED_DIGEST" "$ONRECORD_CHANNEL" >> "$GITHUB_STEP_SUMMARY"
-      - name: Promote edge only from current master
+      - name: Promote edge only from current main
         id: promote_edge
         if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
         env:
@@ -210,21 +210,21 @@ jobs:
           image = os.environ['IMAGE']
           digest = os.environ['EXPECTED_DIGEST']
           assert re.fullmatch(r'sha256:[0-9a-f]{64}', digest), 'Invalid image digest'
-          def require_current_master():
+          def require_current_main():
               request = urllib.request.Request(
-                  'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/ref/heads/master',
+                  'https://api.github.com/repos/' + os.environ['GITHUB_REPOSITORY'] + '/git/ref/heads/main',
                   headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
                            'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache'})
               with urllib.request.urlopen(request, timeout=30) as response:
                   head = json.load(response)['object']['sha']
-              assert head == os.environ['ONRECORD_COMMIT'], 'Refusing edge promotion: master changed; use the current master run'
+              assert head == os.environ['ONRECORD_COMMIT'], 'Refusing edge promotion: main changed; use the current main run'
           # No long build between this live check and the alias write. All writers
           # share the workflow lock; an old retry cannot overwrite a newer publisher.
-          require_current_master()
+          require_current_main()
           subprocess.run(['docker', 'buildx', 'imagetools', 'create', '--tag', image + ':edge', image + '@' + digest], check=True)
           # GitHub refs and GHCR have no cross-service transaction. Detect a push
           # during the write and fail, never attempt a rollback over newer work.
-          require_current_master()
+          require_current_main()
       - name: Verify edge alias digest
         if: inputs.publish && inputs.channel == 'edge' && steps.guard.outputs.exists != 'true'
         env:

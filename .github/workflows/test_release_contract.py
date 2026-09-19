@@ -74,7 +74,7 @@ class PublishPolicy(unittest.TestCase):
         env = {'IMAGE': 'ghcr.io/aserper/onrecord', 'GITHUB_REPOSITORY': 'aserper/OnRecord',
                'GH_TOKEN': 'test-only', 'ONRECORD_COMMIT': SHA, 'EXPECTED_DIGEST': 'sha256:' + 'b' * 64}
         def lookup(request, **kwargs):
-            self.assertEqual(request.full_url, 'https://api.github.com/repos/aserper/OnRecord/git/ref/heads/master')
+            self.assertEqual(request.full_url, 'https://api.github.com/repos/aserper/OnRecord/git/ref/heads/main')
             if failure:
                 raise HTTPError(request.full_url, failure, 'failure', Message(), None)
             return Registry({'object': {'sha': next(heads)}})
@@ -95,21 +95,21 @@ class PublishPolicy(unittest.TestCase):
 
     def test_old_failed_run_without_immutable_cannot_move_edge(self):
         self.assertEqual(self.run_guard({}, 'edge'), 'exists=false\n')
-        with self.assertRaisesRegex(AssertionError, 'master'):
+        with self.assertRaisesRegex(AssertionError, 'main'):
             self.run_promotion(iter(['c' * 40]))
         self.assertEqual(self.promotion_calls, [])
 
-    def test_current_master_promotes_exact_digest(self):
+    def test_current_main_promotes_exact_digest(self):
         self.run_promotion(iter([SHA, SHA]))
         self.assertEqual(self.promotion_calls[0].args[0], ['docker', 'buildx', 'imagetools', 'create', '--tag', 'ghcr.io/aserper/onrecord:edge', 'ghcr.io/aserper/onrecord@sha256:' + 'b' * 64])
         self.assertTrue(self.promotion_calls[0].kwargs['check'])
 
-    def test_master_change_during_promotion_fails_run(self):
-        with self.assertRaisesRegex(AssertionError, 'master'):
+    def test_main_change_during_promotion_fails_run(self):
+        with self.assertRaisesRegex(AssertionError, 'main'):
             self.run_promotion(iter([SHA, 'c' * 40]))
         self.assertEqual(len(self.promotion_calls), 1)
 
-    def test_master_lookup_errors_fail_closed(self):
+    def test_main_lookup_errors_fail_closed(self):
         for status in (401, 403, 404, 429, 500):
             with self.subTest(status=status), self.assertRaises(HTTPError):
                 self.run_promotion(iter([]), failure=status)
