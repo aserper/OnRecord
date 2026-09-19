@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0](https://github.com/aserper/OnRecord/compare/v0.1.0...v0.2.0) (2026-09-19)
+
+
+### Features
+
+* **cache:** reuse stored catalog before requesting Spotify ([a86fc69](https://github.com/aserper/OnRecord/commit/a86fc690dbd9221dc2fa2d108939131bc8535568))
+* **filters:** exclude children's music and podcasts ([b741fea](https://github.com/aserper/OnRecord/commit/b741feaf78a74ed75e19918dca9710158bbbe530))
+* **themes:** add Vinyl, Marquee and Gallery with identity art ([794fae3](https://github.com/aserper/OnRecord/commit/794fae3c2f5bd61736465ca77939284ed9e6cdbb))
+
+
+### Bug Fixes
+
+* **deps:** include the lockfile for the new theme fonts ([6e7d0d0](https://github.com/aserper/OnRecord/commit/6e7d0d0731afb6ae679c1f2d5fbe3a2cb5203ad2))
+* **routes:** mount classification router at the root path ([c27857f](https://github.com/aserper/OnRecord/commit/c27857fec802ebc479d67a71494ef5c91d7942e0))
+* **traffic:** measure real response bytes, not a missing header ([4d8d157](https://github.com/aserper/OnRecord/commit/4d8d157c5f50d64ba1a0d8fb87113521754d031b))
+* **vinyl:** stabilize overview grid ([3f5dd0e](https://github.com/aserper/OnRecord/commit/3f5dd0e662fed11a3b67b486dbec87d2d751b65b))
+
 ## 0.1.0 (2026-09-18)
 
 
