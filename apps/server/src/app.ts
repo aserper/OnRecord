@@ -102,7 +102,7 @@ app.use("/album", albumRouter);
 app.use("/track", trackRouter);
 app.use("/search", searchRouter);
 app.use("/playlist", playlistRouter);
-app.use("/classification", classificationRouter);
+app.use("/", classificationRouter);
 app.use("/", importRouter);
 app.use("/", metricsRouter);
 
