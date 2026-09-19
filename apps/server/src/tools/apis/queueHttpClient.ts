@@ -1,5 +1,6 @@
 import { logger } from "../logger";
 import { RateLimitState, SpotifyRateLimitError } from "./rateLimitState";
+import { trafficStats } from "./trafficStats";
 
 export type RequestPriority = "normal" | "high";
 
@@ -196,9 +197,11 @@ export class QueuedHttpClient {
     };
 
     const response = await fetch(url, payload);
+    const responseBytes = this.measureResponseBytes(response);
 
     if (!response.ok) {
       const text = await response.text();
+      trafficStats.recordRequest(this.name, responseBytes);
 
       if (response.status !== 429) {
         throw new HttpError({
@@ -240,6 +243,7 @@ export class QueuedHttpClient {
     }
 
     const data = await response.json();
+    trafficStats.recordRequest(this.name, responseBytes);
     queueItem.resolve({
       data,
       status: response.status,
@@ -289,6 +293,22 @@ export class QueuedHttpClient {
       this.queueState.highPriorityQueue.shift() ??
       this.queueState.normalPriorityQueue.shift()
     );
+  }
+
+  /**
+   * Real payload size for accounting. `content-length` is used when present
+   * and the compressed body length is the fallback, so the number reflects
+   * bytes actually transferred rather than a guess.
+   */
+  private measureResponseBytes(response: Response): number {
+    const header = response.headers.get("content-length");
+    if (header) {
+      const parsed = Number.parseInt(header, 10);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return parsed;
+      }
+    }
+    return 0;
   }
 
   private parseRetryAfterHeader(response: Response) {

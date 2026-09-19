@@ -2,12 +2,21 @@ import { Router } from "express";
 import { Types } from "mongoose";
 
 import { ArtistModel, InfosModel } from "../database/Models";
+import { trafficStats } from "../tools/apis/trafficStats";
 import { classifyChildrensMusicArtist } from "../tools/classification/childrensMusic";
 import { logger } from "../tools/logger";
 import { logged } from "../tools/middleware";
 import { LoggedRequest } from "../tools/types";
 
 export const router = Router();
+
+/**
+ * Spotify traffic accounting: how much was downloaded and how much the
+ * persistent catalog cache avoided.
+ */
+router.get("/traffic/summary", logged, async (_req, res) => {
+  res.status(200).send(trafficStats.snapshot());
+});
 
 const toObjectId = (value: string) => new Types.ObjectId(value);
 

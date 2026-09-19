@@ -1,6 +1,7 @@
 import semver from "semver";
 
-const releasesUrl = "https://api.github.com/repos/aserper/OnRecord/releases?per_page=100";
+const releasesUrl =
+  "https://api.github.com/repos/aserper/OnRecord/releases?per_page=100";
 const cacheMs = 15 * 60 * 1000;
 const timeoutMs = 3000;
 
@@ -23,17 +24,34 @@ export class GithubAPI {
           if (!Array.isArray(releases)) throw new Error("Invalid release list");
           const versions: string[] = [];
           for (const release of releases) {
-            if (!release || release.draft !== false || release.prerelease !== false || typeof release.tag_name !== "string") continue;
-            if (!/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(release.tag_name)) continue;
+            if (
+              !release ||
+              release.draft !== false ||
+              release.prerelease !== false ||
+              typeof release.tag_name !== "string"
+            )
+              continue;
+            if (
+              !/^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(
+                release.tag_name,
+              )
+            )
+              continue;
             const version = semver.valid(release.tag_name);
             if (version && !semver.prerelease(version)) versions.push(version);
           }
           cached = versions.sort(semver.rcompare)[0] ?? null;
-        } catch { cached = null; }
+        } catch {
+          cached = null;
+        }
         expires = now() + cacheMs;
         return cached;
       })();
-      try { return await pending; } finally { pending = null; }
+      try {
+        return await pending;
+      } finally {
+        pending = null;
+      }
     };
   }
 

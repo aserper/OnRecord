@@ -1,0 +1,38 @@
+.marginbottom {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.note {
+  display: block;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+.section {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 4px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}

@@ -28,6 +28,7 @@ import PublicToken from "./PublicToken";
 import RelogToSpotify from "./RelogToSpotify";
 import SetAdmin from "./SetAdmin";
 import SpotifyAccountInfos from "./SpotifyAccountInfos";
+import SpotifyTraffic from "./SpotifyTraffic/SpotifyTraffic";
 import { StatMeasurement } from "./StatMeasurement";
 import Timezone from "./Timezone";
 
@@ -116,6 +117,7 @@ export default function Settings() {
             path="/statistics"
             element={
               <Masonry>
+                {!isPublic && <SpotifyTraffic />}
                 {!isPublic && <ContentFilters />}
                 {!isPublic && <BlacklistArtist />}
                 {!isPublic && <Timezone />}

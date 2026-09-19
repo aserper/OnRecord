@@ -22,6 +22,11 @@ import { logger } from "../logger";
 import { minOfArray, retryPromise } from "../misc";
 import { Unpack } from "../types";
 import { getFromCacheString, setToCacheString } from "./cache";
+import {
+  markMissingFromSpotify,
+  partitionCachedIds,
+  storeCatalogForCache,
+} from "./catalogCache";
 import { FullPrivacyImporterState, HistoryImporter } from "./types";
 
 /**
@@ -55,6 +60,9 @@ export type FullPrivacyItem = Unpack<z.infer<typeof fullPrivacyFileSchema>>;
 
 export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
   private id: string;
+
+  /** Tracks answered from the stored catalog instead of Spotify. */
+  private cachedHits = 0;
 
   private userId: string;
 
@@ -183,6 +191,14 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
     return null;
   };
 
+  /**
+   * Resolves ids to tracks, answering from the persistent catalog first.
+   *
+   * OnRecord already stores every track, album and artist it has seen, and
+   * that metadata does not change, so a re-import must not re-download it.
+   * Only ids the database cannot answer are requested from Spotify, and the
+   * results are written back so the next run is cheaper still.
+   */
   checkIdsToSearch = async (
     idsToSearch: Record<string, string[]>,
     items: RecentlyPlayedTrack[],
@@ -192,32 +208,63 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
     if (ids.length < 45 && !force) {
       return idsToSearch;
     }
-    const searchedItems = await this.search(ids);
-    for (const [index, searchedItem] of searchedItems.entries()) {
-      const id = ids[index];
-      if (!id) {
+
+    const { cached, uncached } = await partitionCachedIds(ids);
+    this.cachedHits += cached.size;
+
+    for (const id of ids) {
+      const track = cached.get(id);
+      if (!track) {
         continue;
       }
-      if (searchedItem === undefined) {
-        setToCacheString(this.userId.toString(), id, { exists: false });
-        continue;
-      }
-      const playedAt = idsToSearch[searchedItem.id];
+      const playedAt = idsToSearch[id];
       if (!playedAt) {
-        logger.error("Cannot add item", searchedItem.id, "no played_at found");
         continue;
       }
-      setToCacheString(this.userId.toString(), searchedItem.id, {
-        exists: true,
-        track: searchedItem,
-      });
+      setToCacheString(this.userId.toString(), id, { exists: true, track });
       playedAt.forEach((pa) => {
-        items.push({ track: searchedItem, played_at: pa });
+        items.push({ track, played_at: pa });
       });
-      logger.info(
-        `Adding ${searchedItem.name} - ${searchedItem.artists[0]?.name} from data`,
-      );
     }
+
+    if (uncached.length > 0) {
+      const searchedItems = await this.search(uncached);
+      const fetched = searchedItems.filter(
+        (item): item is NonNullable<typeof item> => item !== undefined,
+      );
+      await storeCatalogForCache(fetched);
+      for (const [index, searchedItem] of searchedItems.entries()) {
+        const id = uncached[index];
+        if (!id) {
+          continue;
+        }
+        if (searchedItem === undefined) {
+          setToCacheString(this.userId.toString(), id, { exists: false });
+          markMissingFromSpotify(id);
+          continue;
+        }
+        const playedAt = idsToSearch[searchedItem.id];
+        if (!playedAt) {
+          logger.error(
+            "Cannot add item",
+            searchedItem.id,
+            "no played_at found",
+          );
+          continue;
+        }
+        setToCacheString(this.userId.toString(), searchedItem.id, {
+          exists: true,
+          track: searchedItem,
+        });
+        playedAt.forEach((pa) => {
+          items.push({ track: searchedItem, played_at: pa });
+        });
+        logger.info(
+          `Adding ${searchedItem.name} - ${searchedItem.artists[0]?.name} from data`,
+        );
+      }
+    }
+
     idsToSearch = {};
     return idsToSearch;
   };
@@ -292,6 +339,9 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
         `Skipped ${skippedPodcasts} podcast/audiobook entries from the export`,
       );
     }
+    logger.info(
+      `Import finished: ${this.cachedHits} catalog entries reused from the database (no Spotify request)`,
+    );
     return true;
   };
 

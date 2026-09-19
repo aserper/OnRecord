@@ -240,6 +240,24 @@ export const api = {
     get<{ childrensMusic: number; podcasts: number; artists: number }>(
       "/classification/summary",
     ),
+  getTrafficSummary: () =>
+    get<{
+      totalRequests: number;
+      totalBytes: number;
+      totalCacheHits: number;
+      totalCacheMisses: number;
+      cacheHitRate: number;
+      avgBytesPerRequest: number;
+      estimatedBytesAvoided: number;
+      byClient: { client: string; requests: number; bytes: number }[];
+      days: {
+        date: string;
+        requests: number;
+        bytes: number;
+        cacheHits: number;
+        cacheMisses: number;
+      }[];
+    }>("/traffic/summary"),
   timePerHourOfDay: (start: Date, end: Date) =>
     get<
       {
