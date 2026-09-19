@@ -2,18 +2,20 @@
 
 ![OnRecord](apps/client/public/brand/social.png)
 
-Self-hosted Spotify listening history. OnRecord continuously records what you listen to and turns it into an archive you can actually explore: rankings, trends, sessions, and playlists, with four distinct interface themes.
+Self-hosted Spotify listening history. OnRecord continuously records what you listen to and turns it into an archive you can actually explore: rankings, trends, sessions, and playlists, with seven distinct interface themes.
 
 OnRecord is a fork of [Yooooomi/your_spotify](https://github.com/Yooooomi/your_spotify), renamed and extended. Credit for the original application belongs to Yooooomi and the upstream contributors.
 
 ## Features
 
-- **Four themes:** Atlas, Programme, Darkroom, and Standard, each with light and dark modes. Switch freely; your route, date range, and theme preference are preserved.
+- **Seven themes:** Atlas, Programme, Darkroom, Standard, Vinyl, Marquee, and Gallery, each with light and dark modes and its own identity artwork. Pick yours in **Settings → Account → Theme**; your route, date range, and theme preference are preserved.
+- **Content filters:** exclude children's music and podcasts from statistics and history. Children's content is detected from Spotify's own genre tags plus curated artist and album lists, and podcasts are detected structurally from episode metadata. Every play is retained, so filters are reversible at any time, and detected artists are listed for review in **Settings → Statistics → Content filters**.
 - **Deep exploration:** move from an overview statistic down to the artists, albums, tracks, and sessions behind it. Everything has a full history.
 - **Scheduled history imports:** upload Spotify export files now and start the import at an off-hours time. Pending jobs survive restarts and can be cancelled.
+- **Persistent catalog cache:** imports answer track, album, and artist lookups from OnRecord's own database before contacting Spotify, so re-imports and retries of known content make a fraction of the requests. Measured on a large library, roughly 43% of track lookups on a retry are answered locally, and repeat imports of the same content approach zero requests.
+- **Spotify traffic statistics:** a live card showing how much data was actually downloaded, how many catalog entries were reused, the cache hit rate, and a per-day breakdown, in **Settings → Statistics → Spotify traffic**.
 - **Playlist tracking:** paste a playlist link and OnRecord records every track that is added to or removed from it, with a full change history.
-- **Gentle on Spotify's API:** configurable request pacing, an isolated login queue, and cooldown persistence. Scheduling and pacing respect Spotify's limits; they do not increase your quota.
- - **Gentle on Spotify's API:** metadata lookups are batched (up to 50 tracks, 20 albums, or 50 artists per request), with configurable request pacing, an isolated login queue, and cooldown persistence. This respects Spotify's limits; it does not increase your quota.
+- **Gentle on Spotify's API:** metadata lookups are batched (up to 50 tracks, 20 albums, or 50 artists per request), with configurable request pacing, an isolated login queue, and cooldown persistence. This respects Spotify's limits; it does not increase your quota.
 - **ARM64 and AMD64:** images are published for both architectures.
 
 [Installation](#installation) · [Configuration](#configuration) · [History imports](#history-imports) · [Playlist tracking](#playlist-tracking) · [Troubleshooting](#troubleshooting) · [Development](#development) · [Credits](#support-and-credits)
@@ -146,12 +148,14 @@ Notes:
 
 ## History imports
 
-After registration, OnRecord polls Spotify for new listening as it happens. Your past history is not included: request an export from [Spotify account privacy](https://www.spotify.com/account/privacy/), then open **Settings → Account → Import data**.
+After registration, OnRecord polls Spotify for new listening as it happens. Your past history is not included: request an export from [Spotify account privacy](https://www.spotify.com/account/privacy/), then open **Settings → Account → Import data**. The same page holds your theme choice under **Settings → Account → Theme**.
 
 - **Account data:** `StreamingHistory*.json` files, generally covering the past year.
 - **Extended streaming history (recommended):** `Streaming_History_Audio_*.json` files, covering your account's full history.
 
 Upload the extracted JSON files, not the ZIP. Spotify controls how long exports take to arrive.
+
+Podcast and audiobook entries in the export are detected and skipped automatically: they carry episode metadata instead of track metadata, so they cannot pollute your music statistics.
 
 Choose **Start now** or **Schedule for later**. Scheduling uses your browser's local time and suggests the next 02:00 by default. Files are uploaded immediately and stored; a scheduler checks for due jobs at startup and every 30 seconds.
 
@@ -171,6 +175,7 @@ Open **Playlists**, paste a Spotify playlist link (an `open.spotify.com` URL, a 
 - The history keeps the last 50 changes per playlist, and **Check now** forces an immediate check.
 - Public playlists work for every signed-in user. Tracking private or collaborative playlists requires extra scopes: use **Reconnect** under **Spotify connection** in Settings once.
 - Checks respect the same rate limits as everything else; if Spotify asks the app to pause, tracking pauses with it.
+- Podcast episodes in tracked playlists are ignored: they carry no track credits and would otherwise distort the change history.
 
 ## Troubleshooting
 

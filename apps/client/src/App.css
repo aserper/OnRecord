@@ -103,3 +103,51 @@ body[data-design-world="darkroom"] .recharts-cartesian-grid line {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Vinyl — serif headings everywhere display type appears, engraved chart
+ * grids, and cover art that warms slightly on hover. */
+body[data-design-world="vinyl"] img {
+  transition: filter 200ms ease-out, transform 200ms ease-out;
+}
+
+body[data-design-world="vinyl"] a:hover img,
+body[data-design-world="vinyl"] button:hover img {
+  filter: saturate(1.12) contrast(1.03);
+}
+
+body[data-design-world="vinyl"] .recharts-cartesian-grid line {
+  stroke: #7d6748;
+  stroke-dasharray: 2 6;
+}
+
+body[data-design-world="marquee"] .MuiPaper-root {
+  box-shadow: none !important;
+}
+
+body[data-design-world="marquee"] .MuiButton-root {
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+body[data-design-world="marquee"] .recharts-cartesian-grid line {
+  stroke: var(--world-rule);
+}
+
+body[data-design-world="gallery"] .MuiPaper-root {
+  box-shadow: none !important;
+}
+
+body[data-design-world="gallery"] img {
+  transition: filter 200ms ease-out;
+}
+
+body[data-design-world="gallery"] a:hover img,
+body[data-design-world="gallery"] button:hover img {
+  filter: saturate(1.05);
+}
+
+body[data-design-world="gallery"] .recharts-cartesian-grid line {
+  stroke: #b5b0a4;
+  stroke-dasharray: 1 5;
+}

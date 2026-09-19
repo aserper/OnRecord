@@ -114,3 +114,72 @@
     height: 320px;
   }
 }
+
+/* Vinyl — walnut-ruled statistics wall with an asymmetric lead. */
+:global(body[data-design-world="vinyl"]) .content {
+  --world-gap: 1px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  padding: 1px 16px 16px;
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="vinyl"]) .content > section {
+  grid-column: span 6;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="vinyl"]) .content > .lead {
+  grid-column: span 8;
+}
+
+:global(body[data-design-world="vinyl"]) .content > section:nth-child(2) {
+  grid-column: span 4;
+}
+
+:global(body[data-design-world="vinyl"]) .lead .chart {
+  height: 430px;
+}
+
+/* Marquee — poster panels separated by gold rules. */
+:global(body[data-design-world="marquee"]) .content {
+  --world-gap: 1px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  border-top: 1px solid var(--world-rule);
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="marquee"]) .content > section {
+  grid-column: span 6;
+  background: var(--content-background);
+  border-right: 1px solid var(--world-rule);
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="marquee"]) .content > .lead {
+  grid-column: span 7;
+}
+
+:global(body[data-design-world="marquee"]) .content > section:nth-child(2) {
+  grid-column: span 5;
+}
+
+/* Gallery — even museum columns with a tall centrepiece. */
+:global(body[data-design-world="gallery"]) .content {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+:global(body[data-design-world="gallery"]) .content > section {
+  background: var(--content-background);
+  border: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="gallery"]) .content > .lead {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+:global(body[data-design-world="gallery"]) .lead .chart {
+  height: 690px;
+}

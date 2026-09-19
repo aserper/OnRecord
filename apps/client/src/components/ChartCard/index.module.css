@@ -43,6 +43,25 @@
   text-transform: uppercase;
 }
 
+:global(body[data-design-world="vinyl"]) .root {
+  border: 1px solid var(--world-rule);
+  box-shadow: 0 14px 30px -22px rgb(0 0 0 / 65%);
+}
+
+:global(body[data-design-world="marquee"]) .root {
+  border: 2px solid var(--world-rule);
+}
+
+:global(body[data-design-world="marquee"]) .title {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:global(body[data-design-world="gallery"]) .root {
+  border: 1px solid var(--world-rule);
+  box-shadow: none;
+}
+
 :global(body[data-design-world="darkroom"]) .root {
   background-image: linear-gradient(
     90deg,

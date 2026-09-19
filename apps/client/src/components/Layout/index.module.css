@@ -26,18 +26,6 @@
   padding-left: 250px;
 }
 
-.worldswitcher {
-  position: fixed;
-  z-index: 8;
-  right: 16px;
-  bottom: 16px;
-  padding: 7px 8px;
-  border: 1px solid var(--world-rule, var(--border-color));
-  border-radius: var(--control-radius, 8px);
-  background: var(--world-control, var(--background));
-  box-shadow: 0 12px 32px -18px rgb(0 0 0 / 55%);
-}
-
 :global(body[data-design-world="programme"]) .root {
   flex-direction: column;
 }
@@ -75,11 +63,6 @@
 }
 
 @media screen and (max-width: 960px) {
-  .worldswitcher {
-    right: 8px;
-    bottom: 8px;
-  }
-
   :global(body[data-design-world]) .contentdrawer {
     padding-left: 0;
   }

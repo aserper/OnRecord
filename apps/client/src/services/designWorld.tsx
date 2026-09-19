@@ -16,7 +16,45 @@ export const DESIGN_WORLDS = [
   { id: "programme", label: "Programme", shortLabel: "P" },
   { id: "darkroom", label: "Darkroom", shortLabel: "D" },
   { id: "standard", label: "Standard", shortLabel: "S" },
+  { id: "vinyl", label: "Vinyl", shortLabel: "V" },
+  { id: "marquee", label: "Marquee", shortLabel: "M" },
+  { id: "gallery", label: "Gallery", shortLabel: "G" },
 ] as const;
+
+/** Identity art for each theme, shown in the Settings theme picker. */
+export const DESIGN_WORLD_ART: Record<
+  DesignWorld,
+  { src: string; description: string }
+> = {
+  atlas: {
+    src: "/themes/atlas.jpg",
+    description: "Vintage atlases with a brass magnifying glass",
+  },
+  programme: {
+    src: "/themes/programme.jpg",
+    description: "Swiss-print concert programmes",
+  },
+  darkroom: {
+    src: "/themes/darkroom.jpg",
+    description: "A film darkroom under an amber safelight",
+  },
+  standard: {
+    src: "/themes/standard.jpg",
+    description: "Studio speakers with soft indigo light",
+  },
+  vinyl: {
+    src: "/themes/vinyl.jpg",
+    description: "A vinyl record on dark walnut",
+  },
+  marquee: {
+    src: "/themes/marquee.jpg",
+    description: "A brass theater marquee at night",
+  },
+  gallery: {
+    src: "/themes/gallery.jpg",
+    description: "A framed artwork in a bright gallery",
+  },
+};
 
 export type DesignWorld = (typeof DESIGN_WORLDS)[number]["id"];
 

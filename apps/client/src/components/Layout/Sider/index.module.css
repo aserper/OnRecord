@@ -129,6 +129,25 @@
   border-right: 1px solid #252d3b;
 }
 
+:global(body[data-design-world="vinyl"]) .root {
+  background: #171008;
+  border-right: 1px solid #6b543c;
+}
+
+:global(body.dark-vars[data-design-world="vinyl"]) .root {
+  border-right-color: #4d3b29;
+}
+
+:global(body[data-design-world="marquee"]) .root {
+  background: #070f1d;
+  border-right: 1px solid #2b3d5c;
+}
+
+:global(body[data-design-world="gallery"]) .root {
+  background: #100f0e;
+  border-right: 1px solid #33322e;
+}
+
 :global(body[data-design-world="programme"]) .root {
   display: grid;
   grid-template-columns: auto minmax(220px, 0.6fr) 1fr auto;

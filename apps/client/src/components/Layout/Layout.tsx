@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 import { selectPublicToken } from "../../services/redux/modules/user/selector";
-import DesignWorldSwitcher from "../DesignWorldSwitcher";
 import Text from "../Text";
 import { LayoutContext } from "./LayoutContext";
 import Sider from "./Sider";
@@ -43,9 +42,6 @@ export default function Layout({ children }: LayoutProps) {
             [s.content]: true,
             [s.contentdrawer]: siderAllowed && !siderIsDrawer,
           })}>
-          <div className={s.worldswitcher}>
-            <DesignWorldSwitcher compact />
-          </div>
           {publicToken && (
             <div className={s.publictoken}>
               <Text size="normal">Viewing as a guest</Text>

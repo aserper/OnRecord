@@ -209,3 +209,84 @@
     height: 320px;
   }
 }
+
+/* Vinyl — warm record-store editorial: a walnut-ruled dashboard with the
+ * highlights in the left column, plays of the year in the middle band. */
+:global(body[data-design-world="vinyl"]) .dashboard {
+  --world-gap: 1px;
+  grid-template-areas:
+    "bestartist bestartist bestartist songs songs songs songs time time time time artists"
+    "bestsong bestsong bestsong timeline timeline timeline timeline timeline timeline timeline artists artists"
+    "history history history history history repartition repartition repartition repartition repartition repartition repartition";
+  padding: 1px 16px 16px;
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="vinyl"]) .dashboard > section {
+  padding: 0;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="vinyl"]) .songs { grid-area: songs; }
+:global(body[data-design-world="vinyl"]) .time { grid-area: time; }
+:global(body[data-design-world="vinyl"]) .artists { grid-area: artists; }
+:global(body[data-design-world="vinyl"]) .timeline { grid-area: timeline; }
+:global(body[data-design-world="vinyl"]) .bestartist { grid-area: bestartist; }
+:global(body[data-design-world="vinyl"]) .repartition { grid-area: repartition; }
+:global(body[data-design-world="vinyl"]) .bestsong { grid-area: bestsong; }
+:global(body[data-design-world="vinyl"]) .history { grid-area: history; }
+:global(body[data-design-world="vinyl"]) .chart { height: 430px; }
+
+/* Marquee — cinematic poster rows under a gold rule. */
+:global(body[data-design-world="marquee"]) .dashboard {
+  --world-gap: 1px;
+  grid-template-areas:
+    "songs songs songs songs time time time time artists artists artists artists"
+    "bestartist bestartist timeline timeline timeline timeline timeline timeline timeline bestsong bestsong bestsong"
+    "history history history history history repartition repartition repartition repartition repartition repartition repartition";
+  padding: 1px 16px 16px;
+  border-top: 1px solid var(--world-rule);
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="marquee"]) .dashboard > section {
+  padding: 0;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="marquee"]) .songs { grid-area: songs; }
+:global(body[data-design-world="marquee"]) .time { grid-area: time; }
+:global(body[data-design-world="marquee"]) .artists { grid-area: artists; }
+:global(body[data-design-world="marquee"]) .timeline { grid-area: timeline; }
+:global(body[data-design-world="marquee"]) .bestartist { grid-area: bestartist; }
+:global(body[data-design-world="marquee"]) .repartition { grid-area: repartition; }
+:global(body[data-design-world="marquee"]) .bestsong { grid-area: bestsong; }
+:global(body[data-design-world="marquee"]) .history { grid-area: history; }
+:global(body[data-design-world="marquee"]) .chart { height: 430px; }
+
+/* Gallery — museum wall: a calm reading row, the full-width timeline as the
+ * centrepiece, quiet columns below. */
+:global(body[data-design-world="gallery"]) .dashboard {
+  --world-gap: 1px;
+  grid-template-areas:
+    "songs songs time time artists artists bestartist bestartist bestsong bestsong bestsong bestsong"
+    "timeline timeline timeline timeline timeline timeline timeline timeline timeline timeline timeline timeline"
+    "history history history history history history repartition repartition repartition repartition repartition repartition";
+  padding: 1px 16px 16px;
+  background: var(--world-rule);
+}
+
+:global(body[data-design-world="gallery"]) .dashboard > section {
+  padding: 0;
+  background: var(--content-background);
+}
+
+:global(body[data-design-world="gallery"]) .songs { grid-area: songs; }
+:global(body[data-design-world="gallery"]) .time { grid-area: time; }
+:global(body[data-design-world="gallery"]) .artists { grid-area: artists; }
+:global(body[data-design-world="gallery"]) .timeline { grid-area: timeline; }
+:global(body[data-design-world="gallery"]) .bestartist { grid-area: bestartist; }
+:global(body[data-design-world="gallery"]) .repartition { grid-area: repartition; }
+:global(body[data-design-world="gallery"]) .bestsong { grid-area: bestsong; }
+:global(body[data-design-world="gallery"]) .history { grid-area: history; }
+:global(body[data-design-world="gallery"]) .chart { height: 430px; }

@@ -356,3 +356,175 @@ body.light-vars[data-design-world="standard"] {
   --world-accent: #5968ed;
   --chart-0: #5968ed;
 }
+
+/* Vinyl — warm crate-digging record-store luxury. Walnut wood, cream paper
+ * and copper accents; serif display type from Playfair for album-scale
+ * headings. Identity art: public/themes/vinyl.jpg */
+body[data-design-world="vinyl"] {
+  --font: "Space Grotesk Variable", sans-serif;
+  --radius: 4px;
+  --control-radius: 4px;
+  --world-accent: #b3541e;
+  --chart-0: #b3541e;
+  --chart-1: #f2e8d8;
+  --chart-2: #6b543c;
+  --chart-3: #c98a3d;
+  --chart-4: #8a6d52;
+  --chart-5: #5c4632;
+  --world-active-ink: #f7efe2;
+  --world-rule: #6b543c;
+  --world-control: #241a12;
+  --shadow: 0 18px 40px -26px rgb(0 0 0 / 80%);
+  --hardshadow: 0 26px 58px -30px rgb(0 0 0 / 85%);
+}
+
+body[data-design-world="vinyl"] h1,
+body[data-design-world="vinyl"] h2,
+body[data-design-world="vinyl"] h3 {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+body.dark-vars[data-design-world="vinyl"] {
+  --primary-tuple: 242, 232, 216;
+  --primary: #f2e8d8;
+  --text-grey: #b5a58e;
+  --border-color: #6b543c;
+  --background: #1d1611;
+  --content-background: #171008;
+  --hover: #2b2018;
+  --selected: #3d2c1d;
+  --divider: #6b543c;
+  --content-border: 1px solid #6b543c;
+  --world-control: #201812;
+}
+
+body.light-vars[data-design-world="vinyl"] {
+  --primary-tuple: 42, 30, 20;
+  --primary: #2a1e14;
+  --text-grey: #6b543c;
+  --border-color: #c4b49a;
+  --background: #f2e8d8;
+  --content-background: #e9dccb;
+  --hover: #ddd0ba;
+  --selected: #d0c2a8;
+  --divider: #c4b49a;
+  --content-border: 1px solid #c4b49a;
+  --world-control: #f6efe3;
+}
+
+/* Marquee — cinematic night-out glamour. Deep navy velvet, brass and warm
+ * bulb gold; uppercase condensed display for poster-scale headings.
+ * Identity art: public/themes/marquee.jpg */
+body[data-design-world="marquee"] {
+  --font: "Archivo Variable", sans-serif;
+  --radius: 0px;
+  --control-radius: 0px;
+  --world-accent: #f5c84c;
+  --chart-0: #f5c84c;
+  --chart-1: #fdf3d3;
+  --chart-2: #8fa3c8;
+  --chart-3: #c99a2e;
+  --chart-4: #5a7099;
+  --chart-5: #3d5175;
+  --world-active-ink: #101c33;
+  --world-rule: #2b3d5c;
+  --world-control: #0b1526;
+  --shadow: 0 20px 46px -28px rgb(0 0 0 / 85%);
+  --hardshadow: 0 28px 62px -32px rgb(0 0 0 / 88%);
+}
+
+body[data-design-world="marquee"] h1,
+body[data-design-world="marquee"] h2,
+body[data-design-world="marquee"] h3 {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.dark-vars[data-design-world="marquee"] {
+  --primary-tuple: 253, 243, 211;
+  --primary: #fdf3d3;
+  --text-grey: #a9b6cf;
+  --border-color: #2b3d5c;
+  --background: #0b1526;
+  --content-background: #070f1d;
+  --hover: #14233d;
+  --selected: #1d3050;
+  --divider: #2b3d5c;
+  --content-border: 1px solid #2b3d5c;
+  --world-control: #0d1930;
+}
+
+body.light-vars[data-design-world="marquee"] {
+  --primary-tuple: 16, 28, 51;
+  --primary: #101c33;
+  --text-grey: #4d5d78;
+  --border-color: #b9c4d8;
+  --background: #fdf3d3;
+  --content-background: #f3e6c0;
+  --hover: #e5d5ac;
+  --selected: #d8c795;
+  --divider: #b9c4d8;
+  --content-border: 1px solid #b9c4d8;
+  --world-control: #fdf6e2;
+}
+
+/* Gallery — quiet museum minimalism. Gallery-white walls, near-black ink and
+ * a deep green accent; elegant serif display for refined headings.
+ * Identity art: public/themes/gallery.jpg */
+body[data-design-world="gallery"] {
+  --font: "Inter Variable", sans-serif;
+  --radius: 2px;
+  --control-radius: 2px;
+  --world-accent: #2e5c46;
+  --chart-0: #2e5c46;
+  --chart-1: #1c1b18;
+  --chart-2: #9c968a;
+  --chart-3: #b08a5a;
+  --chart-4: #5f7a6c;
+  --chart-5: #8d8778;
+  --world-active-ink: #f7f5f0;
+  --world-rule: #c9c4b8;
+  --world-control: #ffffff;
+  --shadow: 0 16px 36px -26px rgb(0 0 0 / 65%);
+  --hardshadow: 0 22px 52px -30px rgb(0 0 0 / 72%);
+}
+
+body[data-design-world="gallery"] h1,
+body[data-design-world="gallery"] h2,
+body[data-design-world="gallery"] h3 {
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+body.dark-vars[data-design-world="gallery"] {
+  --primary-tuple: 244, 242, 238;
+  --primary: #f4f2ee;
+  --text-grey: #a29d92;
+  --border-color: #33322e;
+  --background: #161513;
+  --content-background: #100f0e;
+  --hover: #232220;
+  --selected: #2e4038;
+  --divider: #33322e;
+  --content-border: 1px solid #33322e;
+  --world-control: #1b1a18;
+}
+
+body.light-vars[data-design-world="gallery"] {
+  --primary-tuple: 28, 27, 24;
+  --primary: #1c1b18;
+  --text-grey: #6b675d;
+  --border-color: #d8d4ca;
+  --background: #f4f2ee;
+  --content-background: #eae7e0;
+  --hover: #ddd9cf;
+  --selected: #d0ccc0;
+  --divider: #d8d4ca;
+  --content-border: 1px solid #d8d4ca;
+  --world-control: #ffffff;
+}

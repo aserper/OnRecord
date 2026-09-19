@@ -80,6 +80,36 @@
   border-bottom: 1px solid var(--world-rule);
 }
 
+:global(body[data-design-world="vinyl"]) .root {
+  min-height: 108px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="vinyl"]) .texts > h1 {
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.02em;
+}
+
+:global(body[data-design-world="marquee"]) .root {
+  min-height: 118px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="marquee"]) .texts > h1 {
+  font-size: clamp(2.6rem, 5.5vw, 5rem);
+  line-height: 0.9;
+}
+
+:global(body[data-design-world="gallery"]) .root {
+  min-height: 100px;
+  border-bottom: 1px solid var(--world-rule);
+}
+
+:global(body[data-design-world="gallery"]) .texts > h1 {
+  font-size: clamp(1.9rem, 3.6vw, 3.4rem);
+  letter-spacing: -0.015em;
+}
+
 @media screen and (max-width: 700px) {
   :global(body[data-design-world]) .root {
     min-height: 72px;

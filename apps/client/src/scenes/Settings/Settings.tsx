@@ -29,6 +29,7 @@ import RelogToSpotify from "./RelogToSpotify";
 import SetAdmin from "./SetAdmin";
 import SpotifyAccountInfos from "./SpotifyAccountInfos";
 import SpotifyTraffic from "./SpotifyTraffic/SpotifyTraffic";
+import Theme from "./Theme/Theme";
 import { StatMeasurement } from "./StatMeasurement";
 import Timezone from "./Timezone";
 
@@ -91,6 +92,7 @@ export default function Settings() {
                 {sme && !isPublic && (
                   <SpotifyAccountInfos spotifyAccount={sme} />
                 )}
+                <Theme />
                 <DarkMode />
                 {!isPublic && <RelogToSpotify />}
                 {!isPublic && <Importer />}
