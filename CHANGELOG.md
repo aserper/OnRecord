@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/aserper/OnRecord/compare/v0.1.0...v0.2.0) (2026-09-19)
+
+
+### Features
+
+* **cache:** reuse stored catalog before requesting Spotify ([a86fc69](https://github.com/aserper/OnRecord/commit/a86fc690dbd9221dc2fa2d108939131bc8535568))
+* **filters:** exclude children's music and podcasts ([b741fea](https://github.com/aserper/OnRecord/commit/b741feaf78a74ed75e19918dca9710158bbbe530))
+
+
+### Bug Fixes
+
+* **routes:** mount classification router at the root path ([c27857f](https://github.com/aserper/OnRecord/commit/c27857fec802ebc479d67a71494ef5c91d7942e0))
+* **traffic:** measure real response bytes, not a missing header ([4d8d157](https://github.com/aserper/OnRecord/commit/4d8d157c5f50d64ba1a0d8fb87113521754d031b))
+
 ## 0.1.0 (2026-09-18)
 
 
