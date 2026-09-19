@@ -205,6 +205,8 @@ pnpm --filter @onrecord/server build
 pnpm --filter @onrecord/client build
 ```
 
+`@onrecord/*` names are pnpm workspace package selectors inside this monorepo; they are not published to npm.
+
 To run from source, point `CLIENT_ENDPOINT` and `API_ENDPOINT` at your local setup, provide the Spotify credentials, run `pnpm --filter @onrecord/server migrate`, then `pnpm --filter @onrecord/server start`. Serve `apps/client/build` as a static site with unknown routes falling back to `index.html`, copying `variables-template.js` to `variables.js` and replacing `__API_ENDPOINT__` with the backend URL. A directly exposed backend uses `/oauth/spotify/callback`; `/api/oauth/spotify/callback` applies when a proxy mounts the backend under `/api`.
 
 For live development, `pnpm --filter @onrecord/client start` and
