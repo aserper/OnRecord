@@ -197,10 +197,15 @@ export class QueuedHttpClient {
     };
 
     const response = await fetch(url, payload);
-    const responseBytes = this.measureResponseBytes(response);
+    // Spotify answers with chunked gzip and no content-length, so the body is
+    // read once and measured directly. `fetch` decompresses transparently, so
+    // this is the payload size the client actually has to process.
+    const raw = await response.arrayBuffer();
+    const responseBytes = raw.byteLength;
+    const bodyText = new TextDecoder().decode(raw);
 
     if (!response.ok) {
-      const text = await response.text();
+      const text = bodyText;
       trafficStats.recordRequest(this.name, responseBytes);
 
       if (response.status !== 429) {
@@ -242,7 +247,9 @@ export class QueuedHttpClient {
       return;
     }
 
-    const data = await response.json();
+    // A successful response with no body resolves to null rather than
+    // throwing, which is how empty 204-style replies are represented.
+    const data = bodyText.length > 0 ? JSON.parse(bodyText) : null;
     trafficStats.recordRequest(this.name, responseBytes);
     queueItem.resolve({
       data,
@@ -293,22 +300,6 @@ export class QueuedHttpClient {
       this.queueState.highPriorityQueue.shift() ??
       this.queueState.normalPriorityQueue.shift()
     );
-  }
-
-  /**
-   * Real payload size for accounting. `content-length` is used when present
-   * and the compressed body length is the fallback, so the number reflects
-   * bytes actually transferred rather than a guess.
-   */
-  private measureResponseBytes(response: Response): number {
-    const header = response.headers.get("content-length");
-    if (header) {
-      const parsed = Number.parseInt(header, 10);
-      if (Number.isFinite(parsed) && parsed >= 0) {
-        return parsed;
-      }
-    }
-    return 0;
   }
 
   private parseRetryAfterHeader(response: Response) {
