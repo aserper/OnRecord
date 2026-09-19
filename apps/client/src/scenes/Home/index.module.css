@@ -210,14 +210,16 @@
   }
 }
 
-/* Vinyl — warm record-store editorial: a walnut-ruled dashboard with the
- * highlights in the left column, plays of the year in the middle band. */
+/* Vinyl — a stable record-store grid. Keep the feature art in a deliberately
+ * bounded 3-column panel: unconstrained image height lets a long history list
+ * turn the cover into a page-height poster. */
 :global(body[data-design-world="vinyl"]) .dashboard {
   --world-gap: 1px;
   grid-template-areas:
-    "bestartist bestartist bestartist songs songs songs songs time time time time artists"
-    "bestsong bestsong bestsong timeline timeline timeline timeline timeline timeline timeline artists artists"
-    "history history history history history repartition repartition repartition repartition repartition repartition repartition";
+    "songs songs songs songs time time time time artists artists artists artists"
+    "timeline timeline timeline timeline timeline timeline timeline timeline timeline bestartist bestartist bestartist"
+    "timeline timeline timeline timeline timeline timeline timeline timeline timeline bestsong bestsong bestsong"
+    "repartition repartition repartition repartition repartition history history history history history history history";
   padding: 1px 16px 16px;
   background: var(--world-rule);
 }
@@ -235,6 +237,12 @@
 :global(body[data-design-world="vinyl"]) .repartition { grid-area: repartition; }
 :global(body[data-design-world="vinyl"]) .bestsong { grid-area: bestsong; }
 :global(body[data-design-world="vinyl"]) .history { grid-area: history; }
+:global(body[data-design-world="vinyl"]) .bestartist,
+:global(body[data-design-world="vinyl"]) .bestsong {
+  min-height: 220px;
+  max-height: 360px;
+  overflow: hidden;
+}
 :global(body[data-design-world="vinyl"]) .chart { height: 430px; }
 
 /* Marquee — cinematic poster rows under a gold rule. */
