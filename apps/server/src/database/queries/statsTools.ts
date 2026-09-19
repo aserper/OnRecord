@@ -3,19 +3,25 @@ import { PipelineStage, Types } from "mongoose";
 import { getWithDefault } from "../../tools/env";
 import { Timesplit } from "../../tools/types";
 import { User } from "../schemas/user";
+import { ExclusionSettings, withExclusions } from "./exclusions";
 
 export const basicMatch = (
   userId: string | Types.ObjectId,
   start: Date,
   end: Date,
+  settings?: ExclusionSettings,
 ) => [
   {
-    $match: {
-      owner:
-        userId instanceof Types.ObjectId ? userId : new Types.ObjectId(userId),
-      blacklistedBy: { $exists: 0 },
-      played_at: { $gt: start, $lt: end },
-    },
+    $match: withExclusions(
+      {
+        owner:
+          userId instanceof Types.ObjectId
+            ? userId
+            : new Types.ObjectId(userId),
+        played_at: { $gt: start, $lt: end },
+      },
+      settings,
+    ),
   },
 ];
 
@@ -23,16 +29,20 @@ export const basicMatchUsers = (
   userIds: string[] | Types.ObjectId[],
   start: Date,
   end: Date,
-) => ({
-  owner: {
-    $in:
-      userIds[0] instanceof Types.ObjectId
-        ? userIds
-        : userIds.map((id) => new Types.ObjectId(id)),
-  },
-  blacklistedBy: { $exists: 0 },
-  played_at: { $gt: start, $lt: end },
-});
+  settings?: ExclusionSettings,
+) =>
+  withExclusions(
+    {
+      owner: {
+        $in:
+          userIds[0] instanceof Types.ObjectId
+            ? userIds
+            : userIds.map((id) => new Types.ObjectId(id)),
+      },
+      played_at: { $gt: start, $lt: end },
+    },
+    settings,
+  );
 
 export const getGroupingByTimeSplit = (timeSplit: Timesplit, prefix = "") => {
   if (prefix !== "") prefix = `${prefix}.`;

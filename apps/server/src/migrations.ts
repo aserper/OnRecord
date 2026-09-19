@@ -43,6 +43,7 @@ import { up as fix_first_listened_at } from "./migrations/1645792294982-fix_firs
 import { up as create_private_data } from "./migrations/1708973485300-create_private_data";
 import { up as add_metadata_to_infos } from "./migrations/1708973485301-add_metadata_to_infos";
 import { up as add_language_to_user } from "./migrations/1708973485302-add_language_to_user";
+import { up as classify_content } from "./migrations/1789000000000-classify_content";
 
 function noop() {}
 
@@ -76,6 +77,10 @@ export function runMigrations() {
         },
         "1708973485302-add_language_to_user.js": {
           up: add_language_to_user,
+          down: noop,
+        },
+        "1789000000000-classify_content.js": {
+          up: classify_content,
           down: noop,
         },
       },

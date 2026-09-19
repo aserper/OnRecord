@@ -15,6 +15,7 @@ import {
   getTracksAlbumsArtists,
   storeTrackAlbumArtist,
 } from "../../spotify/dbTools";
+import { classifySuppliedPlays } from "../../spotify/exclusions";
 import { SpotifyAPI } from "../apis/spotifyApi";
 import { logger } from "../logger";
 import {
@@ -72,6 +73,7 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
       items.map((it) => it.track),
     );
     await storeTrackAlbumArtist({ tracks, albums, artists });
+    const classifications = await classifySuppliedPlays(items);
     const finalInfos: Omit<Infos, "owner">[] = [];
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i]!;
@@ -95,6 +97,7 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
       if (!primaryArtist) {
         continue;
       }
+      const reasons = classifications[i] ?? [];
       finalInfos.push({
         played_at: date,
         id: item.track.id,
@@ -102,6 +105,7 @@ export class PrivacyImporter implements HistoryImporter<"privacy"> {
         albumId: item.track.album.id,
         artistIds: item.track.artists.map((e) => e.id),
         durationMs: item.track.duration_ms,
+        ...(reasons.length > 0 ? { blacklistedBy: reasons } : {}),
       });
     }
     await setImporterStateCurrent(this.id, this.currentItem + 1);

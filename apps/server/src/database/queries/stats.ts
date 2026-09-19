@@ -1,6 +1,7 @@
 import { Timesplit } from "../../tools/types";
 import { InfosModel } from "../Models";
 import { User } from "../schemas/user";
+import { ExclusionSettings } from "./exclusions";
 import {
   basicMatch,
   getGroupByDateProjection,
@@ -28,7 +29,7 @@ export const getMostListenedSongs = async (
   timeSplit: Timesplit = Timesplit.hour,
 ) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: { ...getGroupByDateProjection(user.settings.timezone), id: 1 },
     },
@@ -92,7 +93,7 @@ export const getMostListenedArtist = async (
   timeSplit = Timesplit.hour,
 ) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -154,7 +155,7 @@ export const getSongsPer = async (
   timeSplit = Timesplit.day,
 ) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: { ...getGroupByDateProjection(user.settings.timezone), id: 1 },
     },
@@ -185,7 +186,7 @@ export const getTimePer = async (
   timeSplit = Timesplit.day,
 ) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -214,7 +215,7 @@ export const albumDateRatio = async (
   // unnecessary. Group by (timeBucket, albumId) first to collapse repeat
   // plays into a single row, then look the album up once per unique row.
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -276,7 +277,7 @@ export const featRatio = async (
   // infos already carries `artistIds`, so the per-play `tracks` lookup is
   // unnecessary — compute the artist count from the denormalized field.
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -340,7 +341,7 @@ export const differentArtistsPer = async (
   timeSplit = Timesplit.day,
 ) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -384,7 +385,7 @@ export const differentArtistsPer = async (
 
 export const getDayRepartition = async (user: User, start: Date, end: Date) => {
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -412,7 +413,7 @@ export const getBestArtistsPer = async (
   // infos already carries `primaryArtistId` and `durationMs`, so the per-play
   // `tracks` lookup is unnecessary.
   const res = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $project: {
         ...getGroupByDateProjection(user.settings.timezone),
@@ -472,7 +473,7 @@ export const getBest = (
   offset: number,
 ) =>
   InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $group: {
         _id: itemType.field,
@@ -531,7 +532,7 @@ export const getBestOfHour = async (
   end: Date,
 ) => {
   const bestOfHour = await InfosModel.aggregate([
-    ...basicMatch(user._id, start, end),
+    ...basicMatch(user._id, start, end, user.settings),
     {
       $group: {
         _id: {
@@ -578,6 +579,7 @@ export const getLongestListeningSession = async (
   userId: string,
   start: Date,
   end: Date,
+  settings?: ExclusionSettings,
 ) => {
   const sessionBreakThreshold = 10 * 60 * 1000;
 
@@ -587,7 +589,7 @@ export const getLongestListeningSession = async (
   // earlier $reduce + $concatArrays implementation that was O(N²) in the
   // number of plays.
   const longestSessions = await InfosModel.aggregate([
-    ...basicMatch(userId, start, end),
+    ...basicMatch(userId, start, end, settings),
     { $sort: { played_at: 1 } },
     {
       $setWindowFields: {

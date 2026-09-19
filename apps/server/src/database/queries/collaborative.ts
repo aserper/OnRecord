@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import { InfosModel } from "../Models";
+import { ExclusionSettings } from "./exclusions";
 import {
   basicMatchUsers,
   lightAlbumLookupPipeline,
@@ -29,10 +30,11 @@ export const getCollaborativeBestSongs = (
   end: Date,
   mode: CollaborativeMode,
   limit: number,
+  settings?: ExclusionSettings,
 ) => {
   const users = _users.map((u) => new mongoose.Types.ObjectId(u));
   return InfosModel.aggregate([
-    { $match: basicMatchUsers(_users, start, end) },
+    { $match: basicMatchUsers(_users, start, end, settings) },
     {
       $addFields: fromPairs(
         users.map((user) => [
@@ -111,10 +113,11 @@ export const getCollaborativeBestAlbums = (
   start: Date,
   end: Date,
   mode: CollaborativeMode,
+  settings?: ExclusionSettings,
 ) => {
   const users = _users.map((u) => new mongoose.Types.ObjectId(u));
   return InfosModel.aggregate([
-    { $match: basicMatchUsers(_users, start, end) },
+    { $match: basicMatchUsers(_users, start, end, settings) },
     {
       $addFields: fromPairs(
         users.map((user) => [
@@ -193,10 +196,11 @@ export const getCollaborativeBestArtists = (
   start: Date,
   end: Date,
   mode: CollaborativeMode,
+  settings?: ExclusionSettings,
 ) => {
   const users = _users.map((u) => new mongoose.Types.ObjectId(u));
   return InfosModel.aggregate([
-    { $match: basicMatchUsers(_users, start, end) },
+    { $match: basicMatchUsers(_users, start, end, settings) },
     {
       $addFields: fromPairs(
         users.map((user) => [

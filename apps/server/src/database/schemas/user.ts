@@ -21,6 +21,8 @@ export interface User {
     timezone: string | undefined;
     dateFormat: string;
     blacklistedArtists: string[];
+    excludeChildrensMusic: boolean;
+    excludePodcasts: boolean;
   };
   lastImport: string | null;
   publicToken: string | null;
@@ -57,6 +59,8 @@ export const UserSchema = new Schema<User>(
         default: "follow",
       },
       blacklistedArtists: [{ type: String }],
+      excludeChildrensMusic: { type: Boolean, default: false },
+      excludePodcasts: { type: Boolean, default: false },
       timezone: { type: String, default: undefined, required: false },
       dateFormat: { type: String, required: true },
     },

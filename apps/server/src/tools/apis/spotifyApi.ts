@@ -4,6 +4,7 @@ import { getUserFromField, storeInUser } from "../../database";
 import { SpotifyAlbum } from "../../database/schemas/album";
 import { SpotifyArtist } from "../../database/schemas/artist";
 import { SpotifyTrack } from "../../database/schemas/track";
+import { isPodcastApiObject } from "../classification/podcasts";
 import { logger } from "../logger";
 import { chunk } from "../misc";
 import { spotifyProvider } from "../oauth/Provider";
@@ -110,6 +111,12 @@ export class SpotifyAPI {
     return data;
   }
 
+  /**
+   * Returns only real music tracks. Podcast episodes appear in playlist items
+   * with `type: "episode"` (Spotify maps them onto the track shape for
+   * backwards compatibility), and they have no track credits, so they are
+   * filtered out here.
+   */
   public async getPlaylistTracks(
     id: string,
   ): Promise<{ id: string; name: string; artists: { name: string }[] }[]> {
@@ -123,9 +130,13 @@ export class SpotifyAPI {
       );
       for (const item of data.items ?? []) {
         const track = item?.track;
-        if (track?.id) {
-          tracks.push(track);
+        if (!track?.id) {
+          continue;
         }
+        if (isPodcastApiObject(track)) {
+          continue;
+        }
+        tracks.push(track);
       }
       if (data.items.length < 100 || offset > 10000) {
         break;

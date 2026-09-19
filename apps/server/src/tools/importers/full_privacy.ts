@@ -15,20 +15,39 @@ import {
   getTracksAlbumsArtists,
   storeTrackAlbumArtist,
 } from "../../spotify/dbTools";
+import { classifySuppliedPlays } from "../../spotify/exclusions";
 import { SpotifyAPI } from "../apis/spotifyApi";
+import { isPodcastHistoryRecord } from "../classification/podcasts";
 import { logger } from "../logger";
 import { minOfArray, retryPromise } from "../misc";
 import { Unpack } from "../types";
 import { getFromCacheString, setToCacheString } from "./cache";
 import { FullPrivacyImporterState, HistoryImporter } from "./types";
 
-const fullPrivacyFileSchema = z.array(
+/**
+ * Extended streaming history rows.
+ *
+ * Podcast, audiobook and video rows carry null (or missing) track metadata:
+ * `spotify_track_uri`, `master_metadata_track_name` and
+ * `master_metadata_album_artist_name` may each be null, while
+ * `spotify_episode_uri` / `episode_name` / `audiobook_title` are populated.
+ * Every field is optional and nullable so those rows are parsed and then
+ * skipped instead of failing validation for the whole import.
+ */
+export const fullPrivacyFileSchema = z.array(
   z.object({
-    ts: z.string(),
-    ms_played: z.number(),
-    spotify_track_uri: z.string().nullable(),
-    master_metadata_track_name: z.string().nullable(),
-    master_metadata_album_artist_name: z.string().nullable(),
+    ts: z.string().optional(),
+    ms_played: z.number().optional(),
+    spotify_track_uri: z.string().nullish(),
+    master_metadata_track_name: z.string().nullish(),
+    master_metadata_album_artist_name: z.string().nullish(),
+    primary_artist_name: z.string().nullish(),
+    episode_name: z.string().nullish(),
+    episode_show_name: z.string().nullish(),
+    spotify_episode_uri: z.string().nullish(),
+    audiobook_title: z.string().nullish(),
+    audiobook_uri: z.string().nullish(),
+    audiobook_chapter_title: z.string().nullish(),
   }),
 );
 
@@ -73,6 +92,7 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       items.map((it) => it.track),
     );
     await storeTrackAlbumArtist({ tracks, albums, artists });
+    const classifications = await classifySuppliedPlays(items);
     const finalInfos: Omit<Infos, "owner">[] = [];
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i]!;
@@ -96,6 +116,7 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       if (!primaryArtist) {
         continue;
       }
+      const reasons = classifications[i] ?? [];
       finalInfos.push({
         played_at: date,
         id: item.track.id,
@@ -103,6 +124,7 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
         albumId: item.track.album.id,
         artistIds: item.track.artists.map((e) => e.id),
         durationMs: item.track.duration_ms,
+        ...(reasons.length > 0 ? { blacklistedBy: reasons } : {}),
       });
     }
     await setImporterStateCurrent(this.id, this.currentItem + 1);
@@ -208,10 +230,15 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
     if (!this.elements) {
       return false;
     }
+    let skippedPodcasts = 0;
     for (let i = this.currentItem; i < this.elements.length; i += 1) {
       this.currentItem = i;
       logger.info(`Importing... (${i}/${this.elements.length})`);
       const content = this.elements[i]!;
+      if (isPodcastHistoryRecord(content)) {
+        skippedPodcasts += 1;
+        continue;
+      }
       if (
         !content.spotify_track_uri ||
         !content.master_metadata_track_name ||
@@ -219,17 +246,19 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       ) {
         continue;
       }
-      if (content.ms_played < 30 * 1000) {
+      const msPlayed = content.ms_played ?? 0;
+      if (msPlayed < 30 * 1000) {
         // If track was played for less than 30 seconds
         logger.info(
           `Track ${content.master_metadata_track_name} - ${
             content.master_metadata_album_artist_name
           } was passed, only listened for ${Math.floor(
-            content.ms_played / 1000,
+            msPlayed / 1000,
           )} seconds`,
         );
         continue;
       }
+      const playedAt = content.ts ?? "";
       const spotifyId = FullPrivacyImporter.idFromSpotifyURI(
         content.spotify_track_uri,
       );
@@ -242,11 +271,11 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
       const item = getFromCacheString(this.userId.toString(), spotifyId);
       if (!item) {
         const arrayOfPlayedAt = idsToSearch[spotifyId] ?? [];
-        arrayOfPlayedAt.push(content.ts);
+        arrayOfPlayedAt.push(playedAt);
         idsToSearch[spotifyId] = arrayOfPlayedAt;
         idsToSearch = await this.checkIdsToSearch(idsToSearch, items);
       } else if (item.exists) {
-        items.push({ track: item.track, played_at: content.ts });
+        items.push({ track: item.track, played_at: playedAt });
       }
       if (items.length >= 20) {
         await this.storeItems(this.userId, items);
@@ -257,6 +286,11 @@ export class FullPrivacyImporter implements HistoryImporter<"full-privacy"> {
     if (items.length > 0) {
       await this.storeItems(this.userId, items);
       items = [];
+    }
+    if (skippedPodcasts > 0) {
+      logger.info(
+        `Skipped ${skippedPodcasts} podcast/audiobook entries from the export`,
+      );
     }
     return true;
   };

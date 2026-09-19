@@ -18,6 +18,7 @@ import { compact, conditionalEntry } from "../../services/tools";
 import AccountInfos from "./AccountInfos";
 import AllowRegistration from "./AllowRegistration";
 import BlacklistArtist from "./BlacklistArtist";
+import ContentFilters from "./ContentFilters/ContentFilters";
 import DarkMode from "./DarkMode";
 import DateFormat from "./DateFormat";
 import DeleteUser from "./DeleteUser";
@@ -115,6 +116,7 @@ export default function Settings() {
             path="/statistics"
             element={
               <Masonry>
+                {!isPublic && <ContentFilters />}
                 {!isPublic && <BlacklistArtist />}
                 {!isPublic && <Timezone />}
                 {!isPublic && <DateFormat />}

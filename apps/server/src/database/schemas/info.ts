@@ -1,5 +1,12 @@
 import { Schema, Types } from "mongoose";
 
+/**
+ * Reasons a play is hidden from statistics and history. `artist` is the manual
+ * artist blacklist; the other two come from automatic content classification
+ * and are toggled in Settings.
+ */
+export type ExcludedBy = "artist" | "childrens-music" | "podcast";
+
 export interface Infos {
   owner: Types.ObjectId;
   id: string;
@@ -8,7 +15,7 @@ export interface Infos {
   artistIds: string[];
   durationMs: number;
   played_at: Date;
-  blacklistedBy?: "artist";
+  blacklistedBy?: ExcludedBy[];
 }
 
 export const InfosSchema = new Schema<Infos>(
@@ -25,7 +32,7 @@ export const InfosSchema = new Schema<Infos>(
     played_at: { type: Date, index: true },
     blacklistedBy: {
       type: [String],
-      enum: ["artist"],
+      enum: ["artist", "childrens-music", "podcast"],
       required: false,
       default: undefined,
     },

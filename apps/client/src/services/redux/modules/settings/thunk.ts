@@ -111,6 +111,35 @@ export const changeTimezone = myAsyncThunk<void, User["settings"]["timezone"]>(
   },
 );
 
+export const changeContentFilters = myAsyncThunk<
+  void,
+  {
+    excludeChildrensMusic?: boolean;
+    excludePodcasts?: boolean;
+  }
+>("@settings/change-content-filters", async (filters, tapi) => {
+  try {
+    await api.setSetting("excludeChildrensMusic", filters.excludeChildrensMusic);
+    await api.setSetting("excludePodcasts", filters.excludePodcasts);
+    await tapi.dispatch(checkLogged());
+    tapi.dispatch(
+      alertMessage({
+        level: "success",
+        message: "Content filters updated",
+      }),
+    );
+  } catch (e) {
+    console.error(e);
+    tapi.dispatch(
+      alertMessage({
+        level: "error",
+        message: "Could not update the content filters.",
+      }),
+    );
+    throw e;
+  }
+});
+
 export const changeDateFormat = myAsyncThunk<
   void,
   User["settings"]["dateFormat"]

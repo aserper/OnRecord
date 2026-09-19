@@ -4,9 +4,9 @@ import { app } from "../app";
 import { checkBlacklistConsistency, connect } from "../database";
 import { fixRunningImportsAtStart } from "../database/queries/importer";
 import { dbLoop } from "../spotify/looper";
+import { startPlaylistTracker } from "../spotify/playlistTracker";
 import { get, getWithDefault } from "../tools/env";
 import { startImportScheduler } from "../tools/importers/scheduler";
-import { startPlaylistTracker } from "../spotify/playlistTracker";
 import { logger } from "../tools/logger";
 
 export function startServer() {

@@ -8,8 +8,8 @@ import { InfosSchema } from "./schemas/info";
 import { MigrationSchema } from "./schemas/migration";
 import { PrivateDataSchema } from "./schemas/privateData";
 import { TrackSchema } from "./schemas/track";
-import { UserSchema } from "./schemas/user";
 import { TrackedPlaylistSchema } from "./schemas/trackedPlaylist";
+import { UserSchema } from "./schemas/user";
 
 export const UserModel = model("User", UserSchema);
 export const InfosModel = model("Infos", InfosSchema);

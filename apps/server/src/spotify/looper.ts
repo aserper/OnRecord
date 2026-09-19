@@ -9,6 +9,7 @@ import { SpotifyAPI } from "../tools/apis/spotifyApi";
 import { logger } from "../tools/logger";
 import { retryPromise, wait } from "../tools/misc";
 import { getTracksAlbumsFromSupplied, storeIterationOfLoop } from "./dbTools";
+import { exclusionReasons } from "./exclusions";
 
 const RETRY = 10;
 
@@ -60,9 +61,6 @@ const loop = async (user: User) => {
       30,
     );
     if (duplicate.length === 0) {
-      const isBlacklisted = user.settings.blacklistedArtists.find(
-        (a) => a === item.track.artists[0]?.id,
-      );
       const [primaryArtist] = item.track.artists;
       if (!primaryArtist) {
         continue;
@@ -74,7 +72,13 @@ const loop = async (user: User) => {
         primaryArtistId: primaryArtist.id,
         artistIds: item.track.artists.map((e) => e.id),
         id: item.track.id,
-        ...(isBlacklisted ? { blacklistedBy: "artist" } : {}),
+        ...exclusionReasons(user, {
+          trackId: item.track.id,
+          artistId: primaryArtist.id,
+          artistName: primaryArtist.name,
+          artistGenres: primaryArtist.genres,
+          albumName: item.track.album.name,
+        }),
       });
     }
   }

@@ -10,6 +10,7 @@ import {
 } from "../Models";
 import { Infos } from "../schemas/info";
 import { User } from "../schemas/user";
+import { ExclusionSettings, withExclusions } from "./exclusions";
 
 export const getUserFromField = async <F extends keyof User>(
   field: F,
@@ -215,16 +216,19 @@ export const getSongs = async (
   offset: number,
   number: number,
   inter?: { start: Date; end: Date },
+  settings?: ExclusionSettings,
 ) =>
   InfosModel.aggregate([
     {
-      $match: {
-        owner: new Types.ObjectId(userId),
-        ...(inter
-          ? { played_at: { $gt: inter.start, $lt: inter.end } }
-          : undefined),
-        blacklistedBy: { $exists: 0 },
-      },
+      $match: withExclusions(
+        {
+          owner: new Types.ObjectId(userId),
+          ...(inter
+            ? { played_at: { $gt: inter.start, $lt: inter.end } }
+            : undefined),
+        },
+        settings,
+      ),
     },
     { $sort: { played_at: -1 } },
     {

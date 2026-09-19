@@ -82,6 +82,7 @@ router.get("/gethistory", isLoggedOrGuest, async (req, res) => {
     offset,
     number,
     start && end ? { start, end } : undefined,
+    user.settings,
   );
   res.status(200).send(tracks);
 });

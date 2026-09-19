@@ -54,6 +54,8 @@ const settingsSchema = z.object({
     .nullable()
     .transform((e) => e ?? undefined)
     .optional(),
+  excludeChildrensMusic: z.boolean().optional(),
+  excludePodcasts: z.boolean().optional(),
 });
 
 router.post("/settings", logged, async (req, res) => {

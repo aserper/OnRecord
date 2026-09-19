@@ -224,6 +224,22 @@ export const api = {
     >("/spotify/different_artists_per", { start, end, timeSplit }),
   setSetting: (settingName: keyof User["settings"], settingValue: any) =>
     axios.post("/settings", { [settingName]: settingValue }),
+  getChildrensMusicClassification: () =>
+    get<{
+      items: {
+        id: string;
+        name: string;
+        genres: string[];
+        plays: number;
+        reason: "genre" | "artist" | "album";
+        viaAlbum: boolean;
+      }[];
+      albumClassifiedPlays: number;
+    }>("/classification/childrens-music"),
+  getClassificationSummary: () =>
+    get<{ childrensMusic: number; podcasts: number; artists: number }>(
+      "/classification/summary",
+    ),
   timePerHourOfDay: (start: Date, end: Date) =>
     get<
       {

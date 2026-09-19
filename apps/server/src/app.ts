@@ -9,6 +9,7 @@ import morgan from "morgan";
 import { router as indexRouter } from "./routes";
 import { router as albumRouter } from "./routes/album";
 import { router as artistRouter } from "./routes/artist";
+import { router as classificationRouter } from "./routes/classification";
 import { router as globalRouter } from "./routes/global";
 import { router as importRouter } from "./routes/importer";
 import { router as metricsRouter } from "./routes/metrics";
@@ -101,6 +102,7 @@ app.use("/album", albumRouter);
 app.use("/track", trackRouter);
 app.use("/search", searchRouter);
 app.use("/playlist", playlistRouter);
+app.use("/classification", classificationRouter);
 app.use("/", importRouter);
 app.use("/", metricsRouter);
 
